@@ -74,8 +74,8 @@ class MapHandler:
         return lat, lon
     
     @staticmethod
-    def get_map_tile(lat, lon, zoom=13, tile_size=3, basemap='OpenStreetMap'):
-        """Fetch map tiles centered on lat/lon
+    def get_map_tile(lat, lon, zoom=13, tile_size=3, basemap='OpenStreetMap', cache=None):
+        """Fetch map tiles centered on lat/lon with optional caching
         
         Args:
             lat: Center latitude
@@ -83,6 +83,7 @@ class MapHandler:
             zoom: Zoom level (10-16)
             tile_size: Number of tiles in each direction (default 3 = 3x3 grid)
             basemap: Name of basemap from BASEMAPS dict
+            cache: MapCache instance for caching (optional)
             
         Returns:
             Tuple of (composite_image, zoom, xtile, ytile)
@@ -100,24 +101,50 @@ class MapHandler:
             
             print(f"Fetching {basemap} tiles...")
             
+            tiles_cached = 0
+            tiles_downloaded = 0
+            
             for dx in range(-tile_range, tile_range + 1):
                 for dy in range(-tile_range, tile_range + 1):
                     x = xtile + dx
                     y = ytile + dy
                     
-                    url = url_template.replace('{z}', str(zoom)).replace('{x}', str(x)).replace('{y}', str(y))
-                    req = Request(url, headers={'User-Agent': 'VetRender RF Tool/1.0'})
+                    # Try to load from cache first
+                    tile_data = None
+                    if cache:
+                        tile_data = cache.load_tile(basemap, zoom, x, y)
+                        if tile_data:
+                            tiles_cached += 1
                     
-                    try:
-                        with urlopen(req, timeout=5) as response:
-                            tile_data = response.read()
+                    # Download if not cached
+                    if not tile_data:
+                        url = url_template.replace('{z}', str(zoom)).replace('{x}', str(x)).replace('{y}', str(y))
+                        req = Request(url, headers={'User-Agent': 'VetRender RF Tool/1.0'})
+                        
+                        try:
+                            with urlopen(req, timeout=5) as response:
+                                tile_data = response.read()
+                                tiles_downloaded += 1
+                                
+                                # Save to cache
+                                if cache:
+                                    cache.save_tile(basemap, zoom, x, y, tile_data)
+                        except Exception as e:
+                            print(f"Failed to fetch tile {x},{y}: {e}")
+                            continue
+                    
+                    # Add tile to composite
+                    if tile_data:
+                        try:
                             tile_img = Image.open(BytesIO(tile_data))
-                            
                             px = (dx + tile_range) * 256
                             py = (dy + tile_range) * 256
                             composite.paste(tile_img, (px, py))
-                    except Exception as e:
-                        print(f"Failed to fetch tile {x},{y}: {e}")
+                        except Exception as e:
+                            print(f"Error processing tile {x},{y}: {e}")
+            
+            if cache:
+                print(f"Tiles: {tiles_cached} from cache, {tiles_downloaded} downloaded")
             
             return composite, zoom, xtile, ytile
         except Exception as e:

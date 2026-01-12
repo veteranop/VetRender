@@ -38,7 +38,8 @@ class VetRender:
         self.max_distance = 100
         self.resolution = 500
         
-        # Terrain calculation granularity
+        self.terrain_quality = 'Medium'
+                # Terrain calculation granularity
         self.terrain_azimuths = 72  # Every 5 degrees
         self.terrain_distances = 50  # Points per radial
         
@@ -47,7 +48,7 @@ class VetRender:
         
         # Map parameters
         self.zoom = 13
-        self.basemap = 'OpenStreetMap'
+        self.basemap = 'Esri WorldImagery'
         self.map_image = None
         self.map_zoom = 13
         self.map_xtile = 0
@@ -58,6 +59,7 @@ class VetRender:
         
         self.setup_ui()
         self.load_map()
+        self.show_project_setup()
         
     def setup_ui(self):
         """Setup the user interface"""
@@ -90,18 +92,30 @@ class VetRender:
         
         ttk.Separator(toolbar, orient='vertical').pack(side=tk.LEFT, fill=tk.Y, padx=10)
         
-        ttk.Checkbutton(toolbar, text="Use Terrain Data", variable=self.use_terrain).pack(side=tk.LEFT, padx=5)
+        ttk.Label(toolbar, text="Max Distance:").pack(side=tk.LEFT, padx=5)
+        self.max_dist_var = tk.StringVar(value=str(self.max_distance))
+        max_dist_entry = ttk.Entry(toolbar, textvariable=self.max_dist_var, width=6)
+        max_dist_entry.pack(side=tk.LEFT, padx=2)
+        ttk.Label(toolbar, text="km").pack(side=tk.LEFT, padx=(0, 10))
         
-        # Terrain granularity controls
-        ttk.Label(toolbar, text="Azimuths:").pack(side=tk.LEFT, padx=(10, 2))
+        ttk.Checkbutton(toolbar, text="Use Terrain", variable=self.use_terrain).pack(side=tk.LEFT, padx=5)
+        
+        # Quality preset dropdown
+        ttk.Label(toolbar, text="Quality:").pack(side=tk.LEFT, padx=(10, 5))
+        self.quality_var = tk.StringVar(value=self.terrain_quality)
+        quality_combo = ttk.Combobox(toolbar, textvariable=self.quality_var, width=10,
+                                     values=['Low', 'Medium', 'High', 'Ultra', 'Custom'], state='readonly')
+        quality_combo.pack(side=tk.LEFT, padx=2)
+        quality_combo.bind('<<ComboboxSelected>>', lambda e: self.update_quality_preset())
+        
+        # Custom settings (hidden by default)
+        self.custom_frame = ttk.Frame(toolbar)
+        ttk.Label(self.custom_frame, text="Az:").pack(side=tk.LEFT, padx=(5, 2))
         self.azimuth_var = tk.StringVar(value=str(self.terrain_azimuths))
-        azimuth_entry = ttk.Entry(toolbar, textvariable=self.azimuth_var, width=5)
-        azimuth_entry.pack(side=tk.LEFT, padx=2)
-        
-        ttk.Label(toolbar, text="Dist Points:").pack(side=tk.LEFT, padx=(5, 2))
+        ttk.Entry(self.custom_frame, textvariable=self.azimuth_var, width=4).pack(side=tk.LEFT, padx=2)
+        ttk.Label(self.custom_frame, text="Pts:").pack(side=tk.LEFT, padx=(5, 2))
         self.dist_points_var = tk.StringVar(value=str(self.terrain_distances))
-        dist_entry = ttk.Entry(toolbar, textvariable=self.dist_points_var, width=5)
-        dist_entry.pack(side=tk.LEFT, padx=2)
+        ttk.Entry(self.custom_frame, textvariable=self.dist_points_var, width=4).pack(side=tk.LEFT, padx=2)
         
         ttk.Button(toolbar, text="Calculate Coverage", command=self.calculate_propagation).pack(side=tk.LEFT, padx=20)
         
@@ -125,6 +139,7 @@ class VetRender:
         # Context menu
         self.context_menu = tk.Menu(self.root, tearoff=0)
         self.context_menu.add_command(label="Set Transmitter Location", command=self.set_tx_location)
+        self.context_menu.add_command(label="Probe Signal Strength Here", command=self.probe_signal)
         self.context_menu.add_separator()
         self.context_menu.add_command(label="Edit Transmitter Configuration", command=self.edit_tx_config)
         self.context_menu.add_command(label="Edit Antenna Information", command=self.edit_antenna_info)
@@ -133,6 +148,9 @@ class VetRender:
         
         self.click_x = 0
         self.click_y = 0
+        
+        # Store last propagation results for probing
+        self.last_propagation = None
         
     def change_basemap(self):
         """Change the basemap style"""
@@ -279,19 +297,110 @@ class VetRender:
         """Open cache management dialog"""
         CacheManagerDialog(self.root, self.cache)
     
-    def show_project_setup(self):
-        """Show project setup dialog on startup"""
-        dialog = ProjectSetupDialog(self.root)
-        self.root.wait_window(dialog.dialog)
-        
-        if dialog.result is None:
-            # User cancelled - exit app
-            self.root.quit()
+    def probe_signal(self):
+        """Probe signal strength at clicked location"""
+        if self.last_propagation is None:
+            messagebox.showinfo("No Coverage Data", 
+                              "Please calculate coverage first before probing signal strength.")
             return
         
-        mode = dialog.result['mode']
+        if not self.map_image:
+            return
         
-        if mode == 'download':
+        # Get click position relative to transmitter
+        img_center = self.map_image.size[0] // 2
+        scale = 30 * (2 ** (self.map_zoom - 13))
+        
+        # Calculate distance and azimuth from transmitter
+        dx = self.click_x - img_center
+        dy = img_center - self.click_y  # Flip y axis
+        
+        distance_pixels = np.sqrt(dx**2 + dy**2)
+        distance_km = distance_pixels / scale
+        
+        azimuth = np.degrees(np.arctan2(dx, dy)) % 360
+        
+        # Interpolate from last propagation results
+        az_grid, dist_grid, rx_power_grid = self.last_propagation
+        
+        # Find nearest point in grid
+        az_idx = np.argmin(np.abs(az_grid[0, :] - azimuth))
+        dist_idx = np.argmin(np.abs(dist_grid[:, 0] - distance_km))
+        
+        if dist_idx < rx_power_grid.shape[0] and az_idx < rx_power_grid.shape[1]:
+            signal_strength = rx_power_grid[dist_idx, az_idx]
+            
+            # Calculate lat/lon of probe point
+            probe_lat, probe_lon = MapHandler.pixel_to_latlon(
+                self.click_x, self.click_y,
+                self.tx_lat, self.tx_lon,
+                self.map_zoom, self.map_image.size[0]
+            )
+            
+            # Create info message
+            info = f"Signal Strength Probe\n\n"
+            info += f"Location: {probe_lat:.6f}, {probe_lon:.6f}\n"
+            info += f"Distance from TX: {distance_km:.2f} km\n"
+            info += f"Azimuth from TX: {azimuth:.1f}°\n"
+            info += f"Signal Strength: {signal_strength:.2f} dBm\n\n"
+            
+            # Signal quality assessment
+            if signal_strength > -70:
+                quality = "Excellent"
+            elif signal_strength > -85:
+                quality = "Good"
+            elif signal_strength > -95:
+                quality = "Fair"
+            elif signal_strength > -110:
+                quality = "Poor"
+            else:
+                quality = "No Signal"
+            
+            info += f"Signal Quality: {quality}"
+            
+            messagebox.showinfo("Signal Probe Results", info)
+            
+            print(f"\n{'='*60}")
+            print(f"SIGNAL PROBE")
+            print(f"{'='*60}")
+            print(info)
+        else:
+            messagebox.showwarning("Probe Failed", "Click location is outside coverage area")
+    
+    
+    def update_quality_preset(self):
+        """Update terrain calculation quality based on preset"""
+        quality = self.quality_var.get()
+        
+        presets = {
+            'Low': (36, 20),
+            'Medium': (72, 50),
+            'High': (180, 100),
+            'Ultra': (360, 200)
+        }
+        
+        if quality in presets:
+            self.terrain_azimuths, self.terrain_distances = presets[quality]
+            self.azimuth_var.set(str(self.terrain_azimuths))
+            self.dist_points_var.set(str(self.terrain_distances))
+            self.custom_frame.pack_forget()  # Hide custom controls
+        elif quality == 'Custom':
+            self.custom_frame.pack(side=tk.LEFT)  # Show custom controls
+        
+        print(f"Quality preset: {quality} - Azimuths: {self.terrain_azimuths}, Points: {self.terrain_distances}")
+    
+    def show_project_setup(self):
+        """Show project setup dialog on startup"""
+        try:
+            dialog = ProjectSetupDialog(self.root)
+            self.root.wait_window(dialog.dialog)
+            
+            if dialog.result is None:
+                # User cancelled - exit app
+                print("User cancelled project setup - exiting")
+                self.root.quit()
+                return
+            
             # Set parameters from dialog
             self.tx_lat = dialog.result['lat']
             self.tx_lon = dialog.result['lon']
@@ -303,9 +412,10 @@ class VetRender:
             self.tx_label.config(text=f"Lat: {self.tx_lat:.4f}, Lon: {self.tx_lon:.4f}")
             self.zoom_var.set(str(self.zoom))
             self.basemap_var.set(self.basemap)
+            self.max_dist_var.set(str(self.max_distance))
             
             print(f"\n{'='*60}")
-            print(f"PROJECT SETUP - DOWNLOAD MODE")
+            print(f"PROJECT SETUP")
             print(f"{'='*60}")
             print(f"Location: {self.tx_lat:.4f}, {self.tx_lon:.4f}")
             print(f"Zoom: {self.zoom}, Basemap: {self.basemap}")
@@ -317,57 +427,30 @@ class VetRender:
             messagebox.showinfo("Project Ready", 
                               "Map area downloaded and cached!\n\n"
                               "• Right-click to place transmitter\n"
+                              "• Right-click to probe signal strength\n"
                               "• Edit transmitter config\n"
                               "• Click 'Calculate Coverage'\n\n"
                               "Calculations will now be much faster!")
-            
-        elif mode == 'quick':
-            # Quick start - just load map without pre-caching terrain
-            self.tx_lat = dialog.result['lat']
-            self.tx_lon = dialog.result['lon']
-            self.zoom = dialog.result['zoom']
-            self.basemap = dialog.result['basemap']
-            
-            self.tx_label.config(text=f"Lat: {self.tx_lat:.4f}, Lon: {self.tx_lon:.4f}")
-            self.zoom_var.set(str(self.zoom))
-            self.basemap_var.set(self.basemap)
-            
-            print(f"\n{'='*60}")
-            print(f"PROJECT SETUP - QUICK START")
-            print(f"{'='*60}")
-            print(f"Location: {self.tx_lat:.4f}, {self.tx_lon:.4f}")
-            
+        except Exception as e:
+            print(f"ERROR in project setup: {e}")
+            import traceback
+            traceback.print_exc()
+            messagebox.showerror("Setup Error", 
+                               f"Error during project setup:\n{e}\n\n"
+                               "Starting with default location...")
+            # Continue anyway with defaults
             self.load_map()
-            
-        elif mode == 'load':
-            # Load existing project
-            filepath = dialog.result['filepath']
-            center, radius = self.cache.import_project(filepath)
-            
-            if center:
-                self.tx_lat = center['lat']
-                self.tx_lon = center['lon']
-                self.max_distance = radius
-                
-                self.tx_label.config(text=f"Lat: {self.tx_lat:.4f}, Lon: {self.tx_lon:.4f}")
-                
-                print(f"\n{'='*60}")
-                print(f"PROJECT LOADED")
-                print(f"{'='*60}")
-                print(f"Location: {self.tx_lat:.4f}, {self.tx_lon:.4f}")
-                
-                self.load_map()
-                
-                messagebox.showinfo("Project Loaded", 
-                                  f"Loaded project from:\n{filepath}\n\n"
-                                  "Cached data is ready for fast calculations!")
-            else:
-                messagebox.showerror("Error", "Failed to load project file")
-                self.show_project_setup()  # Try again
     
     def calculate_propagation(self):
         """Calculate and overlay propagation on map"""
         try:
+            # Get max distance from UI
+            try:
+                self.max_distance = float(self.max_dist_var.get())
+            except ValueError:
+                self.max_distance = 100
+                self.max_dist_var.set("100")
+            
             print(f"\n{'='*60}")
             print(f"CALCULATING PROPAGATION")
             print(f"{'='*60}")
@@ -448,21 +531,37 @@ class VetRender:
                     
                     # Apply terrain loss to nearby azimuths with interpolation
                     az_idx = np.argmin(np.abs(azimuths - az))
-                    spread = max(1, int(180 / sample_azimuths_count))  # Adaptive spread based on granularity
+                    spread = max(2, int(len(azimuths) / (sample_azimuths_count * 2)))  # Better spread calculation
+                    
+                    # Apply Gaussian-like weighting for smoother interpolation
                     for offset in range(-spread, spread + 1):
                         idx = (az_idx + offset) % len(azimuths)
-                        weight = 1.0 - abs(offset) / (spread + 1)
-                        terrain_loss_grid[:, idx] += terrain_loss * weight / spread
+                        # Gaussian weight for smoother transitions
+                        sigma = spread / 2.0
+                        weight = np.exp(-(offset**2) / (2 * sigma**2))
+                        terrain_loss_grid[:, idx] += terrain_loss * weight
                 
                 print(f"Terrain loss range: {terrain_loss_grid.min():.2f} to {terrain_loss_grid.max():.2f} dB")
             
             rx_power_grid = eirp_dbm + gain_grid - fspl_grid - terrain_loss_grid
+            
+            # Apply simple averaging smoothing to reduce artifacts
+            # Create a smoothed version by averaging with neighbors
+            smoothed = np.copy(rx_power_grid)
+            kernel_size = 3
+            for i in range(kernel_size, rx_power_grid.shape[0] - kernel_size):
+                for j in range(kernel_size, rx_power_grid.shape[1] - kernel_size):
+                    smoothed[i, j] = np.mean(rx_power_grid[i-kernel_size:i+kernel_size+1, j-kernel_size:j+kernel_size+1])
+            rx_power_grid = smoothed
             
             print(f"FSPL range: {fspl_grid.min():.2f} to {fspl_grid.max():.2f} dB")
             print(f"Received power range: {rx_power_grid.min():.2f} to {rx_power_grid.max():.2f} dBm")
             
             print(f"Plotting propagation overlay...")
             self.plot_propagation_on_map(az_grid, dist_grid, rx_power_grid)
+            
+            # Store propagation results for probing
+            self.last_propagation = (az_grid, dist_grid, rx_power_grid)
             
             print(f"{'='*60}")
             print(f"PROPAGATION CALCULATION COMPLETE")
@@ -513,18 +612,25 @@ class VetRender:
             # Mask areas below threshold (dead spots)
             rx_power_masked = np.ma.masked_where(rx_power_grid < self.signal_threshold, rx_power_grid)
             
-            # Plot contours with transparency - more levels for smoother gradient
-            levels = np.linspace(rx_power_masked.max(), self.signal_threshold, 40)
-            contour = self.ax.contourf(x, y, rx_power_masked, levels=levels, cmap=cmap, alpha=0.6, extend='neither')
+            # Create levels ensuring they're increasing
+            max_power = float(rx_power_masked.max())
+            min_power = float(max(rx_power_masked.min(), self.signal_threshold))
             
-            if hasattr(self, 'colorbar') and self.colorbar is not None:
-                try:
-                    self.colorbar.remove()
-                except:
-                    pass
-            self.colorbar = self.fig.colorbar(contour, ax=self.ax, pad=0.01, fraction=0.03, aspect=30)
-            self.colorbar.set_label('Signal Strength (dBm)', rotation=270, labelpad=15, fontsize=9)
-            self.colorbar.ax.tick_params(labelsize=8)
+            # Only create contours if we have valid data range
+            if max_power > min_power + 1:  # At least 1 dB difference
+                levels = np.linspace(min_power, max_power, 60)  # More levels for smoother gradients
+                contour = self.ax.contourf(x, y, rx_power_masked, levels=levels, cmap=cmap, alpha=0.65, extend='neither', antialiased=True)
+                
+                if hasattr(self, 'colorbar') and self.colorbar is not None:
+                    try:
+                        self.colorbar.remove()
+                    except:
+                        pass
+                self.colorbar = self.fig.colorbar(contour, ax=self.ax, pad=0.01, fraction=0.03, aspect=30)
+                self.colorbar.set_label('Signal Strength (dBm)', rotation=270, labelpad=15, fontsize=9)
+                self.colorbar.ax.tick_params(labelsize=8)
+            else:
+                print("Warning: Insufficient signal range for contour plot")
             
             # Mark transmitter
             self.ax.plot(img_center, img_center, 'r^', markersize=15, 

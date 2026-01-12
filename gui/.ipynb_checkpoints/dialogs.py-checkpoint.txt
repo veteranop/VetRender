@@ -2,7 +2,6 @@
 Dialog windows for VetRender GUI
 """
 import tkinter as tk
-import numpy as np
 from tkinter import ttk, filedialog, messagebox
 
 class TransmitterConfigDialog:
@@ -173,7 +172,7 @@ class ProjectSetupDialog:
         self.result = None
         self.dialog = tk.Toplevel(parent)
         self.dialog.title("VetRender - Project Setup")
-        self.dialog.geometry("900x700")
+        self.dialog.geometry("1000x800")
         self.dialog.transient(parent)
         self.dialog.grab_set()
         

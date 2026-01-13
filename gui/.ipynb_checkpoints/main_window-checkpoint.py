@@ -624,7 +624,7 @@ class VetRender:
                 if hasattr(self, 'colorbar') and self.colorbar is not None:
                     try:
                         self.colorbar.remove()
-                    except:
+                    except Exception:
                         pass
                 self.colorbar = self.fig.colorbar(contour, ax=self.ax, pad=0.01, fraction=0.03, aspect=30)
                 self.colorbar.set_label('Signal Strength (dBm)', rotation=270, labelpad=15, fontsize=9)

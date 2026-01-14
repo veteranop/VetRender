@@ -9,6 +9,7 @@ __pycache__/
 *.pyc
 *.pyo
 *.pyd
+.ipynb_checkpoints/
 
 # Log files - DON'T UPLOAD!
 logs/
@@ -33,6 +34,7 @@ ENV/
 *.swo
 *~
 .DS_Store
+.claude/
 
 # Windows
 Thumbs.db
@@ -43,6 +45,8 @@ desktop.ini
 *.backup
 *.BACKUP_*
 *_BACKUP_*
+*.BACKUP_ORIGINAL
+*.BACKUP_PRE_*
 
 # Temporary files
 *.tmp
@@ -61,6 +65,36 @@ htmlcov/
 
 # Documentation builds
 docs/_build/
+
+# Old deployment/patch files (development artifacts)
+APPLY_ENHANCEMENTS.py
+auto_patch.py
+calculate_propagation_FIXED*.py
+DEPLOY_*.py
+plot_propagation_FIXED.py
+test_coordinates.py
+test_tile_conversion.py
+VERIFY_INSTALLATION.py
+TRANSPARENCY_PATCH.py
+
+# Old documentation files (keep only README.md)
+AUTO_SAVE_FEATURES.md
+CACHING_AND_OFFLINE.md
+CHANGES.md
+DEPLOYMENT_SUCCESS.txt
+ENHANCEMENTS_*.txt
+FIX_INSTRUCTIONS.md
+KDPI_QUICK_START.md
+MANUAL_REPLACEMENT.txt
+MULTI_ZOOM_CACHING.md
+PROJECT_SYSTEM.md
+PROPAGATION_FIX.md
+RADIAL_ARTIFACT_FIX_*.txt
+STATUS_AND_ACTION_PLAN.txt
+TERRAIN_*.md
+TRANSPARENCY_FIX_APPLIED.txt
+BUG_FIX_PLOTS_MANAGER.txt
+GIT_SETUP_GUIDE.txt
 
 # Keep these folders but ignore contents
 !cache/.gitkeep

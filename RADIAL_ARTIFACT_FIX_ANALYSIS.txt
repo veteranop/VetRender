@@ -1,0 +1,110 @@
+RADIAL ARTIFACT FIX - ANALYSIS & SOLUTION
+==========================================
+
+ISSUE OBSERVED:
+---------------
+"Beams" of solid signal at specific bearings (e.g., 136.8° in KDPI plot)
+Sharp radial lines visible in coverage plots
+Artifacts ignore terrain in specific directions
+
+ROOT CAUSE:
+-----------
+Location: controllers/propagation_controller.py, line ~260
+Issue: Bilinear interpolation in _calculate_terrain_loss()
+
+The interpolation uses np.interp() which creates LINEAR transitions
+between sampled azimuths. With 360 samples, this means 1° steps.
+
+In areas with dramatic terrain changes, this creates visible "seams"
+where the interpolation switches from one azimuth sample to the next.
+
+CURRENT CODE PROBLEM:
+---------------------
+# Interpolate across azimuths
+loss0 = np.interp(az, sample_azimuths_wrap, terrain_loss_wrap[d_idx-1, :])
+loss1 = np.interp(az, sample_azimuths_wrap, terrain_loss_wrap[d_idx, :])
+
+This uses LINEAR interpolation = sharp transitions = visible spokes!
+
+SOLUTION OPTIONS:
+-----------------
+
+OPTION 1: Increase Azimuth Sampling (EASY)
+   - Change Medium from 360 to 720 azimuths
+   - Change High from 360 to 1080 azimuths
+   - Pro: Simple, just change numbers
+   - Con: 2-3x slower calculation, still has artifacts
+
+OPTION 2: Use Cubic Interpolation (BETTER)
+   - Replace np.interp with scipy.interpolate.interp1d(kind='cubic')
+   - Pro: Much smoother, eliminates most artifacts
+   - Con: Slightly slower than linear
+
+OPTION 3: Use RBF Interpolation (BEST BUT SLOW)
+   - Use scipy.interpolate.Rbf for true 2D smooth interpolation
+   - Pro: Smoothest possible result
+   - Con: Much slower for large grids
+
+OPTION 4: Pre-smooth Terrain Samples (HYBRID)
+   - Apply Gaussian blur to terrain_loss_samples array
+   - Then use existing bilinear interpolation
+   - Pro: Fast, reduces artifacts significantly
+   - Con: May blur legitimate terrain features
+
+RECOMMENDED FIX:
+----------------
+
+OPTION 2 + OPTION 4 HYBRID:
+1. Apply light Gaussian smoothing to terrain samples
+2. Use cubic interpolation instead of linear
+3. Increase default azimuths from 360 to 540 for Medium quality
+
+This gives the best balance of:
+- Speed (only ~25% slower)
+- Quality (smooth, artifact-free)
+- Accuracy (doesn't blur too much)
+
+CODE CHANGES NEEDED:
+--------------------
+
+In controllers/propagation_controller.py:
+
+1. Change quality presets (line ~162):
+   'Medium': (540, 200),   # Was 360
+   'High': (720, 300),     # Was 360
+   'Ultra': (1080, 500),   # Was 360
+
+2. Add Gaussian smoothing after sampling (line ~232):
+   from scipy.ndimage import gaussian_filter
+   terrain_loss_samples = gaussian_filter(terrain_loss_samples, sigma=1.0)
+
+3. Replace np.interp with cubic (line ~260):
+   from scipy.interpolate import interp1d
+   
+   # For each distance level
+   loss_interp_0 = interp1d(sample_azimuths_wrap, 
+                           terrain_loss_wrap[d_idx-1, :],
+                           kind='cubic', fill_value='extrapolate')
+   loss_interp_1 = interp1d(sample_azimuths_wrap,
+                           terrain_loss_wrap[d_idx, :],
+                           kind='cubic', fill_value='extrapolate')
+   
+   loss0 = loss_interp_0(az)
+   loss1 = loss_interp_1(az)
+
+IMPLEMENTATION:
+---------------
+Ready to apply fix? Y/N
+
+If YES, I will:
+1. Update quality presets for smoother coverage
+2. Add Gaussian smoothing to terrain samples
+3. Replace linear interpolation with cubic
+4. Test and verify artifacts are eliminated
+
+EXPECTED RESULT:
+----------------
+✅ No more radial "spokes" or "beams"
+✅ Smooth transitions between all directions
+✅ Terrain effects properly distributed
+✅ ~20-30% longer calculation time (worth it!)

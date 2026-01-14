@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python:*)",
+      "Bash(where:*)",
+      "Bash(py:*)",
+      "Bash(if exist __pycache__ rmdir /s /q __pycache__)",
+      "Bash(if exist models__pycache__ rmdir /s /q models__pycache__)",
+      "Bash(if exist gui__pycache__ rmdir /s /q gui__pycache__)"
+    ]
+  }
+}

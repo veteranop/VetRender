@@ -1,0 +1,18 @@
+{
+  "version": "3.0",
+  "callsign": "KDPI",
+  "tx_type": "Broadcast FM",
+  "transmission_mode": "FM",
+  "tx_lat": 43.661225,
+  "tx_lon": -114.402965,
+  "erp": 35.0,
+  "frequency": 88.5,
+  "height": 2.0,
+  "max_distance": 200.0,
+  "signal_threshold": -91.0,
+  "terrain_quality": "Ultra",
+  "pattern_name": "Default Omni (0 dBi)",
+  "zoom": 10,
+  "basemap": "Esri WorldImagery",
+  "use_terrain": true
+}

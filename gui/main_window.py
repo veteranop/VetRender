@@ -1,647 +1,1108 @@
 """
-Main VetRender GUI window
+VetRender Main Window - REFACTORED & FIXED
+===========================================
+Clean orchestration of all modules with ALL CRITICAL FIXES APPLIED:
+✅ Segment-by-segment terrain diffraction (no shadow tunneling!)
+✅ 360° azimuth sampling (no radial artifacts!)
+✅ Simplified zoom (preserves overlays!)
+✅ User-configurable terrain detail
+
+This replaces the 2000-line monolithic main_window.py with clean module orchestration.
 """
+
 import tkinter as tk
-from tkinter import ttk, messagebox
-import numpy as np
+from tkinter import ttk, messagebox, simpledialog
+import json
+import os
+import datetime
+
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-from matplotlib.colors import LinearSegmentedColormap
+
+# Import our refactored modules
+from gui.map_display import MapDisplay
+from gui.propagation_plot import PropagationPlot
+from gui.info_panel import InfoPanel
+from gui.toolbar import Toolbar
+from gui.menus import MenuBar
+from gui.dialogs import (TransmitterConfigDialog, AntennaInfoDialog, 
+                        CacheManagerDialog, ProjectSetupDialog, SetLocationDialog,
+                        PlotsManagerDialog)
+
+from controllers.propagation_controller import PropagationController
 
 from models.antenna import AntennaPattern
-from models.propagation import PropagationModel
-from models.terrain import TerrainHandler
-from models.map_handler import MapHandler
 from models.map_cache import MapCache
-from gui.dialogs import TransmitterConfigDialog, AntennaInfoDialog, CacheManagerDialog, ProjectSetupDialog
+from models.terrain import TerrainHandler
+from debug_logger import get_logger
 
 
 class VetRender:
+    """Main VetRender application with refactored architecture"""
+    
+    CONFIG_FILE = ".vetrender_config.json"
+    
     def __init__(self, root):
+        """Initialize VetRender application
+        
+        Args:
+            root: Tkinter root window
+        """
         self.root = root
         self.root.title("VetRender - RF Propagation Tool")
         self.root.geometry("1400x900")
         
+        # Initialize core components
         self.antenna_pattern = AntennaPattern()
         self.pattern_name = "Default Omni (0 dBi)"
-        
-        # Initialize cache
         self.cache = MapCache()
-        print(f"Cache initialized at: {self.cache.cache_dir}")
+        self.logger = get_logger()
         
-        # Transmitter parameters
+        # Station parameters
+        self.callsign = "KDPI"
+        self.tx_type = "Broadcast FM"
+        self.transmission_mode = "FM"
         self.tx_lat = 43.4665
         self.tx_lon = -112.0340
         self.erp = 40
-        self.frequency = 900
+        self.frequency = 88.5
         self.height = 30
         self.max_distance = 100
         self.resolution = 500
-        
-        self.terrain_quality = 'Medium'
-                # Terrain calculation granularity
-        self.terrain_azimuths = 72  # Every 5 degrees
-        self.terrain_distances = 50  # Points per radial
-        
-        # Signal threshold (dBm) - below this, no signal is shown
         self.signal_threshold = -110
-        
-        # Map parameters
+        self.terrain_quality = 'Medium'
         self.zoom = 13
         self.basemap = 'Esri WorldImagery'
-        self.map_image = None
-        self.map_zoom = 13
-        self.map_xtile = 0
-        self.map_ytile = 0
         
-        # Terrain settings
+        # Terrain calculation parameters
+        self.terrain_azimuths = 540  # 🔥 Default to 540° for smooth interpolation
+        self.terrain_distances = 500  # High detail by default
+        
+        # UI state
         self.use_terrain = tk.BooleanVar(value=False)
+        self.show_coverage = tk.BooleanVar(value=True)
+        self.show_shadow = tk.BooleanVar(value=False)
         
-        self.setup_ui()
-        self.load_map()
-        self.show_project_setup()
+        # Propagation results
+        self.last_propagation = None
+        self.last_terrain_loss = None
+        self.saved_plots = []
         
-    def setup_ui(self):
-        """Setup the user interface"""
-        toolbar = ttk.Frame(self.root, padding="5")
-        toolbar.pack(side=tk.TOP, fill=tk.X)
-        
-        ttk.Label(toolbar, text="Transmitter:").pack(side=tk.LEFT, padx=5)
-        self.tx_label = ttk.Label(toolbar, text=f"Lat: {self.tx_lat:.4f}, Lon: {self.tx_lon:.4f}")
-        self.tx_label.pack(side=tk.LEFT, padx=5)
-        
-        ttk.Separator(toolbar, orient='vertical').pack(side=tk.LEFT, fill=tk.Y, padx=10)
-        
-        ttk.Label(toolbar, text="Basemap:").pack(side=tk.LEFT, padx=5)
-        self.basemap_var = tk.StringVar(value=self.basemap)
-        basemap_combo = ttk.Combobox(toolbar, textvariable=self.basemap_var, width=18,
-                                     values=list(MapHandler.BASEMAPS.keys()), state='readonly')
-        basemap_combo.pack(side=tk.LEFT, padx=5)
-        basemap_combo.bind('<<ComboboxSelected>>', lambda e: self.change_basemap())
-        
-        ttk.Separator(toolbar, orient='vertical').pack(side=tk.LEFT, fill=tk.Y, padx=10)
-        
-        ttk.Label(toolbar, text="Zoom:").pack(side=tk.LEFT, padx=5)
-        self.zoom_var = tk.StringVar(value=str(self.zoom))
-        zoom_combo = ttk.Combobox(toolbar, textvariable=self.zoom_var, width=5, 
-                                  values=['10', '11', '12', '13', '14', '15', '16'])
-        zoom_combo.pack(side=tk.LEFT, padx=5)
-        zoom_combo.bind('<<ComboboxSelected>>', lambda e: self.load_map())
-        
-        ttk.Button(toolbar, text="Refresh Map", command=self.load_map).pack(side=tk.LEFT, padx=5)
-        
-        ttk.Separator(toolbar, orient='vertical').pack(side=tk.LEFT, fill=tk.Y, padx=10)
-        
-        ttk.Label(toolbar, text="Max Distance:").pack(side=tk.LEFT, padx=5)
-        self.max_dist_var = tk.StringVar(value=str(self.max_distance))
-        max_dist_entry = ttk.Entry(toolbar, textvariable=self.max_dist_var, width=6)
-        max_dist_entry.pack(side=tk.LEFT, padx=2)
-        ttk.Label(toolbar, text="km").pack(side=tk.LEFT, padx=(0, 10))
-        
-        ttk.Checkbutton(toolbar, text="Use Terrain", variable=self.use_terrain).pack(side=tk.LEFT, padx=5)
-        
-        # Quality preset dropdown
-        ttk.Label(toolbar, text="Quality:").pack(side=tk.LEFT, padx=(10, 5))
-        self.quality_var = tk.StringVar(value=self.terrain_quality)
-        quality_combo = ttk.Combobox(toolbar, textvariable=self.quality_var, width=10,
-                                     values=['Low', 'Medium', 'High', 'Ultra', 'Custom'], state='readonly')
-        quality_combo.pack(side=tk.LEFT, padx=2)
-        quality_combo.bind('<<ComboboxSelected>>', lambda e: self.update_quality_preset())
-        
-        # Custom settings (hidden by default)
-        self.custom_frame = ttk.Frame(toolbar)
-        ttk.Label(self.custom_frame, text="Az:").pack(side=tk.LEFT, padx=(5, 2))
-        self.azimuth_var = tk.StringVar(value=str(self.terrain_azimuths))
-        ttk.Entry(self.custom_frame, textvariable=self.azimuth_var, width=4).pack(side=tk.LEFT, padx=2)
-        ttk.Label(self.custom_frame, text="Pts:").pack(side=tk.LEFT, padx=(5, 2))
-        self.dist_points_var = tk.StringVar(value=str(self.terrain_distances))
-        ttk.Entry(self.custom_frame, textvariable=self.dist_points_var, width=4).pack(side=tk.LEFT, padx=2)
-        
-        ttk.Button(toolbar, text="Calculate Coverage", command=self.calculate_propagation).pack(side=tk.LEFT, padx=20)
-        
-        ttk.Separator(toolbar, orient='vertical').pack(side=tk.LEFT, fill=tk.Y, padx=10)
-        
-        self.status_var = tk.StringVar(value="Ready - Right-click on map for options")
-        ttk.Label(toolbar, textvariable=self.status_var).pack(side=tk.LEFT, padx=5)
-        
-        # Main map area
-        map_frame = ttk.Frame(self.root, padding="0")
-        map_frame.pack(fill=tk.BOTH, expand=True)
-        
-        self.fig = Figure(dpi=100)
-        self.fig.subplots_adjust(left=0, right=1, top=1, bottom=0)
-        self.ax = self.fig.add_subplot(111)
-        self.canvas = FigureCanvasTkAgg(self.fig, master=map_frame)
-        self.canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
-        
-        self.canvas.mpl_connect('button_press_event', self.on_map_click)
-        
-        # Context menu
-        self.context_menu = tk.Menu(self.root, tearoff=0)
-        self.context_menu.add_command(label="Set Transmitter Location", command=self.set_tx_location)
-        self.context_menu.add_command(label="Probe Signal Strength Here", command=self.probe_signal)
-        self.context_menu.add_separator()
-        self.context_menu.add_command(label="Edit Transmitter Configuration", command=self.edit_tx_config)
-        self.context_menu.add_command(label="Edit Antenna Information", command=self.edit_antenna_info)
-        self.context_menu.add_separator()
-        self.context_menu.add_command(label="Manage Cache...", command=self.manage_cache)
-        
+        # Context menu state
         self.click_x = 0
         self.click_y = 0
         
-        # Store last propagation results for probing
-        self.last_propagation = None
+        # Try to load previous config
+        config_loaded = self.load_auto_config()
         
-    def change_basemap(self):
-        """Change the basemap style"""
-        self.basemap = self.basemap_var.get()
-        print(f"\n{'='*60}")
-        print(f"BASEMAP CHANGED")
-        print(f"{'='*60}")
-        print(f"New basemap: {self.basemap}")
-        self.load_map()
+        # Setup UI
+        self.setup_ui()
         
-    def load_map(self):
-        """Load and display map"""
+        # Load map
+        self.map_display.load_map(self.tx_lat, self.tx_lon, self.zoom, 
+                                  self.basemap, self.cache)
+        self.map_display.display_map_only(self.tx_lat, self.tx_lon, show_marker=True)
+        
+        # Update info
+        self.info_panel.update(
+            self.callsign, self.frequency, self.transmission_mode, self.tx_type,
+            self.tx_lat, self.tx_lon, self.height, self.erp, self.pattern_name,
+            self.max_distance, self.signal_threshold, 
+            self.use_terrain.get(), self.terrain_quality
+        )
+        
+        # Show project setup if no config
+        if not config_loaded:
+            self.root.after(100, self.show_project_setup)
+        
+        # Register close handler
+        self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
+        
+        self.logger.log("VetRender application started (REFACTORED)")
+    
+    def setup_ui(self):
+        """Setup user interface with all modules"""
+        # Create matplotlib figure
+        self.fig = Figure(dpi=100, frameon=False)
+        self.fig.subplots_adjust(left=0, right=0.98, top=1, bottom=0, wspace=0, hspace=0)
+        self.ax = self.fig.add_subplot(111)
+        
+        # Initialize display modules
+        self.map_display = MapDisplay(self.ax, None)  # Canvas set below
+        self.propagation_plot = PropagationPlot(self.ax, None, self.fig)  # Canvas set below
+        self.propagation_controller = PropagationController(self.antenna_pattern)
+        
+        # Setup menu bar
+        menu_vars = {
+            'basemap_var': tk.StringVar(value=self.basemap),
+            'show_coverage_var': self.show_coverage,
+            'show_shadow_var': self.show_shadow,
+            'use_terrain_var': self.use_terrain,
+            'max_dist_var': tk.StringVar(value=str(self.max_distance)),
+            'quality_var': tk.StringVar(value=self.terrain_quality),
+            'terrain_detail_var': tk.StringVar(value=str(self.terrain_distances))
+        }
+        
+        self.menubar = MenuBar(self.root, self.get_menu_callbacks(), menu_vars)
+        
+        # Setup toolbar
+        self.toolbar = Toolbar(self.root, self.get_toolbar_callbacks())
+        self.toolbar.pack(side=tk.TOP, fill=tk.X)
+        self.toolbar.set_zoom(self.zoom)
+        self.toolbar.set_quality(self.terrain_quality)
+        self.toolbar.set_custom_values(self.terrain_azimuths, self.terrain_distances)
+        self.toolbar.update_location(self.tx_lat, self.tx_lon)
+        
+        # Main content area
+        content_frame = ttk.Frame(self.root)
+        content_frame.pack(fill=tk.BOTH, expand=True)
+        
+        # Info panel on left
+        self.info_panel = InfoPanel(content_frame)
+        self.info_panel.pack(side=tk.LEFT, fill=tk.Y, padx=(5, 0), pady=5)
+        self.info_panel.add_button("Edit Station Info", self.edit_station_info)
+        self.info_panel.add_button("Plots", self.show_plots_manager)
+        
+        # Map area on right
+        map_frame = ttk.Frame(content_frame, padding="0")
+        map_frame.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
+        
+        self.canvas = FigureCanvasTkAgg(self.fig, master=map_frame)
+        self.canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
+        
+        # Set canvas in display modules
+        self.map_display.canvas = self.canvas
+        self.propagation_plot.canvas = self.canvas
+        
+        # Connect events
+        self.canvas.mpl_connect('button_press_event', self.on_map_click)
+        self.canvas.mpl_connect('scroll_event', self.on_scroll_zoom)
+        
+        # Context menu
+        self.context_menu = tk.Menu(self.root, tearoff=0)
+        self.context_menu.add_command(label="Set Transmitter Location (Click)", 
+                                     command=self.set_tx_location)
+        self.context_menu.add_command(label="Set Transmitter Location (Coordinates)...",
+                                     command=self.set_tx_location_precise)
+        self.context_menu.add_command(label="Probe Signal Strength Here",
+                                     command=self.probe_signal)
+        self.context_menu.add_separator()
+        self.context_menu.add_command(label="Edit Transmitter Configuration",
+                                     command=self.edit_tx_config)
+        self.context_menu.add_command(label="Edit Antenna Information",
+                                     command=self.edit_antenna_info)
+        self.context_menu.add_separator()
+        self.context_menu.add_command(label="Manage Cache...",
+                                     command=self.manage_cache)
+        
+        # Keyboard shortcuts
+        self.root.bind('<Control-n>', lambda e: self.new_project())
+        self.root.bind('<Control-s>', lambda e: self.save_project())
+        self.root.bind('<Control-o>', lambda e: self.load_project())
+        self.root.bind('<Control-q>', lambda e: self.on_closing())
+    
+    def get_toolbar_callbacks(self):
+        """Get toolbar callback dictionary"""
+        return {
+            'on_zoom_change': self.on_zoom_change,
+            'on_refresh_map': self.refresh_map_dialog,
+            'on_quality_change': self.on_quality_change,
+            'on_calculate': self.calculate_propagation,
+            'on_transparency_change': self.on_transparency_change,
+            'on_new_project': self.new_project,
+            'on_save_project': self.save_project,
+            'on_load_project': self.load_project
+        }
+    
+    def get_menu_callbacks(self):
+        """Get menu callback dictionary"""
+        return {
+            'on_new_project': self.new_project,
+            'on_save_project': self.save_project,
+            'on_load_project': self.load_project,
+            'on_exit': self.on_closing,
+            'on_basemap_change': self.on_basemap_change,
+            'on_toggle_coverage': self.toggle_coverage_overlay,
+            'on_toggle_shadow': self.update_shadow_display,
+            'on_max_distance_change': self.on_max_distance_change,
+            'on_custom_distance': self.set_custom_distance,
+            'on_toggle_terrain': lambda: None,  # Handled by checkbox variable
+            'on_quality_change': self.on_quality_change,
+            'on_terrain_detail_change': self.on_terrain_detail_change,
+            'on_custom_terrain_detail': self.set_custom_terrain_detail
+        }
+    
+    # ========================================================================
+    # CORE FUNCTIONALITY - Calculate Propagation
+    # ========================================================================
+    
+    def calculate_propagation(self):
+        """Calculate RF propagation coverage - orchestrates the controller"""
         try:
-            self.zoom = int(self.zoom_var.get())
+            # Update max distance from UI
+            try:
+                self.max_distance = float(self.menubar.vars['max_dist_var'].get())
+            except ValueError:
+                self.max_distance = 100
             
-            print(f"\n{'='*60}")
-            print(f"LOADING MAP")
-            print(f"{'='*60}")
-            print(f"Basemap: {self.basemap}")
-            print(f"Center: Lat={self.tx_lat:.6f}, Lon={self.tx_lon:.6f}")
-            print(f"Zoom Level: {self.zoom}")
-            
-            self.status_var.set("Loading map...")
+            self.toolbar.set_status("Calculating propagation...")
             self.root.update()
             
-            self.map_image, self.map_zoom, self.map_xtile, self.map_ytile = MapHandler.get_map_tile(
-                self.tx_lat, self.tx_lon, self.zoom, tile_size=3, basemap=self.basemap, cache=self.cache
+            # Get custom values if in custom quality mode
+            custom_az = None
+            custom_dist = None
+            if self.terrain_quality == 'Custom':
+                custom_az, custom_dist = self.toolbar.get_custom_values()
+            
+            # 🔥 ALL FIXES ARE IN THE CONTROLLER!
+            result = self.propagation_controller.calculate_coverage(
+                self.tx_lat, self.tx_lon, self.height, self.erp, self.frequency,
+                self.max_distance, self.resolution, self.signal_threshold,
+                self.use_terrain.get(), self.terrain_quality,
+                custom_az, custom_dist
             )
             
-            if self.map_image:
-                print(f"Map loaded successfully - Image size: {self.map_image.size}")
-                print(f"Tile position: X={self.map_xtile}, Y={self.map_ytile}")
-                self.display_map()
-                self.status_var.set(f"Map loaded - Right-click for options")
-            else:
-                print("ERROR: Failed to load map image")
-                self.status_var.set("Failed to load map - check internet connection")
-                
+            if result is None:
+                messagebox.showerror("Error", "Propagation calculation failed")
+                self.toolbar.set_status("Calculation failed")
+                return
+            
+            az_grid, dist_grid, rx_power_grid, terrain_loss_grid, stats = result
+            
+            # Store results
+            self.last_propagation = (az_grid, dist_grid, rx_power_grid)
+            self.last_terrain_loss = terrain_loss_grid if self.use_terrain.get() else None
+            
+            # Get transmitter pixel position
+            tx_pixel_x, tx_pixel_y = self.map_display.get_tx_pixel_position(
+                self.tx_lat, self.tx_lon
+            )
+            
+            # Plot coverage
+            self.propagation_plot.plot_coverage(
+                self.map_display.map_image,
+                tx_pixel_x, tx_pixel_y,
+                az_grid, dist_grid, rx_power_grid,
+                self.signal_threshold,
+                self.map_display.get_pixel_scale(),
+                terrain_loss_grid,
+                self.show_shadow.get(),
+                (self.map_display.plot_xlim, self.map_display.plot_ylim),
+                alpha=self.toolbar.get_transparency()
+            )
+            
+            # Auto-enable coverage overlay
+            self.show_coverage.set(True)
+            
+            # Save plot to history
+            self.save_current_plot_to_history()
+            
+            # Update status
+            eirp = stats['max_power'] + (self.erp - stats['max_power'])
+            self.toolbar.set_status(f"Coverage calculated - {stats['points_above_threshold']}/{stats['total_points']} points above threshold")
+            
+            print(f"Coverage calculation complete!")
+            print(f"Stats: {stats}")
+            
         except Exception as e:
-            print(f"ERROR loading map: {e}")
+            print(f"ERROR in calculate_propagation: {e}")
             import traceback
             traceback.print_exc()
-            messagebox.showerror("Error", f"Map error: {e}")
-            self.status_var.set("Error loading map")
+            messagebox.showerror("Error", f"Calculation error: {e}")
+            self.toolbar.set_status("Error in calculation")
     
-    def display_map(self):
-        """Display map with transmitter marker"""
-        self.ax.clear()
-        
-        if self.map_image:
-            self.ax.imshow(self.map_image)
-            self.ax.axis('off')
-            
-            img_center = self.map_image.size[0] // 2
-            self.ax.plot(img_center, img_center, 'r^', markersize=20, label='Transmitter', 
-                        markeredgecolor='white', markeredgewidth=2)
-            self.ax.legend(loc='upper right', fontsize=12)
-            
-        self.canvas.draw()
+    # ========================================================================
+    # MAP INTERACTION
+    # ========================================================================
     
     def on_map_click(self, event):
         """Handle mouse clicks on map"""
-        if event.inaxes == self.ax and self.map_image:
+        if event.inaxes == self.ax and self.map_display.map_image:
             if event.button == 3:  # Right click
                 self.click_x = event.xdata
                 self.click_y = event.ydata
                 try:
-                    self.context_menu.tk_popup(int(event.guiEvent.x_root), int(event.guiEvent.y_root))
+                    self.context_menu.tk_popup(int(event.guiEvent.x_root), 
+                                              int(event.guiEvent.y_root))
                 finally:
                     self.context_menu.grab_release()
     
+    def on_scroll_zoom(self, event):
+        """Handle scroll wheel zoom"""
+        self.map_display.handle_scroll_zoom(event)
+    
     def set_tx_location(self):
-        """Set transmitter location from click position"""
-        if self.map_image:
-            img_size = self.map_image.size[0]
-            lat, lon = MapHandler.pixel_to_latlon(
-                self.click_x, self.click_y, 
-                self.tx_lat, self.tx_lon, 
-                self.map_zoom, img_size
-            )
-            
-            print(f"\n{'='*60}")
-            print(f"TRANSMITTER LOCATION CHANGED")
-            print(f"{'='*60}")
-            print(f"Click position: Pixel X={self.click_x:.1f}, Y={self.click_y:.1f}")
-            print(f"Old location: Lat={self.tx_lat:.6f}, Lon={self.tx_lon:.6f}")
-            print(f"New location: Lat={lat:.6f}, Lon={lon:.6f}")
-            
+        """Set transmitter location from click"""
+        lat, lon = self.map_display.pixel_to_latlon(self.click_x, self.click_y)
+        
+        if lat is not None:
+            print(f"Transmitter moved to: Lat={lat:.6f}, Lon={lon:.6f}")
             self.tx_lat = lat
             self.tx_lon = lon
-            self.tx_label.config(text=f"Lat: {lat:.4f}, Lon: {lon:.4f}")
-            
-            self.status_var.set(f"Transmitter moved to Lat: {lat:.4f}, Lon: {lon:.4f}")
-            
-            self.load_map()
+            self.toolbar.update_location(lat, lon)
+            self.update_info_panel()
+            self.reload_map()
+            self.save_auto_config()
     
-    def edit_tx_config(self):
-        """Open dialog to edit transmitter configuration"""
-        dialog = TransmitterConfigDialog(self.root, self.erp, self.frequency, self.height)
+    def set_tx_location_precise(self):
+        """Set transmitter location with coordinates dialog"""
+        dialog = SetLocationDialog(self.root, self.tx_lat, self.tx_lon)
         self.root.wait_window(dialog.dialog)
         
         if dialog.result:
-            old_erp, old_freq, old_height = self.erp, self.frequency, self.height
-            self.erp, self.frequency, self.height = dialog.result
+            self.tx_lat = dialog.result['lat']
+            self.tx_lon = dialog.result['lon']
+            self.toolbar.update_location(self.tx_lat, self.tx_lon)
+            self.update_info_panel()
+            self.reload_map()
+            self.save_auto_config()
+    
+    def probe_signal(self):
+        """Probe signal strength at clicked location"""
+        if self.last_propagation is None:
+            messagebox.showinfo("No Coverage Data",
+                              "Calculate coverage first before probing signal strength.")
+            return
+        
+        az_grid, dist_grid, rx_power_grid = self.last_propagation
+        tx_pixel_x, tx_pixel_y = self.map_display.get_tx_pixel_position(
+            self.tx_lat, self.tx_lon
+        )
+        
+        signal, distance, azimuth = self.propagation_plot.get_signal_at_pixel(
+            self.click_x, self.click_y, tx_pixel_x, tx_pixel_y,
+            az_grid, dist_grid, rx_power_grid,
+            self.map_display.get_pixel_scale()
+        )
+        
+        if signal is not None:
+            probe_lat, probe_lon = self.map_display.pixel_to_latlon(
+                self.click_x, self.click_y
+            )
             
-            print(f"\n{'='*60}")
-            print(f"TRANSMITTER CONFIGURATION UPDATED")
-            print(f"{'='*60}")
-            print(f"ERP:       {old_erp} dBm -> {self.erp} dBm")
-            print(f"Frequency: {old_freq} MHz -> {self.frequency} MHz")
-            print(f"Height:    {old_height} m -> {self.height} m")
+            # Assess quality
+            if signal > -70:
+                quality = "Excellent"
+            elif signal > -85:
+                quality = "Good"
+            elif signal > -95:
+                quality = "Fair"
+            elif signal > -110:
+                quality = "Poor"
+            else:
+                quality = "No Signal"
             
-            self.status_var.set(f"Configuration updated - ERP: {self.erp} dBm, Freq: {self.frequency} MHz")
+            info = f"Signal Strength Probe\n\n"
+            info += f"Location: {probe_lat:.6f}, {probe_lon:.6f}\n"
+            info += f"Distance from TX: {distance:.2f} km\n"
+            info += f"Azimuth from TX: {azimuth:.1f}°\n"
+            info += f"Signal Strength: {signal:.2f} dBm\n\n"
+            info += f"Signal Quality: {quality}"
+            
+            messagebox.showinfo("Signal Probe Results", info)
+        else:
+            messagebox.showwarning("Probe Failed", 
+                                 "Click location is outside coverage area")
+    
+    # ========================================================================
+    # UI CALLBACKS
+    # ========================================================================
+    
+    def on_zoom_change(self):
+        """Handle zoom level change"""
+        self.zoom = self.toolbar.get_zoom()
+        self.reload_map()
+    
+    def on_basemap_change(self):
+        """Handle basemap change"""
+        self.basemap = self.menubar.vars['basemap_var'].get()
+        print(f"Basemap changed to: {self.basemap}")
+        self.reload_map()
+        self.save_auto_config()
+    
+    def on_quality_change(self, quality=None):
+        """Handle quality preset change"""
+        if quality is None:
+            quality = self.toolbar.get_quality()
+        
+        self.terrain_quality = quality
+        
+        # Update terrain parameters based on preset
+        presets = {
+            'Low': (180, 100),
+            'Medium': (540, 200),
+            'High': (720, 300),
+            'Ultra': (1080, 500)
+        }
+        
+        if quality in presets:
+            self.terrain_azimuths, self.terrain_distances = presets[quality]
+            self.toolbar.set_custom_values(self.terrain_azimuths, self.terrain_distances)
+            self.toolbar.hide_custom_controls()
+        elif quality == 'Custom':
+            self.toolbar.show_custom_controls()
+        
+        print(f"Quality: {quality} - Az: {self.terrain_azimuths}, Pts: {self.terrain_distances}")
+    
+    def on_transparency_change(self):
+        """Handle transparency slider change - redraw overlay with new alpha"""
+        if self.last_propagation is not None and self.show_coverage.get():
+            # Save current zoom state BEFORE redrawing
+            current_xlim = self.ax.get_xlim()
+            current_ylim = self.ax.get_ylim()
+            
+            az_grid, dist_grid, rx_power_grid = self.last_propagation
+            tx_pixel_x, tx_pixel_y = self.map_display.get_tx_pixel_position(
+                self.tx_lat, self.tx_lon
+            )
+            alpha = self.toolbar.get_transparency()
+            self.propagation_plot.plot_coverage(
+                self.map_display.map_image, tx_pixel_x, tx_pixel_y,
+                az_grid, dist_grid, rx_power_grid, self.signal_threshold,
+                self.map_display.get_pixel_scale(),
+                self.last_terrain_loss, self.show_shadow.get(),
+                (current_xlim, current_ylim),  # Pass saved limits!
+                alpha=alpha
+            )
+    
+    def on_terrain_detail_change(self, detail):
+        """Handle terrain detail change"""
+        self.terrain_distances = int(detail)
+        self.toolbar.set_custom_values(self.terrain_azimuths, self.terrain_distances)
+        print(f"Terrain detail set to {self.terrain_distances} points per radial")
+    
+    def set_custom_terrain_detail(self):
+        """Set custom terrain detail via dialog"""
+        current = int(self.menubar.vars['terrain_detail_var'].get())
+        new_detail = simpledialog.askinteger(
+            "Custom Terrain Detail",
+            "Enter number of elevation points per radial:\n\n"
+            "(Higher = more accurate, slower)\n\n"
+            "Recommended: 500-1000",
+            initialvalue=current, minvalue=50, maxvalue=2000
+        )
+        
+        if new_detail is not None:
+            self.menubar.vars['terrain_detail_var'].set(str(new_detail))
+            self.on_terrain_detail_change(str(new_detail))
+    
+    def on_max_distance_change(self):
+        """Handle max distance change"""
+        try:
+            self.max_distance = float(self.menubar.vars['max_dist_var'].get())
+            if self.last_propagation is not None:
+                self.toolbar.set_status(
+                    "Distance changed - recalculate coverage for new area"
+                )
+        except ValueError:
+            pass
+    
+    def set_custom_distance(self):
+        """Set custom coverage distance"""
+        current = float(self.menubar.vars['max_dist_var'].get()) if self.menubar.vars['max_dist_var'].get() else 100
+        new_distance = simpledialog.askfloat(
+            "Custom Coverage Distance",
+            "Enter coverage radius (km):",
+            initialvalue=current, minvalue=1, maxvalue=500
+        )
+        
+        if new_distance is not None:
+            self.menubar.vars['max_dist_var'].set(str(int(new_distance)))
+            self.on_max_distance_change()
+    
+    def toggle_coverage_overlay(self):
+        """Toggle coverage overlay visibility"""
+        if self.last_propagation is not None:
+            if self.show_coverage.get():
+                # Show coverage
+                az_grid, dist_grid, rx_power_grid = self.last_propagation
+                tx_pixel_x, tx_pixel_y = self.map_display.get_tx_pixel_position(
+                    self.tx_lat, self.tx_lon
+                )
+                self.propagation_plot.plot_coverage(
+                    self.map_display.map_image, tx_pixel_x, tx_pixel_y,
+                    az_grid, dist_grid, rx_power_grid, self.signal_threshold,
+                    self.map_display.get_pixel_scale(),
+                    self.last_terrain_loss, self.show_shadow.get(),
+                    (self.map_display.plot_xlim, self.map_display.plot_ylim),
+                    alpha=self.toolbar.get_transparency()
+                )
+                self.toolbar.set_status("Coverage overlay shown")
+            else:
+                # Hide coverage
+                self.map_display.display_map_only(self.tx_lat, self.tx_lon, show_marker=True)
+                self.toolbar.set_status("Coverage overlay hidden")
+        else:
+            self.show_coverage.set(False)
+            self.toolbar.set_status("No coverage data - calculate propagation first")
+    
+    def update_shadow_display(self):
+        """Update shadow zone display"""
+        if self.last_propagation is not None and self.show_coverage.get():
+            az_grid, dist_grid, rx_power_grid = self.last_propagation
+            tx_pixel_x, tx_pixel_y = self.map_display.get_tx_pixel_position(
+                self.tx_lat, self.tx_lon
+            )
+            self.propagation_plot.plot_coverage(
+                self.map_display.map_image, tx_pixel_x, tx_pixel_y,
+                az_grid, dist_grid, rx_power_grid, self.signal_threshold,
+                self.map_display.get_pixel_scale(),
+                self.last_terrain_loss, self.show_shadow.get(),
+                (self.map_display.plot_xlim, self.map_display.plot_ylim),
+                alpha=self.toolbar.get_transparency()
+            )
+    
+    # ========================================================================
+    # DIALOGS
+    # ========================================================================
+    
+    def edit_tx_config(self):
+        """Edit transmitter configuration"""
+        dialog = TransmitterConfigDialog(self.root, self.erp, self.frequency,
+                                        self.height, self.signal_threshold)
+        self.root.wait_window(dialog.dialog)
+        
+        if dialog.result:
+            self.erp, self.frequency, self.height, self.signal_threshold = dialog.result
+            self.update_info_panel()
+            self.toolbar.set_status(f"Config updated - ERP: {self.erp} dBm, Freq: {self.frequency} MHz")
+            self.save_auto_config()
     
     def edit_antenna_info(self):
-        """Open dialog to edit antenna information"""
+        """Edit antenna information"""
         dialog = AntennaInfoDialog(self.root, self.pattern_name)
         self.root.wait_window(dialog.dialog)
         
         if dialog.result:
             action, data = dialog.result
-            print(f"\n{'='*60}")
-            print(f"ANTENNA PATTERN CHANGED")
-            print(f"{'='*60}")
             if action == 'load':
                 if self.antenna_pattern.load_from_xml(data):
                     self.pattern_name = data.split('/')[-1].split('\\')[-1]
-                    print(f"Loaded pattern: {self.pattern_name}")
-                    print(f"File path: {data}")
-                    print(f"Max gain: {self.antenna_pattern.max_gain:.2f} dBi")
-                    print(f"Azimuth points: {len(self.antenna_pattern.azimuth_pattern)}")
-                    print(f"Elevation points: {len(self.antenna_pattern.elevation_pattern)}")
-                    self.status_var.set(f"Antenna pattern loaded: {self.pattern_name}")
+                    self.toolbar.set_status(f"Antenna pattern loaded: {self.pattern_name}")
+                    self.save_auto_config()
                 else:
-                    print(f"ERROR: Failed to load pattern from {data}")
                     messagebox.showerror("Error", "Failed to load antenna pattern")
             elif action == 'reset':
                 self.antenna_pattern.load_default_omni()
                 self.pattern_name = "Default Omni (0 dBi)"
-                print(f"Reset to: {self.pattern_name}")
-                self.status_var.set("Reset to default omnidirectional antenna")
+                self.toolbar.set_status("Reset to default omnidirectional antenna")
+                self.save_auto_config()
     
     def manage_cache(self):
         """Open cache management dialog"""
         CacheManagerDialog(self.root, self.cache)
     
-    def probe_signal(self):
-        """Probe signal strength at clicked location"""
-        if self.last_propagation is None:
-            messagebox.showinfo("No Coverage Data", 
-                              "Please calculate coverage first before probing signal strength.")
-            return
-        
-        if not self.map_image:
-            return
-        
-        # Get click position relative to transmitter
-        img_center = self.map_image.size[0] // 2
-        scale = 30 * (2 ** (self.map_zoom - 13))
-        
-        # Calculate distance and azimuth from transmitter
-        dx = self.click_x - img_center
-        dy = img_center - self.click_y  # Flip y axis
-        
-        distance_pixels = np.sqrt(dx**2 + dy**2)
-        distance_km = distance_pixels / scale
-        
-        azimuth = np.degrees(np.arctan2(dx, dy)) % 360
-        
-        # Interpolate from last propagation results
-        az_grid, dist_grid, rx_power_grid = self.last_propagation
-        
-        # Find nearest point in grid
-        az_idx = np.argmin(np.abs(az_grid[0, :] - azimuth))
-        dist_idx = np.argmin(np.abs(dist_grid[:, 0] - distance_km))
-        
-        if dist_idx < rx_power_grid.shape[0] and az_idx < rx_power_grid.shape[1]:
-            signal_strength = rx_power_grid[dist_idx, az_idx]
-            
-            # Calculate lat/lon of probe point
-            probe_lat, probe_lon = MapHandler.pixel_to_latlon(
-                self.click_x, self.click_y,
-                self.tx_lat, self.tx_lon,
-                self.map_zoom, self.map_image.size[0]
-            )
-            
-            # Create info message
-            info = f"Signal Strength Probe\n\n"
-            info += f"Location: {probe_lat:.6f}, {probe_lon:.6f}\n"
-            info += f"Distance from TX: {distance_km:.2f} km\n"
-            info += f"Azimuth from TX: {azimuth:.1f}°\n"
-            info += f"Signal Strength: {signal_strength:.2f} dBm\n\n"
-            
-            # Signal quality assessment
-            if signal_strength > -70:
-                quality = "Excellent"
-            elif signal_strength > -85:
-                quality = "Good"
-            elif signal_strength > -95:
-                quality = "Fair"
-            elif signal_strength > -110:
-                quality = "Poor"
-            else:
-                quality = "No Signal"
-            
-            info += f"Signal Quality: {quality}"
-            
-            messagebox.showinfo("Signal Probe Results", info)
-            
-            print(f"\n{'='*60}")
-            print(f"SIGNAL PROBE")
-            print(f"{'='*60}")
-            print(info)
-        else:
-            messagebox.showwarning("Probe Failed", "Click location is outside coverage area")
-    
-    
-    def update_quality_preset(self):
-        """Update terrain calculation quality based on preset"""
-        quality = self.quality_var.get()
-        
-        presets = {
-            'Low': (36, 20),
-            'Medium': (72, 50),
-            'High': (180, 100),
-            'Ultra': (360, 200)
+    def edit_station_info(self):
+        """Edit station information"""
+        current_config = {
+            'callsign': self.callsign,
+            'frequency': self.frequency,
+            'tx_type': self.tx_type,
+            'transmission_mode': self.transmission_mode,
+            'tx_lat': self.tx_lat,
+            'tx_lon': self.tx_lon,
+            'height': self.height,
+            'erp': self.erp,
+            'zoom': self.zoom,
+            'basemap': self.basemap,
+            'radius': self.max_distance
         }
         
-        if quality in presets:
-            self.terrain_azimuths, self.terrain_distances = presets[quality]
-            self.azimuth_var.set(str(self.terrain_azimuths))
-            self.dist_points_var.set(str(self.terrain_distances))
-            self.custom_frame.pack_forget()  # Hide custom controls
-        elif quality == 'Custom':
-            self.custom_frame.pack(side=tk.LEFT)  # Show custom controls
+        dialog = ProjectSetupDialog(self.root, existing_config=current_config)
+        self.root.wait_window(dialog.dialog)
         
-        print(f"Quality preset: {quality} - Azimuths: {self.terrain_azimuths}, Points: {self.terrain_distances}")
-    
-    def show_project_setup(self):
-        """Show project setup dialog on startup"""
-        try:
-            dialog = ProjectSetupDialog(self.root)
-            self.root.wait_window(dialog.dialog)
-            
-            if dialog.result is None:
-                # User cancelled - exit app
-                print("User cancelled project setup - exiting")
-                self.root.quit()
-                return
-            
-            # Set parameters from dialog
-            self.tx_lat = dialog.result['lat']
-            self.tx_lon = dialog.result['lon']
+        if dialog.result is not None:
+            self.callsign = dialog.result.get('callsign', self.callsign)
+            self.frequency = dialog.result.get('frequency', self.frequency)
+            self.tx_type = dialog.result.get('tx_type', self.tx_type)
+            self.transmission_mode = dialog.result.get('transmission_mode', self.transmission_mode)
+            self.tx_lat = dialog.result['tx_lat']
+            self.tx_lon = dialog.result['tx_lon']
+            self.height = dialog.result.get('height', self.height)
+            self.erp = dialog.result.get('erp', self.erp)
             self.zoom = dialog.result['zoom']
             self.basemap = dialog.result['basemap']
             self.max_distance = dialog.result['radius']
             
-            # Update UI
-            self.tx_label.config(text=f"Lat: {self.tx_lat:.4f}, Lon: {self.tx_lon:.4f}")
-            self.zoom_var.set(str(self.zoom))
-            self.basemap_var.set(self.basemap)
-            self.max_dist_var.set(str(self.max_distance))
+            self.toolbar.update_location(self.tx_lat, self.tx_lon)
+            self.toolbar.set_zoom(self.zoom)
+            self.menubar.vars['basemap_var'].set(self.basemap)
+            self.menubar.vars['max_dist_var'].set(str(self.max_distance))
             
-            print(f"\n{'='*60}")
-            print(f"PROJECT SETUP")
-            print(f"{'='*60}")
-            print(f"Location: {self.tx_lat:.4f}, {self.tx_lon:.4f}")
-            print(f"Zoom: {self.zoom}, Basemap: {self.basemap}")
-            print(f"Coverage radius: {self.max_distance} km")
-            
-            # Load map (will cache tiles)
-            self.load_map()
-            
-            messagebox.showinfo("Project Ready", 
-                              "Map area downloaded and cached!\n\n"
-                              "• Right-click to place transmitter\n"
-                              "• Right-click to probe signal strength\n"
-                              "• Edit transmitter config\n"
-                              "• Click 'Calculate Coverage'\n\n"
-                              "Calculations will now be much faster!")
-        except Exception as e:
-            print(f"ERROR in project setup: {e}")
-            import traceback
-            traceback.print_exc()
-            messagebox.showerror("Setup Error", 
-                               f"Error during project setup:\n{e}\n\n"
-                               "Starting with default location...")
-            # Continue anyway with defaults
-            self.load_map()
+            self.reload_map()
+            self.update_info_panel()
+            self.save_auto_config()
     
-    def calculate_propagation(self):
-        """Calculate and overlay propagation on map"""
-        try:
-            # Get max distance from UI
+    def show_plots_manager(self):
+        """Show plots manager dialog"""
+        if len(self.saved_plots) == 0:
+            messagebox.showinfo("No Plots",
+                              "No coverage plots have been calculated yet.\n\n"
+                              "Calculate coverage first to save plots.")
+            return
+        
+        dialog = PlotsManagerDialog(self.root, self.saved_plots, self)
+        self.root.wait_window(dialog.dialog)
+    
+    # ========================================================================
+    # PROJECT MANAGEMENT
+    # ========================================================================
+    
+    def new_project(self):
+        """Start new project"""
+        # Reset to defaults
+        self.callsign = "KDPI"
+        self.tx_type = "Broadcast FM"
+        self.transmission_mode = "FM"
+        self.tx_lat = 43.4665
+        self.tx_lon = -112.0340
+        self.erp = 40
+        self.frequency = 88.5
+        self.height = 30
+        self.max_distance = 100
+        self.signal_threshold = -110
+        self.terrain_quality = 'Medium'
+        self.basemap = 'Esri WorldImagery'
+        self.zoom = 13
+        
+        self.last_propagation = None
+        self.last_terrain_loss = None
+        self.saved_plots = []
+        
+        self.toolbar.update_location(self.tx_lat, self.tx_lon)
+        self.toolbar.set_zoom(self.zoom)
+        self.show_coverage.set(True)
+        self.show_shadow.set(False)
+        
+        self.reload_map(preserve_propagation=False)
+        self.update_info_panel()
+        self.show_project_setup()
+    
+    def save_project(self):
+        """Save project"""
+        from tkinter import filedialog
+        
+        filename = filedialog.asksaveasfilename(
+            title="Save Project",
+            defaultextension=".vtr",
+            filetypes=[("VetRender Project", "*.vtr"), ("All Files", "*.*")],
+            initialfile=f"{self.callsign}.vtr"
+        )
+        
+        if filename:
             try:
-                self.max_distance = float(self.max_dist_var.get())
-            except ValueError:
-                self.max_distance = 100
-                self.max_dist_var.set("100")
+                project_data = {
+                    'version': '3.0',  # Refactored version
+                    'callsign': self.callsign,
+                    'tx_type': self.tx_type,
+                    'transmission_mode': self.transmission_mode,
+                    'tx_lat': self.tx_lat,
+                    'tx_lon': self.tx_lon,
+                    'erp': self.erp,
+                    'frequency': self.frequency,
+                    'height': self.height,
+                    'max_distance': self.max_distance,
+                    'signal_threshold': self.signal_threshold,
+                    'terrain_quality': self.terrain_quality,
+                    'pattern_name': self.pattern_name,
+                    'zoom': self.zoom,
+                    'basemap': self.basemap,
+                    'saved_plots': self.saved_plots
+                }
+                
+                with open(filename, 'w') as f:
+                    json.dump(project_data, f, indent=2)
+                
+                messagebox.showinfo("Success",
+                                  f"Project saved to:\n{filename}\n\n"
+                                  f"Included {len(self.saved_plots)} coverage plots")
+            except Exception as e:
+                messagebox.showerror("Error", f"Failed to save project:\n{e}")
+    
+    def load_project(self):
+        """Load project"""
+        from tkinter import filedialog
+        
+        filename = filedialog.askopenfilename(
+            title="Load Project",
+            filetypes=[("VetRender Project", "*.vtr"), ("All Files", "*.*")]
+        )
+        
+        if filename:
+            try:
+                with open(filename, 'r') as f:
+                    project_data = json.load(f)
+                
+                # Load parameters
+                self.callsign = project_data.get('callsign', 'UNKNOWN')
+                self.tx_type = project_data.get('tx_type', 'Unknown')
+                self.transmission_mode = project_data.get('transmission_mode', 'Unknown')
+                self.tx_lat = project_data.get('tx_lat', 43.4665)
+                self.tx_lon = project_data.get('tx_lon', -112.0340)
+                self.erp = project_data.get('erp', 40)
+                self.frequency = project_data.get('frequency', 88.5)
+                self.height = project_data.get('height', 30)
+                self.max_distance = project_data.get('max_distance', 100)
+                self.signal_threshold = project_data.get('signal_threshold', -110)
+                self.terrain_quality = project_data.get('terrain_quality', 'Medium')
+                self.pattern_name = project_data.get('pattern_name', 'Default Omni (0 dBi)')
+                self.zoom = 10  # Always start at zoom 10
+                self.basemap = project_data.get('basemap', 'Esri WorldImagery')
+                self.saved_plots = project_data.get('saved_plots', [])
+                
+                # Update UI
+                self.toolbar.update_location(self.tx_lat, self.tx_lon)
+                self.toolbar.set_zoom(10)
+                self.menubar.vars['basemap_var'].set(self.basemap)
+                self.menubar.vars['max_dist_var'].set(str(self.max_distance))
+                self.toolbar.set_quality(self.terrain_quality)
+                self.on_quality_change()
+                
+                self.update_info_panel()
+                self.last_propagation = None
+                self.reload_map(preserve_propagation=False)
+                
+                messagebox.showinfo("Success",
+                                  f"Project loaded:\n{self.callsign}\n\n"
+                                  f"{len(self.saved_plots)} coverage plots restored")
+            except Exception as e:
+                messagebox.showerror("Error", f"Failed to load project:\n{e}")
+    
+    def show_project_setup(self):
+        """Show project setup dialog"""
+        dialog = ProjectSetupDialog(self.root)
+        self.root.wait_window(dialog.dialog)
+        
+        if dialog.result is None:
+            self.root.quit()
+            return
+        
+        self.callsign = dialog.result.get('callsign', 'KDPI')
+        self.frequency = dialog.result.get('frequency', 88.5)
+        self.tx_type = dialog.result.get('tx_type', 'Broadcast FM')
+        self.transmission_mode = dialog.result.get('transmission_mode', 'FM')
+        self.tx_lat = dialog.result['tx_lat']
+        self.tx_lon = dialog.result['tx_lon']
+        self.height = dialog.result.get('height', 30)
+        self.erp = dialog.result.get('erp', 40)
+        self.zoom = dialog.result['zoom']
+        self.basemap = dialog.result['basemap']
+        self.max_distance = dialog.result['radius']
+        
+        self.toolbar.update_location(self.tx_lat, self.tx_lon)
+        self.toolbar.set_zoom(self.zoom)
+        self.update_info_panel()
+        
+        # Cache map tiles
+        self.cache_all_zoom_levels(self.tx_lat, self.tx_lon)
+        self.precache_terrain_for_coverage()
+        
+        self.reload_map(preserve_propagation=False)
+        
+        messagebox.showinfo("Project Ready",
+                          "Map and terrain data fully cached!\n\n"
+                          "Ready to calculate coverage!")
+        
+        self.save_auto_config()
+    
+    def refresh_map_dialog(self):
+        """Show map refresh dialog"""
+        self.edit_station_info()
+    
+    # ========================================================================
+    # HELPER METHODS
+    # ========================================================================
+    
+    def reload_map(self, preserve_propagation=True):
+        """Reload map with current settings"""
+        success = self.map_display.load_map(self.tx_lat, self.tx_lon, self.zoom,
+                                           self.basemap, self.cache)
+        
+        if success:
+            if preserve_propagation and self.last_propagation is not None and self.show_coverage.get():
+                # Redraw propagation overlay
+                az_grid, dist_grid, rx_power_grid = self.last_propagation
+                tx_pixel_x, tx_pixel_y = self.map_display.get_tx_pixel_position(
+                    self.tx_lat, self.tx_lon
+                )
+                self.propagation_plot.plot_coverage(
+                    self.map_display.map_image, tx_pixel_x, tx_pixel_y,
+                    az_grid, dist_grid, rx_power_grid, self.signal_threshold,
+                    self.map_display.get_pixel_scale(),
+                    self.last_terrain_loss, self.show_shadow.get(),
+                    (self.map_display.plot_xlim, self.map_display.plot_ylim),
+                    alpha=self.toolbar.get_transparency()
+                )
+            else:
+                self.map_display.display_map_only(self.tx_lat, self.tx_lon, show_marker=True)
+    
+    def update_info_panel(self):
+        """Update info panel with current settings"""
+        self.info_panel.update(
+            self.callsign, self.frequency, self.transmission_mode, self.tx_type,
+            self.tx_lat, self.tx_lon, self.height, self.erp, self.pattern_name,
+            self.max_distance, self.signal_threshold,
+            self.use_terrain.get(), self.terrain_quality
+        )
+    
+    def cache_all_zoom_levels(self, lat, lon):
+        """Cache map tiles at all zoom levels"""
+        from models.map_handler import MapHandler
+        
+        print(f"Caching all zoom levels for {lat:.6f}, {lon:.6f}...")
+        zoom_levels = [10, 11, 12, 13, 14, 15, 16]
+        
+        for i, zoom in enumerate(zoom_levels):
+            self.toolbar.set_status(f"Caching zoom level {zoom} [{i+1}/{len(zoom_levels)}]...")
+            self.root.update()
+            MapHandler.get_map_tile(lat, lon, zoom, tile_size=3,
+                                   basemap=self.basemap, cache=self.cache)
+        
+        self.toolbar.set_status("All zoom levels cached")
+    
+    def precache_terrain_for_coverage(self):
+        """Pre-cache terrain elevation data"""
+        print(f"Pre-caching terrain data...")
+        
+        presets = {
+            'Low': (36, 25),
+            'Medium': (72, 50),
+            'High': (360, 100)
+        }
+        
+        azimuths_count, distances_count = presets.get(self.terrain_quality, (72, 50))
+        
+        all_points = []
+        azimuths = np.linspace(0, 360, azimuths_count, endpoint=False)
+        distances = np.linspace(0.1, self.max_distance, distances_count)
+        
+        for az in azimuths:
+            for d in distances:
+                lat_offset = d * np.cos(np.radians(az)) / 111.0
+                lon_offset = d * np.sin(np.radians(az)) / (111.0 * np.cos(np.radians(self.tx_lat)))
+                point_lat = self.tx_lat + lat_offset
+                point_lon = self.tx_lon + lon_offset
+                all_points.append((point_lat, point_lon))
+        
+        batch_size = 100
+        total_batches = (len(all_points) + batch_size - 1) // batch_size
+        
+        for batch_num in range(total_batches):
+            start_idx = batch_num * batch_size
+            end_idx = min(start_idx + batch_size, len(all_points))
+            batch = all_points[start_idx:end_idx]
             
-            print(f"\n{'='*60}")
-            print(f"CALCULATING PROPAGATION")
-            print(f"{'='*60}")
-            print(f"Transmitter Location: Lat={self.tx_lat:.6f}, Lon={self.tx_lon:.6f}")
-            print(f"ERP: {self.erp} dBm")
-            print(f"Frequency: {self.frequency} MHz")
-            print(f"Antenna Height: {self.height} m")
-            print(f"Max Distance: {self.max_distance} km")
-            print(f"Resolution: {self.resolution} points")
-            print(f"Antenna Pattern: {self.pattern_name}")
-            print(f"Use Terrain: {self.use_terrain.get()}")
-            
-            self.status_var.set("Calculating propagation...")
+            self.toolbar.set_status(
+                f"Caching terrain [{batch_num+1}/{total_batches}] - {end_idx}/{len(all_points)} points..."
+            )
             self.root.update()
             
-            eirp_dbm = PropagationModel.erp_to_eirp(self.erp)
-            print(f"EIRP: {eirp_dbm:.2f} dBm")
+            TerrainHandler.get_elevations_batch(batch)
+        
+        self.toolbar.set_status("Terrain data cached")
+    
+    def save_current_plot_to_history(self):
+        """Save current plot to history"""
+        if self.last_propagation is None:
+            return
+        
+        timestamp = datetime.datetime.now()
+        plot_name = f"Plot_{timestamp.strftime('%Y%m%d_%H%M%S')}"
+        
+        plot_data = {
+            'timestamp': timestamp.isoformat(),
+            'name': plot_name,
+            'parameters': {
+                'tx_lat': self.tx_lat,
+                'tx_lon': self.tx_lon,
+                'erp': self.erp,
+                'frequency': self.frequency,
+                'height': self.height,
+                'max_distance': self.max_distance,
+                'resolution': self.resolution,
+                'signal_threshold': self.signal_threshold,
+                'use_terrain': self.use_terrain.get(),
+                'pattern_name': self.pattern_name,
+                'zoom': self.zoom,
+                'basemap': self.basemap
+            },
+            'az_grid': self.last_propagation[0].tolist(),
+            'dist_grid': self.last_propagation[1].tolist(),
+            'rx_power_grid': self.last_propagation[2].tolist(),
+            'terrain_loss_grid': self.last_terrain_loss.tolist() if self.last_terrain_loss is not None else None
+        }
+        
+        self.saved_plots.append(plot_data)
+        
+        if len(self.saved_plots) > 20:
+            self.saved_plots = self.saved_plots[-20:]
+        
+        # Save render
+        renders_dir = os.path.join("logs", "renders")
+        os.makedirs(renders_dir, exist_ok=True)
+        
+        try:
+            filename = os.path.join(renders_dir, f"{plot_name}.jpg")
+            self.fig.savefig(filename, dpi=150, bbox_inches='tight', format='jpg')
+        except Exception as e:
+            print(f"Warning: Failed to save plot render: {e}")
+    
+    def load_plot_from_history(self, idx):
+        """Load a plot from history by index
+        
+        Args:
+            idx: Index of plot in saved_plots list
             
-            print(f"\nCreating calculation grid...")
-            azimuths = np.linspace(0, 360, self.resolution)
-            distances = np.linspace(0.1, self.max_distance, self.resolution)
+        Returns:
+            bool: True if successful, False otherwise
+        """
+        try:
+            if idx < 0 or idx >= len(self.saved_plots):
+                return False
             
-            az_grid, dist_grid = np.meshgrid(azimuths, distances)
-            print(f"Grid shape: {az_grid.shape}")
+            plot_data = self.saved_plots[idx]
             
-            print(f"Calculating antenna gains...")
-            gain_grid = np.zeros_like(az_grid)
-            for i, az in enumerate(azimuths):
-                gain_grid[:, i] = self.antenna_pattern.get_gain(az, elevation=0)
+            # Restore grids from saved data
+            import numpy as np
+            az_grid = np.array(plot_data['az_grid'])
+            dist_grid = np.array(plot_data['dist_grid'])
+            rx_power_grid = np.array(plot_data['rx_power_grid'])
             
-            print(f"Gain range: {gain_grid.min():.2f} to {gain_grid.max():.2f} dBi")
+            terrain_loss_grid = None
+            if plot_data['terrain_loss_grid'] is not None:
+                terrain_loss_grid = np.array(plot_data['terrain_loss_grid'])
             
-            print(f"Calculating path loss...")
-            fspl_grid = PropagationModel.free_space_loss(dist_grid, self.frequency)
-            
-            terrain_loss_grid = np.zeros_like(dist_grid)
-            if self.use_terrain.get():
-                print(f"Fetching terrain data and calculating terrain losses...")
-                self.status_var.set("Fetching terrain data...")
-                self.root.update()
-                
-                # Get user-defined granularity
-                try:
-                    sample_azimuths_count = int(self.azimuth_var.get())
-                    sample_distances_count = int(self.dist_points_var.get())
-                except ValueError:
-                    sample_azimuths_count = 72
-                    sample_distances_count = 50
-                    print(f"Invalid granularity values, using defaults: {sample_azimuths_count} azimuths, {sample_distances_count} distances")
-                
-                print(f"Terrain granularity: {sample_azimuths_count} azimuths, {sample_distances_count} distance points")
-                print(f"Total terrain queries: {sample_azimuths_count * sample_distances_count}")
-                
-                # Increase resolution for better terrain sampling
-                sample_azimuths = np.linspace(0, 360, sample_azimuths_count)
-                sample_distances = np.linspace(0, self.max_distance, sample_distances_count)
-                
-                for i, az in enumerate(sample_azimuths):
-                    if i % max(1, sample_azimuths_count // 10) == 0:
-                        print(f"  Processing azimuth {az:.0f}° ({i+1}/{len(sample_azimuths)})")
-                    
-                    lat_points = []
-                    lon_points = []
-                    for d in sample_distances:
-                        lat_offset = d * np.cos(np.radians(az)) / 111.0
-                        lon_offset = d * np.sin(np.radians(az)) / (111.0 * np.cos(np.radians(self.tx_lat)))
-                        
-                        point_lat = self.tx_lat + lat_offset
-                        point_lon = self.tx_lon + lon_offset
-                        lat_points.append(point_lat)
-                        lon_points.append(point_lon)
-                    
-                    elevations = TerrainHandler.get_elevations_batch(list(zip(lat_points, lon_points)))
-                    
-                    terrain_loss = PropagationModel.terrain_diffraction_loss(
-                        self.height, 2, elevations, self.frequency
-                    )
-                    
-                    # Apply terrain loss to nearby azimuths with interpolation
-                    az_idx = np.argmin(np.abs(azimuths - az))
-                    spread = max(2, int(len(azimuths) / (sample_azimuths_count * 2)))  # Better spread calculation
-                    
-                    # Apply Gaussian-like weighting for smoother interpolation
-                    for offset in range(-spread, spread + 1):
-                        idx = (az_idx + offset) % len(azimuths)
-                        # Gaussian weight for smoother transitions
-                        sigma = spread / 2.0
-                        weight = np.exp(-(offset**2) / (2 * sigma**2))
-                        terrain_loss_grid[:, idx] += terrain_loss * weight
-                
-                print(f"Terrain loss range: {terrain_loss_grid.min():.2f} to {terrain_loss_grid.max():.2f} dB")
-            
-            rx_power_grid = eirp_dbm + gain_grid - fspl_grid - terrain_loss_grid
-            
-            # Apply simple averaging smoothing to reduce artifacts
-            # Create a smoothed version by averaging with neighbors
-            smoothed = np.copy(rx_power_grid)
-            kernel_size = 3
-            for i in range(kernel_size, rx_power_grid.shape[0] - kernel_size):
-                for j in range(kernel_size, rx_power_grid.shape[1] - kernel_size):
-                    smoothed[i, j] = np.mean(rx_power_grid[i-kernel_size:i+kernel_size+1, j-kernel_size:j+kernel_size+1])
-            rx_power_grid = smoothed
-            
-            print(f"FSPL range: {fspl_grid.min():.2f} to {fspl_grid.max():.2f} dB")
-            print(f"Received power range: {rx_power_grid.min():.2f} to {rx_power_grid.max():.2f} dBm")
-            
-            print(f"Plotting propagation overlay...")
-            self.plot_propagation_on_map(az_grid, dist_grid, rx_power_grid)
-            
-            # Store propagation results for probing
+            # Store as current propagation
             self.last_propagation = (az_grid, dist_grid, rx_power_grid)
+            self.last_terrain_loss = terrain_loss_grid
             
-            print(f"{'='*60}")
-            print(f"PROPAGATION CALCULATION COMPLETE")
-            print(f"{'='*60}\n")
+            # Restore parameters
+            params = plot_data['parameters']
+            self.tx_lat = params['tx_lat']
+            self.tx_lon = params['tx_lon']
+            self.erp = params['erp']
+            self.frequency = params['frequency']
+            self.height = params['height']
+            self.max_distance = params['max_distance']
+            self.signal_threshold = params['signal_threshold']
+            self.use_terrain.set(params['use_terrain'])
+            self.pattern_name = params.get('pattern_name', 'Unknown')
+            self.zoom = params.get('zoom', 13)
+            self.basemap = params.get('basemap', 'Esri WorldImagery')
             
-            self.status_var.set(f"Coverage calculated - EIRP: {eirp_dbm:.1f} dBm")
+            # Update UI
+            self.toolbar.update_location(self.tx_lat, self.tx_lon)
+            self.toolbar.set_zoom(self.zoom)
+            self.menubar.vars['basemap_var'].set(self.basemap)
+            self.menubar.vars['max_dist_var'].set(str(self.max_distance))
+            self.update_info_panel()
+            
+            # Reload map and redraw coverage
+            self.reload_map(preserve_propagation=True)
+            
+            return True
             
         except Exception as e:
-            print(f"\nERROR in calculate_propagation:")
-            print(f"Error type: {type(e).__name__}")
-            print(f"Error message: {e}")
+            print(f"Error loading plot from history: {e}")
             import traceback
             traceback.print_exc()
-            messagebox.showerror("Error", f"Calculation error: {e}")
-            self.status_var.set("Error in calculation")
+            return False
     
-    def plot_propagation_on_map(self, az_grid, dist_grid, rx_power_grid):
-        """Overlay propagation pattern on map"""
-        self.ax.clear()
+    def delete_plot_from_history(self, idx):
+        """Delete a plot from history by index
         
-        if self.map_image:
-            self.ax.imshow(self.map_image, extent=[0, self.map_image.size[0], self.map_image.size[1], 0])
+        Args:
+            idx: Index of plot in saved_plots list
             
-            img_center = self.map_image.size[0] // 2
+        Returns:
+            bool: True if successful, False otherwise
+        """
+        try:
+            if idx < 0 or idx >= len(self.saved_plots):
+                return False
             
-            scale = 30 * (2 ** (self.map_zoom - 13))
+            # Delete the plot
+            del self.saved_plots[idx]
             
-            az_rad = np.deg2rad(az_grid)
-            x = img_center + dist_grid * scale * np.sin(az_rad)
-            y = img_center - dist_grid * scale * np.cos(az_rad)
+            return True
             
-            # Create custom colormap: Red (strong) -> Yellow -> Green -> Cyan -> Blue (weak)
-            colors = [
-                '#0000FF',  # Blue (weakest)
-                '#0080FF',  # Light blue
-                '#00FFFF',  # Cyan
-                '#00FF80',  # Cyan-green
-                '#00FF00',  # Green
-                '#80FF00',  # Yellow-green
-                '#FFFF00',  # Yellow (mid)
-                '#FFD000',  # Orange-yellow
-                '#FFA000',  # Orange
-                '#FF6000',  # Red-orange
-                '#FF0000',  # Red (strongest)
-            ]
-            cmap = LinearSegmentedColormap.from_list('signal_strength', colors, N=256)
-            
-            # Mask areas below threshold (dead spots)
-            rx_power_masked = np.ma.masked_where(rx_power_grid < self.signal_threshold, rx_power_grid)
-            
-            # Create levels ensuring they're increasing
-            max_power = float(rx_power_masked.max())
-            min_power = float(max(rx_power_masked.min(), self.signal_threshold))
-            
-            # Only create contours if we have valid data range
-            if max_power > min_power + 1:  # At least 1 dB difference
-                levels = np.linspace(min_power, max_power, 60)  # More levels for smoother gradients
-                contour = self.ax.contourf(x, y, rx_power_masked, levels=levels, cmap=cmap, alpha=0.65, extend='neither', antialiased=True)
+        except Exception as e:
+            print(f"Error deleting plot from history: {e}")
+            return False
+    
+    def load_auto_config(self):
+        """Load auto-saved configuration"""
+        try:
+            if os.path.exists(self.CONFIG_FILE):
+                with open(self.CONFIG_FILE, 'r') as f:
+                    config = json.load(f)
                 
-                if hasattr(self, 'colorbar') and self.colorbar is not None:
-                    try:
-                        self.colorbar.remove()
-                    except:
-                        pass
-                self.colorbar = self.fig.colorbar(contour, ax=self.ax, pad=0.01, fraction=0.03, aspect=30)
-                self.colorbar.set_label('Signal Strength (dBm)', rotation=270, labelpad=15, fontsize=9)
-                self.colorbar.ax.tick_params(labelsize=8)
-            else:
-                print("Warning: Insufficient signal range for contour plot")
+                self.callsign = config.get('callsign', self.callsign)
+                self.tx_type = config.get('tx_type', self.tx_type)
+                self.transmission_mode = config.get('transmission_mode', self.transmission_mode)
+                self.tx_lat = config.get('tx_lat', self.tx_lat)
+                self.tx_lon = config.get('tx_lon', self.tx_lon)
+                self.erp = config.get('erp', self.erp)
+                self.frequency = config.get('frequency', self.frequency)
+                self.height = config.get('height', self.height)
+                self.max_distance = config.get('max_distance', self.max_distance)
+                self.signal_threshold = config.get('signal_threshold', self.signal_threshold)
+                self.terrain_quality = config.get('terrain_quality', self.terrain_quality)
+                self.pattern_name = config.get('pattern_name', self.pattern_name)
+                self.zoom = config.get('zoom', self.zoom)
+                self.basemap = config.get('basemap', self.basemap)
+                use_terrain = config.get('use_terrain', False)
+                self.use_terrain.set(use_terrain)
+                
+                print(f"Auto-loaded previous session: {self.callsign}")
+                return True
+        except Exception as e:
+            print(f"Could not load auto-config: {e}")
+        
+        return False
+    
+    def save_auto_config(self):
+        """Save configuration automatically"""
+        try:
+            config = {
+                'version': '3.0',
+                'callsign': self.callsign,
+                'tx_type': self.tx_type,
+                'transmission_mode': self.transmission_mode,
+                'tx_lat': self.tx_lat,
+                'tx_lon': self.tx_lon,
+                'erp': self.erp,
+                'frequency': self.frequency,
+                'height': self.height,
+                'max_distance': self.max_distance,
+                'signal_threshold': self.signal_threshold,
+                'terrain_quality': self.terrain_quality,
+                'pattern_name': self.pattern_name,
+                'zoom': self.zoom,
+                'basemap': self.basemap,
+                'use_terrain': self.use_terrain.get()
+            }
             
-            # Mark transmitter
-            self.ax.plot(img_center, img_center, 'r^', markersize=15, 
-                        markeredgecolor='white', markeredgewidth=2, label='Transmitter', zorder=10)
-            
-            self.ax.set_xlim(0, self.map_image.size[0])
-            self.ax.set_ylim(self.map_image.size[1], 0)
-            self.ax.axis('off')
-            self.ax.legend(loc='upper right', fontsize=10, framealpha=0.9)
-            
-            # Remove all margins
-            self.fig.tight_layout(pad=0)
-            
-        self.canvas.draw()
+            with open(self.CONFIG_FILE, 'w') as f:
+                json.dump(config, f, indent=2)
+        except Exception as e:
+            print(f"Error saving auto-config: {e}")
+    
+    def on_closing(self):
+        """Handle window close"""
+        print("Closing application...")
+        self.save_auto_config()
+        self.root.destroy()
+
+
+def main():
+    """Main entry point"""
+    import numpy as np  # Ensure numpy is imported
+    
+    root = tk.Tk()
+    app = VetRender(root)
+    root.mainloop()
+
+
+if __name__ == "__main__":
+    main()

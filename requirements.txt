@@ -1,0 +1,17 @@
+# VetRender Requirements
+# ======================
+
+# Core dependencies
+numpy>=1.21.0
+matplotlib>=3.5.0
+Pillow>=9.0.0
+requests>=2.28.0
+
+# Scientific computing
+scipy>=1.7.0
+
+# GUI
+# tkinter is included with Python
+
+# Optional but recommended
+# python-dateutil>=2.8.0  # Usually included with matplotlib

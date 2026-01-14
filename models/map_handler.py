@@ -60,16 +60,27 @@ class MapHandler:
     
     @staticmethod
     def pixel_to_latlon(pixel_x, pixel_y, center_lat, center_lon, zoom, img_size):
-        """Convert pixel coordinates to lat/lon"""
-        center_xtile, center_ytile = MapHandler.deg2num(center_lat, center_lon, zoom)
-        
+        """Convert pixel coordinates to lat/lon
+
+        This needs to account for the fact that deg2num returns INTEGER tile numbers,
+        but the actual center may be at a fractional position within that tile.
+        """
+        # Get the exact fractional tile position of the center
+        lat_rad = np.radians(center_lat)
+        n = 2.0 ** zoom
+        center_xtile_exact = (center_lon + 180.0) / 360.0 * n
+        center_ytile_exact = (1.0 - np.log(np.tan(lat_rad) + (1 / np.cos(lat_rad))) / np.pi) / 2.0 * n
+
+        # Calculate pixel offset from image center
         tile_size = 256
         tiles_offset_x = (pixel_x - img_size / 2) / tile_size
         tiles_offset_y = (pixel_y - img_size / 2) / tile_size
-        
-        new_xtile = center_xtile + tiles_offset_x
-        new_ytile = center_ytile + tiles_offset_y
-        
+
+        # Add offset to exact center position (not integer tile)
+        new_xtile = center_xtile_exact + tiles_offset_x
+        new_ytile = center_ytile_exact + tiles_offset_y
+
+        # Convert back to lat/lon
         lat, lon = MapHandler.num2deg(new_xtile, new_ytile, zoom)
         return lat, lon
     

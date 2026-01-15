@@ -21,12 +21,14 @@
 - 📈 **Signal Probe** - Click-to-query signal strength at any location
 - 🗂️ **Plot History** - Save and compare multiple coverage calculations
 - ⚡ **Smart Caching** - Map tiles and terrain data cached for offline use
+- 🤖 **AI Antenna Import** - Generate XML patterns from websites/PDFs using local LLM
 
 ## Installation
 
 ### Requirements
 - Python 3.8 or higher
 - Anaconda (recommended) or standard Python
+- Ollama (automatically installed via AI Antenna Assistant)
 - ~500MB disk space for cache
 
 ### Setup
@@ -53,6 +55,11 @@ pip install -r requirements.txt --break-system-packages
 python vetrender.py
 ```
 
+5. **Setup AI Antenna Assistant (optional)**
+   - Launch VetRender
+   - Go to Antenna > AI Antenna Assistant
+   - Click to auto-install Ollama and the AI model
+
 ## Quick Start
 
 1. **Launch Application**
@@ -62,6 +69,8 @@ python vetrender.py
 
 2. **Project Setup**
    - Enter station details (callsign, frequency, location)
+   - Optional: Setup AI Antenna Assistant via Antenna > AI Antenna Assistant (one-click install)
+   - Optional: Import custom antenna pattern via Antenna > AI Antenna Import (provide website URL or PDF)
    - Select initial zoom level (13 recommended)
    - Choose basemap style
    - Application will cache map tiles automatically

@@ -9,7 +9,8 @@ Clean orchestration of all modules with ALL CRITICAL FIXES APPLIED:
 
 This replaces the 2000-line monolithic main_window.py with clean module orchestration.
 """
-
+import webbrowser
+import urllib.parse
 import tkinter as tk
 from tkinter import ttk, messagebox, simpledialog
 import json
@@ -25,13 +26,14 @@ from gui.propagation_plot import PropagationPlot
 from gui.info_panel import InfoPanel
 from gui.toolbar import Toolbar
 from gui.menus import MenuBar
-from gui.dialogs import (TransmitterConfigDialog, AntennaInfoDialog, 
+from gui.dialogs import (TransmitterConfigDialog, AntennaInfoDialog,
                         CacheManagerDialog, ProjectSetupDialog, SetLocationDialog,
-                        PlotsManagerDialog)
+                        PlotsManagerDialog, AntennaImportDialog, AntennaMetadataDialog)
 
 from controllers.propagation_controller import PropagationController
 
-from models.antenna import AntennaPattern
+from models.antenna_models.antenna import AntennaPattern
+from models.antenna_library import AntennaLibrary
 from models.map_cache import MapCache
 from models.terrain import TerrainHandler
 from debug_logger import get_logger
@@ -54,6 +56,8 @@ class VetRender:
         
         # Initialize core components
         self.antenna_pattern = AntennaPattern()
+        self.antenna_library = AntennaLibrary()
+        self.current_antenna_id = None  # Track current antenna from library
         self.pattern_name = "Default Omni (0 dBi)"
         self.cache = MapCache()
         self.logger = get_logger()
@@ -200,6 +204,7 @@ class VetRender:
         self.root.bind('<Control-s>', lambda e: self.save_project())
         self.root.bind('<Control-o>', lambda e: self.load_project())
         self.root.bind('<Control-q>', lambda e: self.on_closing())
+        self.root.bind('<F1>', lambda e: self.show_help())
     
     def get_toolbar_callbacks(self):
         """Get toolbar callback dictionary"""
@@ -220,6 +225,11 @@ class VetRender:
             'on_new_project': self.new_project,
             'on_save_project': self.save_project,
             'on_load_project': self.load_project,
+            'on_ai_assistant': self.ai_antenna_assistant,
+            'on_ai_import_antenna': self.import_antenna_pattern,
+            'on_manual_import': self.manual_import_antenna,
+            'on_view_antennas': self.view_antennas,
+            'on_export_antenna': self.export_antenna,
             'on_exit': self.on_closing,
             'on_basemap_change': self.on_basemap_change,
             'on_toggle_coverage': self.toggle_coverage_overlay,
@@ -229,13 +239,11 @@ class VetRender:
             'on_toggle_terrain': lambda: None,  # Handled by checkbox variable
             'on_quality_change': self.on_quality_change,
             'on_terrain_detail_change': self.on_terrain_detail_change,
-            'on_custom_terrain_detail': self.set_custom_terrain_detail
+            'on_custom_terrain_detail': self.set_custom_terrain_detail,
+            'on_set_antenna': self.manual_import_antenna,
         }
-    
-    # ========================================================================
-    # CORE FUNCTIONALITY - Calculate Propagation
-    # ========================================================================
-    
+
+
     def calculate_propagation(self):
         """Calculate RF propagation coverage - orchestrates the controller"""
         try:
@@ -767,7 +775,358 @@ class VetRender:
                                   f"{len(self.saved_plots)} coverage plots restored")
             except Exception as e:
                 messagebox.showerror("Error", f"Failed to load project:\n{e}")
+
+    def import_antenna_pattern(self):
+        """Import antenna pattern from website or PDF using LLM"""
+        self.logger.log("="*80)
+        self.logger.log("AI ANTENNA IMPORT STARTED")
+        self.logger.log("="*80)
+        
+        def on_import(xml_content):
+            # Ask user for metadata
+            self.logger.log("Asking user for antenna metadata...")
+            metadata_dialog = AntennaMetadataDialog(self.root)
+            self.root.wait_window(metadata_dialog.dialog)
+            
+            if not metadata_dialog.result:
+                self.logger.log("User cancelled metadata entry")
+                messagebox.showinfo("Cancelled", "Antenna import cancelled.")
+                return
+            
+            metadata = metadata_dialog.result
+            antenna_name = metadata['name']
+            
+            self.logger.log(f"Saving antenna to library: {antenna_name}")
+            
+            # Save to antenna library
+            success = self.antenna_library.add_antenna(antenna_name, xml_content, metadata)
+            
+            if not success:
+                self.logger.log("ERROR: Failed to save antenna to library")
+                messagebox.showerror("Error", "Failed to save antenna to library.")
+                return
+            
+            self.logger.log(f"SUCCESS: Antenna '{antenna_name}' saved to library")
+            
+            # Load the antenna pattern
+            antenna_list = self.antenna_library.list_antennas()
+            if antenna_list:
+                # Get the ID of the antenna we just added (last one)
+                new_antenna_id = antenna_list[-1][0]
+                self.load_antenna_from_library(new_antenna_id)
+                
+                self.logger.log(f"Loaded antenna pattern: {antenna_name}")
+                messagebox.showinfo("Success", 
+                    f"Antenna '{antenna_name}' imported and loaded successfully!\n\n"
+                    f"It has been saved to your antenna library.")
+            else:
+                self.logger.log("ERROR: Could not find newly added antenna")
+                messagebox.showerror("Error", "Antenna saved but could not load it.")
+
+        dialog = AntennaImportDialog(self.root, on_import)
+        self.root.wait_window(dialog.dialog)
+        self.logger.log("="*80)
+        self.logger.log("AI ANTENNA IMPORT COMPLETED")
+        self.logger.log("="*80)
+
+    def ai_antenna_assistant(self):
+        """Check/install/start Ollama for AI Antenna Assistant"""
+        import subprocess
+        import os
+
+        self.logger.log("="*80)
+        self.logger.log("AI ANTENNA ASSISTANT - BUTTON CLICKED")
+        self.logger.log("="*80)
+
+        # Check if Ollama is installed
+        if not self.is_ollama_installed():
+            self.logger.log("Ollama not found - asking user to install")
+            # Ask user if they want to install
+            response = messagebox.askyesno(
+                "Ollama Not Found",
+                "Ollama AI Assistant is not installed or not found in PATH.\n\n"
+                "Would you like to install it now?\n\n"
+                "(This will download ~850MB)"
+            )
+            if response:
+                self.install_ollama()
+            else:
+                self.logger.log("User declined Ollama installation")
+            self.logger.log("="*80)
+            self.logger.log("AI ANTENNA ASSISTANT - CHECK COMPLETED")
+            self.logger.log("="*80)
+            return
+        
+        # Ollama is installed, check if server is running
+        self.logger.log("AI Assistant: Ollama is installed")
+        
+        if self.is_ollama_server_running():
+            self.logger.log("AI Assistant: Server is already running")
+            messagebox.showinfo(
+                "Ready", 
+                "Ollama is installed and running!\n\n"
+                "You can now use AI Antenna Import from the Tools menu."
+            )
+        else:
+            self.logger.log("AI Assistant: Server not running, attempting to start...")
+            self.start_ollama_server()
+        
+        self.logger.log("="*80)
+        self.logger.log("AI ANTENNA ASSISTANT - CHECK COMPLETED")
+        self.logger.log("="*80)
+
+    def is_ollama_installed(self):
+        """Check if Ollama is installed"""
+        import subprocess
+        self.logger.log("Checking if Ollama is installed...")
+        try:
+            result = subprocess.run(['ollama', '--version'], capture_output=True, text=True, timeout=10)
+            installed = result.returncode == 0
+            if installed:
+                version = result.stdout.strip()
+                self.logger.log(f"Ollama found: {version}")
+            else:
+                self.logger.log(f"Ollama command failed with return code: {result.returncode}")
+            return installed
+        except subprocess.TimeoutExpired:
+            self.logger.log("Ollama check timed out")
+            return False
+        except FileNotFoundError:
+            self.logger.log("Ollama executable not found in PATH")
+            return False
+
+    def is_ollama_server_running(self):
+        """Check if Ollama server is running"""
+        self.logger.log("Checking if Ollama server is running...")
+        try:
+            import requests
+            response = requests.get('http://localhost:11434/api/tags', timeout=5)
+            running = response.status_code == 200
+            if running:
+                self.logger.log("Ollama server is responding on port 11434")
+                # Log available models
+                data = response.json()
+                if 'models' in data:
+                    model_names = [m.get('name', 'unknown') for m in data.get('models', [])]
+                    self.logger.log(f"Available models: {model_names}")
+            else:
+                self.logger.log(f"Ollama server responded with status: {response.status_code}")
+            return running
+        except Exception as e:
+            self.logger.log(f"Ollama server check failed: {e}")
+            return False
+
+    def start_ollama_server(self):
+        """Start Ollama server in background"""
+        import subprocess
+        self.logger.log("Attempting to start Ollama server...")
+        try:
+            process = subprocess.Popen(['ollama', 'serve'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            self.logger.log(f"AI Assistant: Started Ollama server (PID: {process.pid})")
+            self.logger.log("Waiting 2 seconds for server initialization...")
+            import time
+            time.sleep(2)
+            self.logger.log("Ollama server should now be ready")
+            messagebox.showinfo("Started", "Ollama server started!\n\nGive it a moment to initialize, then use AI Antenna Import.")
+        except FileNotFoundError:
+            self.logger.log("AI Assistant: Failed to start server - ollama executable not found")
+            messagebox.showerror("Error", "Failed to start Ollama server: ollama command not found in PATH")
+        except Exception as e:
+            self.logger.log(f"AI Assistant: Failed to start server: {str(e)}")
+            messagebox.showerror("Error", f"Failed to start Ollama server: {str(e)}")
+
+    def install_ollama(self):
+        """Install Ollama using the script"""
+        import subprocess
+        self.logger.log("="*80)
+        self.logger.log("OLLAMA INSTALLATION INITIATED")
+        self.logger.log("="*80)
+        
+        script_path = os.path.join(os.path.dirname(__file__), '..', 'install_ollama.ps1')
+        script_path = os.path.abspath(script_path)
+
+        self.logger.log(f"AI Assistant: Looking for script at {script_path}")
+
+        if not os.path.exists(script_path):
+            self.logger.log(f"AI Assistant: Script not found at {script_path}")
+            messagebox.showerror("Error", f"Installation script not found at {script_path}. Please reinstall VetRender.")
+            self.logger.log("="*80)
+            self.logger.log("OLLAMA INSTALLATION ABORTED - SCRIPT NOT FOUND")
+            self.logger.log("="*80)
+            return
+        
+        self.logger.log(f"Script found, size: {os.path.getsize(script_path)} bytes")
+
+        # Show progress message
+        messagebox.showinfo("Installing", 
+            "Starting Ollama installation...\n\n"
+            "This will take 5-10 minutes. The window may appear frozen.\n\n"
+            "Please be patient and do NOT close VetRender.")
+        self.logger.log("Starting installation...")
+        
+        # Update UI to show we're working
+        self.root.update()
+
+        try:
+            self.logger.log("AI Assistant: Running PowerShell install script...")
+            self.logger.log(f"Command: powershell.exe -ExecutionPolicy Bypass -File {script_path}")
+            
+            # Create a temporary log file for script output
+            import tempfile
+            with tempfile.NamedTemporaryFile(mode='w+', suffix='.log', delete=False) as temp_log:
+                temp_log_path = temp_log.name
+            
+            self.logger.log(f"Script output will be logged to: {temp_log_path}")
+            
+            # Run PowerShell script with output redirected to file
+            # This prevents blocking on large output
+            with open(temp_log_path, 'w') as output_file:
+                result = subprocess.run(
+                    ['powershell.exe', '-ExecutionPolicy', 'Bypass', '-File', script_path],
+                    stdout=output_file,
+                    stderr=subprocess.STDOUT,
+                    timeout=600,  # 10 min timeout
+                    text=True
+                )
+            
+            # Read the output
+            try:
+                with open(temp_log_path, 'r') as output_file:
+                    script_output = output_file.read()
+                os.unlink(temp_log_path)  # Clean up temp file
+            except Exception as e:
+                self.logger.log(f"Warning: Could not read temp log file: {e}")
+                script_output = "(Could not read script output)"
+
+            self.logger.log(f"AI Assistant: Script return code: {result.returncode}")
+            self.logger.log(f"AI Assistant: Script output:\n{script_output}")
+
+            if result.returncode == 0:
+                self.logger.log("SUCCESS: Ollama installation completed")
+                messagebox.showinfo(
+                    "Success", 
+                    "Ollama installed successfully!\n\n"
+                    "IMPORTANT: You must restart your computer for PATH changes to take effect.\n\n"
+                    "After restart, click 'AI Antenna Assistant' again to start the server."
+                )
+            else:
+                self.logger.log(f"ERROR: Installation failed with code {result.returncode}")
+                messagebox.showerror(
+                    "Installation Failed",
+                    f"Installation failed with error code {result.returncode}\n\n"
+                    f"Check the log file for details.\n\n"
+                    f"You can try manual installation from https://ollama.ai"
+                )
+                
+        except subprocess.TimeoutExpired:
+            self.logger.log("AI Assistant: Script timed out after 10 minutes")
+            messagebox.showerror(
+                "Timeout", 
+                "Installation timed out after 10 minutes.\n\n"
+                "This might mean the installation is still running in the background.\n\n"
+                "Check Task Manager for 'OllamaSetup.exe' or 'ollama.exe' processes."
+            )
+        except Exception as e:
+            self.logger.log(f"AI Assistant: Exception during installation: {str(e)}")
+            import traceback
+            self.logger.log(f"Traceback:\n{traceback.format_exc()}")
+            messagebox.showerror("Error", f"Installation error: {str(e)}")
+        
+        self.logger.log("="*80)
+        self.logger.log("OLLAMA INSTALLATION PROCESS COMPLETED")
+        self.logger.log("="*80)
+
+    def manual_import_antenna(self):
+        """Manually import antenna pattern from XML file"""
+        from tkinter import filedialog
+        filepath = filedialog.askopenfilename(
+            title="Select Antenna XML File",
+            filetypes=[("XML files", "*.xml"), ("All files", "*.*")]
+        )
+        if filepath:
+            success = self.antenna_pattern.load_from_xml(filepath)
+            if success:
+                self.pattern_name = filepath.split('/')[-1].replace('.xml', '')
+                self.current_antenna_id = None  # Not from library
+                self.update_info_panel()
+                messagebox.showinfo("Success", "Antenna pattern loaded successfully!")
+            else:
+                messagebox.showerror("Error", "Failed to load XML file. Check format.")
     
+    def load_antenna_from_library(self, antenna_id):
+        """Load an antenna pattern from the library
+        
+        Args:
+            antenna_id: ID of antenna in library
+        """
+        self.logger.log(f"Loading antenna from library: {antenna_id}")
+        
+        # Get antenna XML path
+        xml_path = self.antenna_library.get_antenna_xml_path(antenna_id)
+        if not xml_path:
+            self.logger.log(f"ERROR: Could not find XML for antenna {antenna_id}")
+            messagebox.showerror("Error", "Could not find antenna in library.")
+            return False
+        
+        # Load the pattern
+        success = self.antenna_pattern.load_from_xml(xml_path)
+        if not success:
+            self.logger.log(f"ERROR: Failed to load antenna pattern from {xml_path}")
+            messagebox.showerror("Error", "Failed to load antenna pattern.")
+            return False
+        
+        # Get antenna info
+        antenna_info = self.antenna_library.get_antenna(antenna_id)
+        if antenna_info:
+            self.pattern_name = antenna_info['name']
+            self.current_antenna_id = antenna_id
+            self.logger.log(f"Successfully loaded antenna: {self.pattern_name}")
+            self.update_info_panel()
+            return True
+        
+        return False
+
+    def view_antennas(self):
+        """View available antennas"""
+        info = f"Current Antenna: {self.pattern_name}\n\n"
+        info += "Azimuth Gains (sample):\n"
+        for angle in [0, 90, 180, 270]:
+            gain = self.antenna_pattern.get_gain(angle)
+            info += f"{angle}°: {gain:.1f} dBi\n"
+        info += "\nElevation Gains (sample):\n"
+        for angle in [-90, -45, 0, 45, 90]:
+            gain = self.antenna_pattern.get_gain(0, angle)
+            info += f"{angle}°: {gain:.1f} dBi\n"
+        messagebox.showinfo("Antenna Details", info)
+
+    def export_antenna(self):
+        """Export current antenna pattern to XML file"""
+        from tkinter import filedialog
+        filepath = filedialog.asksaveasfilename(
+            title="Save Antenna XML",
+            defaultextension=".xml",
+            filetypes=[("XML files", "*.xml"), ("All files", "*.*")],
+            initialfile=f"{self.pattern_name}.xml"
+        )
+        if filepath:
+            # Generate XML
+            xml_content = '<antenna>\n<azimuth>\n'
+            for angle in range(0, 360, 10):  # Every 10 degrees
+                gain = self.antenna_pattern.get_gain(angle)
+                xml_content += f'<point angle="{angle}" gain="{gain:.1f}"/>\n'
+            xml_content += '</azimuth>\n<elevation>\n'
+            for angle in range(-90, 91, 10):
+                gain = self.antenna_pattern.get_gain(0, angle)
+                xml_content += f'<point angle="{angle}" gain="{gain:.1f}"/>\n'
+            xml_content += '</elevation>\n</antenna>'
+
+            try:
+                with open(filepath, 'w') as f:
+                    f.write(xml_content)
+                messagebox.showinfo("Success", "Antenna exported successfully!")
+            except Exception as e:
+                messagebox.showerror("Error", f"Failed to save file: {e}")
+
     def show_project_setup(self):
         """Show project setup dialog"""
         dialog = ProjectSetupDialog(self.root)
@@ -838,11 +1197,17 @@ class VetRender:
     
     def update_info_panel(self):
         """Update info panel with current settings"""
+        # Get antenna details if from library
+        antenna_details = None
+        if self.current_antenna_id:
+            antenna_details = self.antenna_library.get_antenna(self.current_antenna_id)
+        
         self.info_panel.update(
             self.callsign, self.frequency, self.transmission_mode, self.tx_type,
             self.tx_lat, self.tx_lon, self.height, self.erp, self.pattern_name,
             self.max_distance, self.signal_threshold,
-            self.use_terrain.get(), self.terrain_quality
+            self.use_terrain.get(), self.terrain_quality,
+            antenna_details=antenna_details
         )
     
     def cache_all_zoom_levels(self, lat, lon):

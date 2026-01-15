@@ -1,0 +1,14 @@
+{
+  "Imported_Antenna_0": {
+    "name": "Imported Antenna",
+    "xml_file": "Imported_Antenna_0.xml",
+    "manufacturer": "Sinclair",
+    "part_number": "SC46A-HL",
+    "gain": 10.0,
+    "band": "700",
+    "frequency_range": "746-869",
+    "type": "Omni",
+    "notes": "",
+    "import_date": "2026-01-14 15:27:05"
+  }
+}

@@ -17,7 +17,7 @@ import os
 import datetime
 from models.propagation import PropagationModel
 from models.terrain import TerrainHandler
-from models.antenna import AntennaPattern
+from models.antenna_models.antenna import AntennaPattern
 
 
 class PropagationController:
@@ -274,79 +274,57 @@ class PropagationController:
             
             terrain_loss_samples[:, i] = terrain_loss
         
-        # 🔥 NEW: Apply Gaussian smoothing to reduce interpolation artifacts
-        print(f"Applying Gaussian smoothing to terrain data...")
+        print(f"Interpolating terrain loss to Cartesian grid...")
+        
+        # Convert polar samples to Cartesian coordinates for proper interpolation
+        # Create sample points in Cartesian space
+        sample_x = []
+        sample_y = []
+        sample_loss = []
+        
+        for i, dist in enumerate(sample_distances):
+            for j, azimuth in enumerate(sample_azimuths):
+                # Convert polar (distance, azimuth) to Cartesian (x, y)
+                # Azimuth measured clockwise from North
+                x = dist * np.sin(np.radians(azimuth))
+                y = dist * np.cos(np.radians(azimuth))
+                sample_x.append(x)
+                sample_y.append(y)
+                sample_loss.append(terrain_loss_samples[i, j])
+        
+        # Stack into array for griddata
+        points = np.column_stack([sample_x, sample_y])
+        values = np.array(sample_loss)
+        
+        # Recreate Cartesian grids from polar coordinates for interpolation
+        # Convert back from polar (dist, az) to Cartesian (x, y)
+        x_grid = dist_grid * np.sin(np.radians(az_grid))
+        y_grid = dist_grid * np.cos(np.radians(az_grid))
+        
+        # Flatten the Cartesian grid for interpolation
+        grid_points = np.column_stack([x_grid.flatten(), y_grid.flatten()])
+        
+        # Use scipy griddata for smooth interpolation from polar samples to Cartesian grid
         try:
-            from scipy.ndimage import gaussian_filter
-            # Smooth along azimuth axis (axis=1) to blend adjacent directions
-            # sigma=1.5 provides good smoothing without losing terrain detail
-            terrain_loss_samples = gaussian_filter(terrain_loss_samples, sigma=(0, 1.5))
-            print(f"  Smoothing applied (sigma=1.5 on azimuth axis)")
-        except ImportError:
-            print(f"  Warning: scipy not available, skipping smoothing")
-        except Exception as e:
-            print(f"  Warning: Smoothing failed: {e}")
+            from scipy.interpolate import griddata
+            # Use 'cubic' for smoothest results, or 'linear' if cubic fails
+            print(f"  Using scipy griddata with cubic interpolation")
+            terrain_loss_flat = griddata(points, values, grid_points, method='cubic', fill_value=0.0)
+            # If cubic produces NaNs, fall back to linear
+            if np.any(np.isnan(terrain_loss_flat)):
+                print(f"  Cubic produced NaNs, falling back to linear")
+                terrain_loss_flat = griddata(points, values, grid_points, method='linear', fill_value=0.0)
+        except:
+            # Fallback: use nearest neighbor if scipy not available or fails
+            print(f"  Warning: scipy griddata failed, using nearest neighbor")
+            from scipy.interpolate import griddata
+            terrain_loss_flat = griddata(points, values, grid_points, method='nearest', fill_value=0.0)
         
-        print(f"Interpolating terrain loss to Cartesian grid (cubic splines)...")
+        # Reshape back to grid
+        terrain_loss_grid = terrain_loss_flat.reshape(dist_grid.shape)
         
-        # Use cubic spline interpolation for smooth transitions
-        try:
-            from scipy.interpolate import interp1d
-            use_cubic = True
-            print(f"  Using cubic spline interpolation")
-        except ImportError:
-            use_cubic = False
-            print(f"  Warning: scipy not available, using linear interpolation")
-        
-        # Numpy-based bilinear interpolation
-        terrain_loss_grid = np.zeros_like(dist_grid)
-        
-        # Wrap azimuth for smooth 0/360 boundary
-        sample_azimuths_wrap = np.append(sample_azimuths, 360)
-        terrain_loss_wrap = np.column_stack([terrain_loss_samples, terrain_loss_samples[:, 0]])
-        
-        for i in range(dist_grid.shape[0]):
-            for j in range(dist_grid.shape[1]):
-                if not mask[i, j] and dist_grid[i, j] > 0.1:
-                    d = dist_grid[i, j]
-                    az = az_grid[i, j]
-                    
-                    # Bilinear interpolation in distance
-                    d_idx = np.searchsorted(sample_distances, d)
-                    if d_idx == 0:
-                        d_idx = 1
-                    if d_idx >= len(sample_distances):
-                        d_idx = len(sample_distances) - 1
-                    
-                    d0, d1 = sample_distances[d_idx-1], sample_distances[d_idx]
-                    w_d = (d - d0) / (d1 - d0) if d1 != d0 else 0
-                    
-                    # Interpolate across azimuths with cubic splines for smooth transitions
-                    if use_cubic:
-                        try:
-                            # Create cubic interpolators for this distance bracket
-                            loss_interp_0 = interp1d(sample_azimuths_wrap, 
-                                                    terrain_loss_wrap[d_idx-1, :],
-                                                    kind='cubic', 
-                                                    fill_value='extrapolate')
-                            loss_interp_1 = interp1d(sample_azimuths_wrap,
-                                                    terrain_loss_wrap[d_idx, :],
-                                                    kind='cubic',
-                                                    fill_value='extrapolate')
-                            
-                            loss0 = float(loss_interp_0(az))
-                            loss1 = float(loss_interp_1(az))
-                        except:
-                            # Fallback to linear if cubic fails
-                            loss0 = np.interp(az, sample_azimuths_wrap, terrain_loss_wrap[d_idx-1, :])
-                            loss1 = np.interp(az, sample_azimuths_wrap, terrain_loss_wrap[d_idx, :])
-                    else:
-                        # Linear interpolation (fallback)
-                        loss0 = np.interp(az, sample_azimuths_wrap, terrain_loss_wrap[d_idx-1, :])
-                        loss1 = np.interp(az, sample_azimuths_wrap, terrain_loss_wrap[d_idx, :])
-                    
-                    # Blend between distances
-                    terrain_loss_grid[i, j] = loss0 * (1 - w_d) + loss1 * w_d
+        # Ensure masked areas stay zero
+        terrain_loss_grid[mask] = 0
         
         terrain_msg = f"Terrain loss range: {terrain_loss_grid[~mask].min():.2f} to {terrain_loss_grid[~mask].max():.2f} dB"
         print(terrain_msg)

@@ -55,6 +55,7 @@ tmp/
 
 # Distribution / packaging
 dist/
+dist_old/
 build/
 *.egg-info/
 *.egg

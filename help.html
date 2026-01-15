@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VetRender User Guide</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f5f5f5;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        nav {
+            background: #2c3e50;
+            padding: 15px 40px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        nav a {
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            display: inline-block;
+            transition: background 0.3s;
+        }
+        
+        nav a:hover {
+            background: #34495e;
+            border-radius: 5px;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        section {
+            margin-bottom: 50px;
+        }
+        
+        h2 {
+            color: #667eea;
+            font-size: 2em;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+        }
+        
+        h3 {
+            color: #764ba2;
+            font-size: 1.5em;
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+        
+        h4 {
+            color: #555;
+            font-size: 1.2em;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        
+        p {
+            margin-bottom: 15px;
+        }
+        
+        ul, ol {
+            margin-left: 30px;
+            margin-bottom: 15px;
+        }
+        
+        li {
+            margin-bottom: 8px;
+        }
+        
+        .feature-box {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        
+        .warning-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        
+        .tip-box {
+            background: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .keyboard-shortcut {
+            display: inline-block;
+            background: #2c3e50;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background: #667eea;
+            color: white;
+        }
+        
+        tr:hover {
+            background: #f5f5f5;
+        }
+        
+        .screenshot {
+            max-width: 100%;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        
+        footer {
+            background: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>VetRender User Guide</h1>
+            <p>Professional RF Propagation Analysis Tool</p>
+            <p style="font-size: 0.9em; margin-top: 10px;">Version 3.0.1</p>
+        </header>
+        
+        <nav>
+            <a href="#getting-started">Getting Started</a>
+            <a href="#interface">Interface</a>
+            <a href="#propagation">Propagation</a>
+            <a href="#antenna">Antennas</a>
+            <a href="#terrain">Terrain</a>
+            <a href="#settings">Settings</a>
+            <a href="#ai-features">AI Features</a>
+            <a href="#troubleshooting">Troubleshooting</a>
+        </nav>
+        
+        <div class="content">
+            
+            <!-- GETTING STARTED -->
+            <section id="getting-started">
+                <h2>Getting Started</h2>
+                
+                <h3>What is VetRender?</h3>
+                <p>VetRender is a professional RF propagation analysis tool designed for wireless engineers, broadcast technicians, and radio enthusiasts. It provides accurate signal coverage predictions using advanced propagation models and terrain analysis.</p>
+                
+                <div class="feature-box">
+                    <h4>Key Features</h4>
+                    <ul>
+                        <li><strong>RF Propagation Modeling</strong> - Calculate coverage areas with free-space path loss</li>
+                        <li><strong>Terrain Analysis</strong> - Account for terrain blockage and diffraction effects</li>
+                        <li><strong>Custom Antenna Patterns</strong> - Import real antenna patterns from XML files</li>
+                        <li><strong>AI-Powered Tools</strong> - Automatically extract antenna data from PDF datasheets</li>
+                        <li><strong>Interactive Maps</strong> - Multiple basemap options with zoom and pan</li>
+                        <li><strong>Project Management</strong> - Save and load complete project configurations</li>
+                    </ul>
+                </div>
+                
+                <h3>Quick Start</h3>
+                <ol>
+                    <li><strong>Launch VetRender</strong> - Double-click the desktop icon or start from the Start Menu</li>
+                    <li><strong>Set Your Location</strong> - Right-click on the map and select "Set Transmitter Location"</li>
+                    <li><strong>Configure Transmitter</strong> - Right-click and select "Edit Transmitter Configuration"
+                        <ul>
+                            <li>Set ERP (Effective Radiated Power in dBm)</li>
+                            <li>Set Frequency (MHz)</li>
+                            <li>Set Antenna Height (meters above ground)</li>
+                        </ul>
+                    </li>
+                    <li><strong>Calculate Coverage</strong> - Click the "Calculate" button on the toolbar</li>
+                    <li><strong>Analyze Results</strong> - View the coverage overlay and probe signal strength by right-clicking</li>
+                </ol>
+                
+                <div class="tip-box">
+                    <h4>Pro Tip</h4>
+                    <p>Use <span class="keyboard-shortcut">Ctrl+S</span> frequently to save your project. VetRender automatically saves your last session, but manual saves preserve your entire configuration including plots.</p>
+                </div>
+            </section>
+            
+            <!-- INTERFACE -->
+            <section id="interface">
+                <h2>Interface Overview</h2>
+                
+                <h3>Main Window Components</h3>
+                
+                <h4>1. Menu Bar</h4>
+                <ul>
+                    <li><strong>File</strong> - New Project, Save Project, Load Project, Exit</li>
+                    <li><strong>View</strong> - Basemap selection, layer controls</li>
+                    <li><strong>Antenna</strong> - Antenna pattern management and AI tools</li>
+                    <li><strong>Plot Settings</strong> - Coverage distance, terrain options, quality presets</li>
+                    <li><strong>Help</strong> - User guide, updates, bug reports</li>
+                </ul>
+                
+                <h4>2. Toolbar</h4>
+                <ul>
+                    <li><strong>Location Display</strong> - Shows current transmitter coordinates</li>
+                    <li><strong>Zoom Controls</strong> - Adjust map zoom level (10-16)</li>
+                    <li><strong>Quality Selector</strong> - Choose calculation quality (Low/Medium/High/Ultra/Custom)</li>
+                    <li><strong>Calculate Button</strong> - Run propagation calculation</li>
+                    <li><strong>Project Controls</strong> - New, Save, Load buttons</li>
+                    <li><strong>Status Bar</strong> - Shows current operation status</li>
+                </ul>
+                
+                <h4>3. Info Panel (Left Side)</h4>
+                <p>Displays current transmitter configuration:</p>
+                <ul>
+                    <li>Call Sign / Station ID</li>
+                    <li>Frequency and Transmission Mode</li>
+                    <li>Transmitter Type</li>
+                    <li>Location (Latitude/Longitude)</li>
+                    <li>Antenna Height</li>
+                    <li>ERP (Effective Radiated Power)</li>
+                    <li>Current Antenna Pattern</li>
+                    <li>Coverage Radius</li>
+                    <li>Signal Threshold</li>
+                    <li>Terrain Status</li>
+                </ul>
+                
+                <h4>4. Map Display (Center)</h4>
+                <ul>
+                    <li><strong>Transmitter Marker</strong> - Red marker shows TX location</li>
+                    <li><strong>Coverage Overlay</strong> - Color-coded signal strength contours</li>
+                    <li><strong>Shadow Zones</strong> - Optional terrain blockage visualization</li>
+                    <li><strong>Interactive Controls</strong> - Right-click for context menu, scroll to zoom</li>
+                </ul>
+                
+                <h3>Keyboard Shortcuts</h3>
+                <table>
+                    <tr>
+                        <th>Shortcut</th>
+                        <th>Action</th>
+                    </tr>
+                    <tr>
+                        <td><span class="keyboard-shortcut">Ctrl+N</span></td>
+                        <td>New Project</td>
+                    </tr>
+                    <tr>
+                        <td><span class="keyboard-shortcut">Ctrl+S</span></td>
+                        <td>Save Project</td>
+                    </tr>
+                    <tr>
+                        <td><span class="keyboard-shortcut">Ctrl+O</span></td>
+                        <td>Load Project</td>
+                    </tr>
+                    <tr>
+                        <td><span class="keyboard-shortcut">Ctrl+Q</span></td>
+                        <td>Exit Application</td>
+                    </tr>
+                    <tr>
+                        <td><span class="keyboard-shortcut">F1</span></td>
+                        <td>Open User Guide</td>
+                    </tr>
+                    <tr>
+                        <td><span class="keyboard-shortcut">Right-Click</span></td>
+                        <td>Open Context Menu</td>
+                    </tr>
+                    <tr>
+                        <td><span class="keyboard-shortcut">Scroll Wheel</span></td>
+                        <td>Zoom In/Out on Map</td>
+                    </tr>
+                </table>
+            </section>
+            
+            <!-- PROPAGATION -->
+            <section id="propagation">
+                <h2>RF Propagation Modeling</h2>
+                
+                <h3>How It Works</h3>
+                <p>VetRender calculates RF propagation using industry-standard free-space path loss models combined with optional terrain analysis. The calculation considers:</p>
+                
+                <ul>
+                    <li><strong>Transmitter Power (ERP)</strong> - Effective Radiated Power in dBm</li>
+                    <li><strong>Frequency</strong> - Operating frequency affects path loss</li>
+                    <li><strong>Distance</strong> - Path loss increases with distance</li>
+                    <li><strong>Antenna Pattern</strong> - Directional gain/loss in each direction</li>
+                    <li><strong>Terrain (Optional)</strong> - Blockage and diffraction effects</li>
+                </ul>
+                
+                <h3>Calculation Process</h3>
+                <ol>
+                    <li><strong>Grid Generation</strong> - Creates a polar grid around the transmitter</li>
+                    <li><strong>Path Loss Calculation</strong> - Computes free-space path loss for each point</li>
+                    <li><strong>Antenna Gain Application</strong> - Applies antenna pattern gain/loss per azimuth</li>
+                    <li><strong>Terrain Analysis (if enabled)</strong> - Calculates terrain blockage and diffraction</li>
+                    <li><strong>Received Power</strong> - Combines all factors to predict signal strength</li>
+                    <li><strong>Visualization</strong> - Generates color-coded coverage overlay</li>
+                </ol>
+                
+                <h3>Coverage Distance</h3>
+                <p>Select coverage radius from <strong>Plot Settings > Coverage Distance</strong>:</p>
+                <ul>
+                    <li><strong>25 km</strong> - Local/urban coverage</li>
+                    <li><strong>50 km</strong> - Regional coverage</li>
+                    <li><strong>75-100 km</strong> - Standard broadcast range</li>
+                    <li><strong>125-200 km</strong> - Long-range/rural coverage</li>
+                    <li><strong>Custom</strong> - Enter specific radius (1-500 km)</li>
+                </ul>
+                
+                <h3>Signal Threshold</h3>
+                <p>The signal threshold (default: -110 dBm) determines what's considered "coverage." Points above this threshold are shown in colored contours, points below are shown as no signal.</p>
+                
+                <div class="tip-box">
+                    <h4>Typical Signal Thresholds</h4>
+                    <ul>
+                        <li><strong>-70 dBm</strong> - Excellent signal (cell phones)</li>
+                        <li><strong>-85 dBm</strong> - Good signal (Wi-Fi)</li>
+                        <li><strong>-95 dBm</strong> - Fair signal (FM radio)</li>
+                        <li><strong>-110 dBm</strong> - Minimum usable (weak signal)</li>
+                    </ul>
+                </div>
+                
+                <h3>Quality Presets</h3>
+                <p>Choose calculation quality based on accuracy needs vs. computation time:</p>
+                
+                <table>
+                    <tr>
+                        <th>Quality</th>
+                        <th>Azimuths</th>
+                        <th>Distance Points</th>
+                        <th>Use Case</th>
+                    </tr>
+                    <tr>
+                        <td>Low</td>
+                        <td>180</td>
+                        <td>100</td>
+                        <td>Quick preview, testing</td>
+                    </tr>
+                    <tr>
+                        <td>Medium</td>
+                        <td>360</td>
+                        <td>200</td>
+                        <td>Standard calculations</td>
+                    </tr>
+                    <tr>
+                        <td>High</td>
+                        <td>360</td>
+                        <td>300</td>
+                        <td>Detailed analysis</td>
+                    </tr>
+                    <tr>
+                        <td>Ultra</td>
+                        <td>360</td>
+                        <td>500</td>
+                        <td>Professional reports</td>
+                    </tr>
+                    <tr>
+                        <td>Custom</td>
+                        <td>User-defined</td>
+                        <td>User-defined</td>
+                        <td>Specific requirements</td>
+                    </tr>
+                </table>
+                
+                <h3>Probing Signal Strength</h3>
+                <p>After calculating coverage:</p>
+                <ol>
+                    <li>Right-click anywhere on the map</li>
+                    <li>Select "Probe Signal Strength Here"</li>
+                    <li>View detailed information:
+                        <ul>
+                            <li>Exact coordinates</li>
+                            <li>Distance from transmitter</li>
+                            <li>Azimuth (bearing)</li>
+                            <li>Predicted signal strength (dBm)</li>
+                            <li>Signal quality assessment</li>
+                        </ul>
+                    </li>
+                </ol>
+            </section>
+            
+            <!-- ANTENNA -->
+            <section id="antenna">
+                <h2>Antenna Patterns</h2>
+                
+                <h3>Default Antenna</h3>
+                <p>VetRender starts with a default omnidirectional antenna (0 dBi gain). This provides equal coverage in all directions.</p>
+                
+                <h3>Importing Antenna Patterns</h3>
+                
+                <h4>Manual Import (XML Files)</h4>
+                <ol>
+                    <li>Right-click on the map</li>
+                    <li>Select "Edit Antenna Information"</li>
+                    <li>Click "Load Pattern from XML"</li>
+                    <li>Select your antenna pattern file (.xml format)</li>
+                </ol>
+                
+                <div class="feature-box">
+                    <h4>XML Format Requirements</h4>
+                    <p>Antenna pattern XML files should contain:</p>
+                    <ul>
+                        <li>Azimuth angles (0-360°)</li>
+                        <li>Gain values (dBi) for each azimuth</li>
+                        <li>Optional: Elevation patterns</li>
+                        <li>Optional: Metadata (manufacturer, model, etc.)</li>
+                    </ul>
+                </div>
+                
+                <h4>AI-Powered Import (PDF Datasheets)</h4>
+                <p><em>Coming Soon:</em> Automatically extract antenna patterns from PDF datasheets using AI</p>
+                
+                <h3>Exporting Patterns</h3>
+                <p>Save your current antenna pattern for reuse:</p>
+                <ol>
+                    <li>Menu: <strong>Antenna > Export Current Antenna</strong></li>
+                    <li>Choose filename and location</li>
+                    <li>Pattern saved as XML file</li>
+                </ol>
+                
+                <h3>Antenna Library</h3>
+                <p>VetRender includes an antenna library for managing multiple patterns:</p>
+                <ul>
+                    <li><strong>View Antennas</strong> - Browse saved patterns</li>
+                    <li><strong>Quick Load</strong> - Switch between antennas instantly</li>
+                    <li><strong>Metadata</strong> - Store manufacturer, model, gain, frequency range</li>
+                </ul>
+            </section>
+            
+            <!-- TERRAIN -->
+            <section id="terrain">
+                <h2>Terrain Analysis</h2>
+                
+                <h3>Enabling Terrain Mode</h3>
+                <p>Check <strong>Plot Settings > Use Terrain Analysis</strong> to include terrain effects in calculations.</p>
+                
+                <div class="warning-box">
+                    <h4>⚠️ Important</h4>
+                    <p>Terrain analysis requires internet connection to download elevation data. The first calculation may take longer as data is cached.</p>
+                </div>
+                
+                <h3>How Terrain Analysis Works</h3>
+                <p>VetRender uses segment-by-segment terrain diffraction analysis:</p>
+                
+                <ol>
+                    <li><strong>Elevation Data Retrieval</strong> - Downloads terrain elevation for your coverage area</li>
+                    <li><strong>Line-of-Sight Analysis</strong> - Checks if terrain blocks signal path</li>
+                    <li><strong>Fresnel Zone Calculation</strong> - Computes required clearance for each frequency</li>
+                    <li><strong>Diffraction Loss</strong> - Calculates signal loss over terrain obstacles</li>
+                    <li><strong>Shadow Zones</strong> - Identifies areas completely blocked by terrain</li>
+                </ol>
+                
+                <h3>Terrain Detail Levels</h3>
+                <p>Choose from <strong>Plot Settings > Terrain Detail</strong>:</p>
+                
+                <table>
+                    <tr>
+                        <th>Detail Level</th>
+                        <th>Points per Radial</th>
+                        <th>Accuracy</th>
+                        <th>Speed</th>
+                    </tr>
+                    <tr>
+                        <td>Low</td>
+                        <td>100</td>
+                        <td>Basic</td>
+                        <td>Fast</td>
+                    </tr>
+                    <tr>
+                        <td>Medium</td>
+                        <td>200</td>
+                        <td>Good</td>
+                        <td>Moderate</td>
+                    </tr>
+                    <tr>
+                        <td>High</td>
+                        <td>300</td>
+                        <td>Very Good</td>
+                        <td>Slower</td>
+                    </tr>
+                    <tr>
+                        <td>Ultra</td>
+                        <td>500</td>
+                        <td>Excellent</td>
+                        <td>Slow</td>
+                    </tr>
+                    <tr>
+                        <td>Maximum</td>
+                        <td>1000</td>
+                        <td>Best</td>
+                        <td>Very Slow</td>
+                    </tr>
+                </table>
+                
+                <h3>Shadow Zones</h3>
+                <p>Enable shadow zone visualization: <strong>View > Layers > Shadow Zones</strong></p>
+                <p>Shadow zones appear as dark areas where terrain completely blocks signal propagation. These areas typically receive no usable signal.</p>
+                
+                <h3>Terrain Cache</h3>
+                <p>Downloaded elevation data is cached locally for faster subsequent calculations. Manage cache from the context menu: <strong>Manage Cache</strong></p>
+            </section>
+            
+            <!-- SETTINGS -->
+            <section id="settings">
+                <h2>Settings & Configuration</h2>
+                
+                <h3>Transmitter Configuration</h3>
+                <p>Access via right-click menu: <strong>Edit Transmitter Configuration</strong></p>
+                
+                <h4>Parameters:</h4>
+                <ul>
+                    <li><strong>ERP (Effective Radiated Power)</strong>
+                        <ul>
+                            <li>Measured in dBm (decibels relative to 1 milliwatt)</li>
+                            <li>Typical range: 10 dBm (10 mW) to 80 dBm (100 kW)</li>
+                            <li>Higher values = greater coverage area</li>
+                        </ul>
+                    </li>
+                    <li><strong>Frequency</strong>
+                        <ul>
+                            <li>Operating frequency in MHz</li>
+                            <li>Affects path loss calculation</li>
+                            <li>Higher frequencies have greater path loss</li>
+                        </ul>
+                    </li>
+                    <li><strong>Antenna Height</strong>
+                        <ul>
+                            <li>Height above ground in meters</li>
+                            <li>Greater height = better line-of-sight</li>
+                            <li>Especially important for terrain analysis</li>
+                        </ul>
+                    </li>
+                    <li><strong>Signal Threshold</strong>
+                        <ul>
+                            <li>Minimum signal strength for coverage (dBm)</li>
+                            <li>Default: -110 dBm</li>
+                            <li>Adjust based on receiver sensitivity</li>
+                        </ul>
+                    </li>
+                </ul>
+                
+                <h3>Station Information</h3>
+                <p>Click "Edit Station Info" button in the info panel:</p>
+                <ul>
+                    <li>Call Sign / Station ID</li>
+                    <li>Frequency</li>
+                    <li>Transmitter Type (FM, AM, TV, etc.)</li>
+                    <li>Transmission Mode</li>
+                    <li>Location (Lat/Lon)</li>
+                    <li>All transmitter parameters</li>
+                </ul>
+                
+                <h3>Map Settings</h3>
+                
+                <h4>Basemap Selection</h4>
+                <p>Choose from multiple basemap styles: <strong>View > Basemap</strong></p>
+                <ul>
+                    <li><strong>Esri WorldImagery</strong> - Satellite imagery</li>
+                    <li><strong>OpenStreetMap</strong> - Street map style</li>
+                    <li><strong>Esri WorldTopoMap</strong> - Topographic map</li>
+                    <li><strong>Esri WorldStreetMap</strong> - Detailed streets</li>
+                </ul>
+                
+                <h4>Zoom Levels</h4>
+                <p>Adjust map zoom: <strong>Toolbar > Zoom Slider</strong></p>
+                <ul>
+                    <li><strong>10</strong> - Very wide area (country level)</li>
+                    <li><strong>11-12</strong> - Wide area (state/province)</li>
+                    <li><strong>13-14</strong> - Regional (city level)</li>
+                    <li><strong>15-16</strong> - Local (neighborhood level)</li>
+                </ul>
+                
+                <h3>Project Settings</h3>
+                
+                <h4>Saving Projects</h4>
+                <p>Save complete project configuration: <strong>File > Save Project</strong> or <span class="keyboard-shortcut">Ctrl+S</span></p>
+                <p>Saved projects (.vtr files) include:</p>
+                <ul>
+                    <li>All transmitter parameters</li>
+                    <li>Antenna pattern</li>
+                    <li>Map location and zoom</li>
+                    <li>Terrain settings</li>
+                    <li>Coverage plots (up to 20 most recent)</li>
+                </ul>
+                
+                <h4>Loading Projects</h4>
+                <p><strong>File > Load Project</strong> or <span class="keyboard-shortcut">Ctrl+O</span></p>
+                <p>Restores all saved settings and allows you to continue work.</p>
+                
+                <h4>Auto-Save</h4>
+                <p>VetRender automatically saves your last session configuration. On restart, it loads your previous transmitter location, settings, and preferences.</p>
+            </section>
+            
+            <!-- AI FEATURES -->
+            <section id="ai-features">
+                <h2>AI Features</h2>
+                
+                <div class="feature-box">
+                    <h3>🤖 AI Antenna Assistant</h3>
+                    <p><em>Status: Coming Soon</em></p>
+                    <p>The AI Antenna Assistant will help you choose the right antenna for your needs by asking questions about your application and recommending suitable antenna patterns from the library.</p>
+                </div>
+                
+                <div class="feature-box">
+                    <h3>📄 AI PDF Import</h3>
+                    <p><em>Status: In Development</em></p>
+                    <p>Automatically extract antenna patterns from manufacturer PDF datasheets:</p>
+                    <ol>
+                        <li>Upload antenna datasheet PDF</li>
+                        <li>AI extracts pattern data, gain, frequency range</li>
+                        <li>Reviews extracted data for accuracy</li>
+                        <li>Imports pattern into VetRender</li>
+                    </ol>
+                    
+                    <h4>How the AI Works</h4>
+                    <p>VetRender uses a local AI model (Ollama) to analyze PDF documents:</p>
+                    <ul>
+                        <li><strong>Text Extraction</strong> - Reads text and tables from PDF</li>
+                        <li><strong>Pattern Recognition</strong> - Identifies azimuth/elevation data</li>
+                        <li><strong>Validation</strong> - Checks data consistency and plausibility</li>
+                        <li><strong>Metadata Extraction</strong> - Finds manufacturer, model, specifications</li>
+                    </ul>
+                    
+                    <div class="warning-box">
+                        <h4>⚠️ AI Limitations</h4>
+                        <p>AI extraction is not perfect. Always verify extracted data against the original datasheet. The AI may occasionally:</p>
+                        <ul>
+                            <li>Miss data from poorly formatted PDFs</li>
+                            <li>Misinterpret graphical pattern data</li>
+                            <li>Require manual correction of values</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h3>Local AI Processing</h3>
+                <p>VetRender uses Ollama for local AI processing, which means:</p>
+                <ul>
+                    <li>✓ Your data stays private - no cloud uploads</li>
+                    <li>✓ Works offline after initial setup</li>
+                    <li>✓ Free and open-source</li>
+                    <li>✓ No API keys or subscriptions required</li>
+                </ul>
+            </section>
+            
+            <!-- TROUBLESHOOTING -->
+            <section id="troubleshooting">
+                <h2>Troubleshooting</h2>
+                
+                <h3>Common Issues</h3>
+                
+                <h4>Map Won't Load</h4>
+                <ul>
+                    <li>Check internet connection (maps require online access)</li>
+                    <li>Try a different basemap from View > Basemap</li>
+                    <li>Clear map cache: Right-click > Manage Cache > Clear Cache</li>
+                    <li>Restart VetRender</li>
+                </ul>
+                
+                <h4>Calculation Fails or Takes Too Long</h4>
+                <ul>
+                    <li>Reduce coverage distance (try 50 km instead of 200 km)</li>
+                    <li>Lower quality preset (use Medium instead of Ultra)</li>
+                    <li>Disable terrain analysis for faster calculations</li>
+                    <li>Reduce terrain detail level</li>
+                </ul>
+                
+                <h4>Terrain Data Not Loading</h4>
+                <ul>
+                    <li>Check internet connection (terrain data downloads from server)</li>
+                    <li>Verify coverage area is on land (ocean areas have no terrain)</li>
+                    <li>Try clearing terrain cache and recalculating</li>
+                    <li>Some remote areas may have limited elevation data</li>
+                </ul>
+                
+                <h4>Antenna Pattern Not Loading</h4>
+                <ul>
+                    <li>Verify XML file format is correct</li>
+                    <li>Check that azimuth values range from 0-360°</li>
+                    <li>Ensure gain values are in dBi</li>
+                    <li>Try resetting to default omni antenna and reload</li>
+                </ul>
+                
+                <h4>Coverage Looks Incorrect</h4>
+                <ul>
+                    <li>Verify ERP is set correctly (common mistake: using Watts instead of dBm)</li>
+                    <li>Check frequency setting</li>
+                    <li>Verify antenna height is realistic</li>
+                    <li>If using terrain, try disabling it to see free-space coverage</li>
+                    <li>Check signal threshold setting</li>
+                </ul>
+                
+                <h3>Performance Tips</h3>
+                <ul>
+                    <li>Start with Medium quality, increase if needed</li>
+                    <li>Cache maps before field use (work offline)</li>
+                    <li>Use smaller coverage radii for faster calculations</li>
+                    <li>Close other applications to free memory</li>
+                    <li>Terrain analysis is much slower - disable for quick previews</li>
+                </ul>
+                
+                <h3>Getting Help</h3>
+                
+                <h4>Debug Logs</h4>
+                <p>VetRender keeps detailed logs in the console window. If you encounter errors:</p>
+                <ol>
+                    <li>Keep the console window open</li>
+                    <li>Reproduce the issue</li>
+                    <li>Copy the console output</li>
+                    <li>Include it in your bug report</li>
+                </ol>
+                
+                <h4>Reporting Bugs</h4>
+                <p>Found a bug? Help us improve VetRender:</p>
+                <ol>
+                    <li>Go to <strong>Help > Report a Bug</strong></li>
+                    <li>This opens a pre-formatted email to mark@veteranop.com</li>
+                    <li>Describe the problem</li>
+                    <li>Include steps to reproduce</li>
+                    <li>Attach console logs if available</li>
+                    <li>Include your VetRender version (Help > About)</li>
+                </ol>
+                
+                <h4>Updates</h4>
+                <p>Check for updates: <strong>Help > Check for Updates</strong></p>
+                <p>VetRender will check GitHub for the latest version and notify you if an update is available.</p>
+            </section>
+            
+            <!-- APPENDIX -->
+            <section id="appendix">
+                <h2>Appendix</h2>
+                
+                <h3>RF Terminology</h3>
+                <table>
+                    <tr>
+                        <th>Term</th>
+                        <th>Definition</th>
+                    </tr>
+                    <tr>
+                        <td>ERP</td>
+                        <td>Effective Radiated Power - Total power radiated by antenna</td>
+                    </tr>
+                    <tr>
+                        <td>dBm</td>
+                        <td>Decibels relative to 1 milliwatt (power measurement)</td>
+                    </tr>
+                    <tr>
+                        <td>dBi</td>
+                        <td>Decibels relative to isotropic antenna (gain measurement)</td>
+                    </tr>
+                    <tr>
+                        <td>FSPL</td>
+                        <td>Free Space Path Loss - Signal loss due to distance</td>
+                    </tr>
+                    <tr>
+                        <td>Azimuth</td>
+                        <td>Horizontal angle from north (0-360°)</td>
+                    </tr>
+                    <tr>
+                        <td>Fresnel Zone</td>
+                        <td>Ellipsoid area around line-of-sight path that affects signal</td>
+                    </tr>
+                    <tr>
+                        <td>LOS</td>
+                        <td>Line of Sight - Direct path between transmitter and receiver</td>
+                    </tr>
+                </table>
+                
+                <h3>Power Conversion</h3>
+                <table>
+                    <tr>
+                        <th>Watts</th>
+                        <th>dBm</th>
+                        <th>Typical Use</th>
+                    </tr>
+                    <tr>
+                        <td>1 mW</td>
+                        <td>0 dBm</td>
+                        <td>Reference level</td>
+                    </tr>
+                    <tr>
+                        <td>10 mW</td>
+                        <td>10 dBm</td>
+                        <td>Low power devices</td>
+                    </tr>
+                    <tr>
+                        <td>100 mW</td>
+                        <td>20 dBm</td>
+                        <td>Walkie-talkies</td>
+                    </tr>
+                    <tr>
+                        <td>1 W</td>
+                        <td>30 dBm</td>
+                        <td>Small transmitters</td>
+                    </tr>
+                    <tr>
+                        <td>10 W</td>
+                        <td>40 dBm</td>
+                        <td>Mobile radios</td>
+                    </tr>
+                    <tr>
+                        <td>100 W</td>
+                        <td>50 dBm</td>
+                        <td>Small broadcast</td>
+                    </tr>
+                    <tr>
+                        <td>1 kW</td>
+                        <td>60 dBm</td>
+                        <td>Medium broadcast</td>
+                    </tr>
+                    <tr>
+                        <td>10 kW</td>
+                        <td>70 dBm</td>
+                        <td>Large broadcast</td>
+                    </tr>
+                    <tr>
+                        <td>100 kW</td>
+                        <td>80 dBm</td>
+                        <td>Major broadcast</td>
+                    </tr>
+                </table>
+                
+                <h3>File Formats</h3>
+                <ul>
+                    <li><strong>.vtr</strong> - VetRender project file (JSON format)</li>
+                    <li><strong>.xml</strong> - Antenna pattern file</li>
+                    <li><strong>.pdf</strong> - Antenna datasheet (for AI import)</li>
+                    <li><strong>.jpg</strong> - Rendered coverage plot</li>
+                </ul>
+                
+                <h3>Credits</h3>
+                <p>VetRender uses the following open-source technologies:</p>
+                <ul>
+                    <li><strong>Python</strong> - Application framework</li>
+                    <li><strong>Tkinter</strong> - GUI framework</li>
+                    <li><strong>Matplotlib</strong> - Plotting and visualization</li>
+                    <li><strong>NumPy</strong> - Numerical computations</li>
+                    <li><strong>SciPy</strong> - Scientific algorithms</li>
+                    <li><strong>Requests</strong> - HTTP library for map tiles</li>
+                    <li><strong>Open-Elevation API</strong> - Terrain elevation data</li>
+                    <li><strong>OpenStreetMap</strong> - Map tiles and data</li>
+                    <li><strong>Ollama</strong> - Local AI processing</li>
+                </ul>
+            </section>
+            
+        </div>
+        
+        <footer>
+            <p>VetRender v3.0.1 | Created by VetRender Team</p>
+            <p>For support, email: mark@veteranop.com</p>
+            <p>&copy; 2025 VetRender. All rights reserved.</p>
+        </footer>
+    </div>
+</body>
+</html>

@@ -26,8 +26,8 @@ class DebugLogger:
         timestamp = datetime.datetime.now().strftime("%H:%M:%S.%f")[:-3]
         log_line = f"[{timestamp}] {message}"
 
-        # Write to file
-        with open(self.log_file, 'a') as f:
+        # Write to file with UTF-8 encoding to handle special characters
+        with open(self.log_file, 'a', encoding='utf-8') as f:
             f.write(log_line + "\n")
 
         # Also print to console

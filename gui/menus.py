@@ -1,7 +1,7 @@
 """
 Menu Bar Module
 ===============
-Application menu bar with File, View, and Plot Settings menus.
+Application menu bar with File, View, Plot Settings, and Help menus.
 """
 
 import tkinter as tk
@@ -16,28 +16,8 @@ class MenuBar:
         
         Args:
             root: Root tkinter window
-            callbacks: Dictionary of callback functions:
-                - on_new_project
-                - on_save_project
-                - on_load_project
-                - on_exit
-                - on_basemap_change
-                - on_toggle_coverage
-                - on_toggle_shadow
-                - on_max_distance_change
-                - on_custom_distance
-                - on_toggle_terrain
-                - on_quality_change
-                - on_terrain_detail_change
-                - on_custom_terrain_detail
-            variables: Dictionary of tkinter variables:
-                - basemap_var
-                - show_coverage_var
-                - show_shadow_var
-                - use_terrain_var
-                - max_dist_var
-                - quality_var
-                - terrain_detail_var
+            callbacks: Dictionary of callback functions
+            variables: Dictionary of tkinter variables
         """
         self.root = root
         self.callbacks = callbacks
@@ -52,7 +32,9 @@ class MenuBar:
         """Create all menus"""
         self.setup_file_menu()
         self.setup_view_menu()
+        self.setup_antenna_menu()
         self.setup_plot_settings_menu()
+        self.setup_help_menu()
     
     def setup_file_menu(self):
         """Create File menu"""
@@ -104,7 +86,25 @@ class MenuBar:
             variable=self.vars['show_shadow_var'],
             command=self.callbacks['on_toggle_shadow']
         )
-    
+
+    def setup_antenna_menu(self):
+        """Create Antenna menu"""
+        antenna_menu = tk.Menu(self.menubar, tearoff=0)
+        self.menubar.add_cascade(label="Antenna", menu=antenna_menu)
+
+        antenna_menu.add_command(label="AI Antenna Assistant",
+                                command=self.callbacks.get('on_ai_assistant', lambda: None))
+        antenna_menu.add_separator()
+        antenna_menu.add_command(label="AI Antenna Import",
+                                command=self.callbacks.get('on_ai_import_antenna', lambda: None))
+        antenna_menu.add_command(label="Manual Import",
+                                command=self.callbacks.get('on_manual_import', lambda: None))
+        antenna_menu.add_separator()
+        antenna_menu.add_command(label="View Antennas",
+                                command=self.callbacks.get('on_view_antennas', lambda: None))
+        antenna_menu.add_command(label="Export Current Antenna",
+                                command=self.callbacks.get('on_export_antenna', lambda: None))
+
     def setup_plot_settings_menu(self):
         """Create Plot Settings menu"""
         plot_menu = tk.Menu(self.menubar, tearoff=0)
@@ -155,7 +155,7 @@ class MenuBar:
             command=lambda: self.callbacks['on_quality_change']('Custom')
         )
         
-        # Terrain Detail submenu (🔥 NEW FEATURE!)
+        # Terrain Detail submenu
         terrain_detail_menu = tk.Menu(plot_menu, tearoff=0)
         plot_menu.add_cascade(label="Terrain Detail", menu=terrain_detail_menu)
         
@@ -179,4 +179,36 @@ class MenuBar:
         terrain_detail_menu.add_command(
             label="Custom...",
             command=self.callbacks['on_custom_terrain_detail']
+        )
+
+        # Antenna submenu
+        antenna_plot_menu = tk.Menu(plot_menu, tearoff=0)
+        plot_menu.add_cascade(label="Antenna", menu=antenna_plot_menu)
+
+        antenna_plot_menu.add_command(label="Set Antenna",
+                                     command=self.callbacks.get('on_set_antenna', lambda: None))
+    
+    def setup_help_menu(self):
+        """Create Help menu"""
+        help_menu = tk.Menu(self.menubar, tearoff=0)
+        self.menubar.add_cascade(label="Help", menu=help_menu)
+        
+        help_menu.add_command(
+            label="User Guide",
+            command=self.callbacks.get('on_show_help', lambda: None),
+            accelerator="F1"
+        )
+        help_menu.add_separator()
+        help_menu.add_command(
+            label="Check for Updates",
+            command=self.callbacks.get('on_check_updates', lambda: None)
+        )
+        help_menu.add_separator()
+        help_menu.add_command(
+            label="About VetRender",
+            command=self.callbacks.get('on_about', lambda: None)
+        )
+        help_menu.add_command(
+            label="Report a Bug",
+            command=self.callbacks.get('on_report_bug', lambda: None)
         )

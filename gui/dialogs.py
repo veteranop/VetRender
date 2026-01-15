@@ -4,6 +4,21 @@ Dialog windows for VetRender GUI
 import tkinter as tk
 import numpy as np
 from tkinter import ttk, filedialog, messagebox
+import requests
+from bs4 import BeautifulSoup
+import PyPDF2
+import xml.etree.ElementTree as ET
+import xml.etree.ElementTree as ET
+import xml.etree.ElementTree as ET
+import xml.etree.ElementTree as ET
+import xml.etree.ElementTree as ET
+import xml.etree.ElementTree as ET
+import xml.etree.ElementTree as ET
+import xml.etree.ElementTree as ET
+import xml.etree.ElementTree as ET
+import xml.etree.ElementTree as ET
+import xml.etree.ElementTree as ET
+import xml.etree.ElementTree as ET
 
 class TransmitterConfigDialog:
     """Dialog for editing transmitter configuration"""
@@ -930,4 +945,455 @@ class PlotsManagerDialog:
 
     def close(self):
         """Close the dialog"""
+        self.dialog.destroy()
+
+
+class AntennaImportDialog:
+    """Dialog for importing antenna patterns from websites or PDFs using LLM"""
+
+    def __init__(self, parent, on_import_callback):
+        from debug_logger import get_logger
+        self.logger = get_logger()
+        self.logger.log("="*80)
+        self.logger.log("AI ANTENNA IMPORT DIALOG OPENED")
+        self.logger.log("="*80)
+        
+        self.result = None
+        self.dialog = tk.Toplevel(parent)
+        self.dialog.title("Import Antenna Pattern")
+        self.dialog.geometry("500x400")
+        self.dialog.transient(parent)
+        self.dialog.grab_set()
+
+        self.on_import_callback = on_import_callback
+
+        # URL input
+        ttk.Label(self.dialog, text="Antenna Website URL:").grid(row=0, column=0, padx=10, pady=10, sticky=tk.W)
+        self.url_var = tk.StringVar()
+        ttk.Entry(self.dialog, textvariable=self.url_var, width=40).grid(row=0, column=1, padx=10, pady=10)
+
+        # Or PDF file
+        ttk.Label(self.dialog, text="Or PDF Spec Sheet:").grid(row=1, column=0, padx=10, pady=10, sticky=tk.W)
+        self.pdf_path_var = tk.StringVar()
+        pdf_frame = ttk.Frame(self.dialog)
+        pdf_frame.grid(row=1, column=1, padx=10, pady=10, sticky=tk.W+tk.E)
+        ttk.Entry(pdf_frame, textvariable=self.pdf_path_var, width=30).pack(side=tk.LEFT)
+        ttk.Button(pdf_frame, text="Browse", command=self.browse_pdf).pack(side=tk.LEFT, padx=(5,0))
+
+        # Process button
+        ttk.Button(self.dialog, text="Process and Import", command=self.process).grid(row=2, column=0, columnspan=2, pady=20)
+
+        # Status label
+        self.status_var = tk.StringVar(value="")
+        ttk.Label(self.dialog, textvariable=self.status_var).grid(row=3, column=0, columnspan=2, padx=10, pady=5)
+
+        # Buttons
+        button_frame = ttk.Frame(self.dialog)
+        button_frame.grid(row=4, column=0, columnspan=2, pady=20)
+        ttk.Button(button_frame, text="OK", command=self.ok).pack(side=tk.RIGHT, padx=5)
+        ttk.Button(button_frame, text="Cancel", command=self.cancel).pack(side=tk.RIGHT)
+
+    def browse_pdf(self):
+        filepath = filedialog.askopenfilename(
+            title="Select PDF Spec Sheet",
+            filetypes=[("PDF files", "*.pdf"), ("All files", "*.*")]
+        )
+        if filepath:
+            self.pdf_path_var.set(filepath)
+            self.logger.log(f"PDF selected: {filepath}")
+
+    def process(self):
+        url = self.url_var.get().strip()
+        pdf_path = self.pdf_path_var.get().strip()
+
+        self.logger.log("-"*80)
+        self.logger.log("AI ANTENNA IMPORT - PROCESSING STARTED")
+        self.logger.log(f"URL: {url if url else '(none)'}")
+        self.logger.log(f"PDF: {pdf_path if pdf_path else '(none)'}")
+        self.logger.log("-"*80)
+
+        if not url and not pdf_path:
+            self.logger.log("ERROR: No input provided")
+            messagebox.showerror("Input Required", "Please provide a URL or select a PDF file.")
+            return
+
+        self.status_var.set("Processing... Please wait.")
+        self.dialog.update()
+
+        try:
+            # Placeholder for processing logic
+            # Extract text, send to LLM, generate XML
+            xml_content = self.generate_xml_from_input(url, pdf_path)
+            if xml_content:
+                self.result = xml_content
+                self.status_var.set("XML generated successfully. Click OK to import.")
+                self.logger.log("SUCCESS: XML generated successfully")
+                self.logger.log(f"XML length: {len(xml_content)} characters")
+            else:
+                self.status_var.set("Failed to generate XML. Check inputs and try again.")
+                self.logger.log("ERROR: XML generation failed (returned None)")
+        except Exception as e:
+            self.status_var.set(f"Error: {str(e)}")
+            self.logger.log(f"ERROR: Exception during processing: {str(e)}")
+            import traceback
+            self.logger.log(f"Traceback: {traceback.format_exc()}")
+
+    def generate_xml_from_input(self, url, pdf_path):
+        """Extract text from URL or PDF, then use LLM to generate XML"""
+        text = ""
+        if url:
+            self.logger.log(f"Attempting to scrape URL: {url}")
+            try:
+                response = requests.get(url, timeout=10)
+                response.raise_for_status()
+                self.logger.log(f"HTTP Status: {response.status_code}")
+                self.logger.log(f"Content length: {len(response.content)} bytes")
+                soup = BeautifulSoup(response.content, 'html.parser')
+                text = soup.get_text()
+                self.logger.log(f"Extracted text length: {len(text)} characters")
+                self.logger.log(f"Text preview: {text[:200]}...")
+            except Exception as e:
+                self.logger.log(f"ERROR scraping website: {e}")
+                raise Exception(f"Failed to scrape website: {e}")
+        elif pdf_path:
+            self.logger.log(f"Attempting to read PDF: {pdf_path}")
+            try:
+                with open(pdf_path, 'rb') as file:
+                    reader = PyPDF2.PdfReader(file)
+                    page_count = len(reader.pages)
+                    self.logger.log(f"PDF has {page_count} pages")
+                    for i, page in enumerate(reader.pages):
+                        page_text = page.extract_text()
+                        text += page_text + "\n"
+                        self.logger.log(f"Page {i+1}: extracted {len(page_text)} characters")
+                self.logger.log(f"Total extracted text length: {len(text)} characters")
+                self.logger.log(f"Text preview: {text[:200]}...")
+            except Exception as e:
+                self.logger.log(f"ERROR reading PDF: {e}")
+                raise Exception(f"Failed to read PDF: {e}")
+
+        if not text.strip():
+            self.logger.log("ERROR: No text extracted from source")
+            raise Exception("No text extracted from the source.")
+
+        # Now send to LLM
+        self.logger.log("Sending text to LLM for XML generation...")
+        xml = self.query_llm_for_xml(text)
+        return xml
+
+    def validate_antenna_pattern(self, xml):
+        """Validate that antenna pattern looks physically realistic, not hallucinated"""
+        try:
+            root = ET.fromstring(xml)
+            self.logger.log("VALIDATION: Checking if pattern data looks realistic...")
+            
+            # Check azimuth section
+            azimuth = root.find('azimuth')
+            if azimuth is None:
+                return False, "No azimuth section found"
+            
+            points = azimuth.findall('point')
+            if len(points) < 3:
+                return False, f"Too few azimuth points ({len(points)}), pattern likely incomplete"
+            
+            gains = []
+            angles = []
+            for point in points:
+                try:
+                    angle = float(point.get('angle', 0))
+                    gain = float(point.get('gain', 0))
+                    angles.append(angle)
+                    gains.append(gain)
+                except (ValueError, TypeError):
+                    return False, "Invalid angle or gain values in pattern"
+            
+            # RED FLAG 1: All gains are positive (physically impossible for most antennas)
+            positive_count = sum(1 for g in gains if g > 0)
+            if positive_count > len(gains) * 0.8:  # More than 80% positive
+                self.logger.log(f"VALIDATION FAIL: {positive_count}/{len(gains)} gains are positive - likely hallucinated")
+                return False, "Pattern has mostly positive gains - this is physically unrealistic. LLM likely invented data."
+            
+            # RED FLAG 2: Gains increase perfectly linearly (like 0, 10, 20, 30...)
+            if len(gains) >= 4:
+                differences = [gains[i+1] - gains[i] for i in range(len(gains)-1)]
+                # Check if all differences are very similar (linear pattern)
+                if len(set(differences)) <= 2 and all(d == differences[0] for d in differences):
+                    self.logger.log(f"VALIDATION FAIL: Gains increase linearly: {gains[:10]}...")
+                    return False, "Pattern shows perfectly linear gain progression - this is not real data. LLM invented a fake pattern."
+            
+            # RED FLAG 3: Too few unique values (like just repeating 0, 10, 20)
+            unique_gains = len(set(gains))
+            if unique_gains < len(gains) * 0.3:  # Less than 30% unique
+                self.logger.log(f"VALIDATION FAIL: Only {unique_gains} unique values in {len(gains)} points")
+                return False, f"Only {unique_gains} unique gain values - pattern looks artificial or incomplete"
+            
+            # RED FLAG 4: Gains are impossibly high (>20 dBi for omni, >30 dBi for directional)
+            max_gain = max(gains)
+            if max_gain > 30:
+                self.logger.log(f"VALIDATION FAIL: Maximum gain {max_gain} dBi is unrealistic")
+                return False, f"Maximum gain {max_gain} dBi exceeds realistic limits for antennas"
+            
+            # PASS: Pattern looks reasonable
+            self.logger.log(f"VALIDATION PASS: Pattern has {len(gains)} points, {unique_gains} unique values")
+            self.logger.log(f"  Gain range: {min(gains):.1f} to {max(gains):.1f} dBi")
+            self.logger.log(f"  Positive gains: {positive_count}/{len(gains)}")
+            return True, "Pattern looks physically realistic"
+            
+        except Exception as e:
+            self.logger.log(f"VALIDATION ERROR: {e}")
+            return False, f"Validation error: {e}"
+
+    def query_llm_for_xml(self, text):
+        """Query Ollama LLM to generate XML from text with improved prompting and validation"""
+        text_to_send = text[:4000]  # Limit text length
+        self.logger.log(f"Preparing LLM prompt with {len(text_to_send)} characters")
+        
+        # IMPROVED PROMPT: Much more explicit about what real data looks like vs fake data
+        prompt = f"""
+Extract REAL antenna pattern data from the PDF/website text below. Your task is to find ACTUAL numerical data, not to invent it.
+
+CRITICAL RULES - READ CAREFULLY:
+1. ONLY extract data if you find ACTUAL gain values at specific angles in the text
+2. DO NOT make up, invent, or hallucinate pattern data
+3. If you cannot find specific numerical pattern data, respond EXACTLY with: NO_PATTERN_DATA_FOUND
+
+Real antenna pattern data looks like:
+- Tables with "Angle" and "Gain" columns
+- Charts showing azimuth or elevation patterns
+- Text like "At 0° = 0 dBi, at 45° = -2.1 dBi, at 90° = -3.5 dBi"
+
+What real antenna gains look like:
+- Maximum gain is usually 0 dBi (reference point)
+- Other angles have NEGATIVE gains like -1.5, -3.2, -10.5, -20.0 dBi
+- Gains are typically between 0 and -30 dBi
+- Values vary somewhat irregularly (not perfectly linear)
+
+EXAMPLES OF FAKE DATA (DO NOT DO THIS):
+❌ <point angle="0" gain="0"/>
+   <point angle="10" gain="10"/>
+   <point angle="20" gain="20"/>
+   ← This is WRONG: gains increase linearly and are positive
+
+❌ <point angle="0" gain="5"/>
+   <point angle="30" gain="5"/>
+   <point angle="60" gain="5"/>
+   ← This is WRONG: all same value, too simple
+
+EXAMPLES OF REAL DATA (DO THIS):
+✓ <point angle="0" gain="0"/>
+   <point angle="30" gain="-1.2"/>
+   <point angle="60" gain="-2.8"/>
+   <point angle="90" gain="-4.1"/>
+   ← This is RIGHT: realistic variation, mostly negative
+
+XML Format Requirements:
+- Root element: <antenna>
+- Azimuth section: <azimuth> with child <point angle="X" gain="Y"/> elements
+- Elevation section: <elevation> with child <point angle="X" gain="Y"/> elements  
+- Angles: 0 to 360 for azimuth, -90 to 90 for elevation
+- If no elevation data found, use: <point angle="0" gain="0"/>
+
+OUTPUT FORMAT:
+- Output ONLY the XML
+- NO markdown, NO code blocks (```), NO backticks, NO extra text
+- Start with <antenna> and end with </antenna>
+- OR if no pattern data exists, output exactly: NO_PATTERN_DATA_FOUND
+
+Text to analyze:
+{text_to_send}
+"""
+
+        try:
+            self.logger.log("Connecting to Ollama at http://localhost:11434...")
+            response = requests.post(
+                "http://localhost:11434/api/generate",
+                json={
+                    "model": "llama3.2:1b",
+                    "prompt": prompt,
+                    "stream": False
+                },
+                timeout=30
+            )
+            response.raise_for_status()
+            self.logger.log(f"Ollama response status: {response.status_code}")
+            
+            result = response.json()
+            self.logger.log(f"LLM response keys: {result.keys()}")
+            xml = result['response'].strip()
+            self.logger.log(f"LLM generated response length: {len(xml)} characters")
+            self.logger.log(f"Response preview: {xml[:300]}...")
+            
+            # Check if LLM said it couldn't find pattern data
+            if "NO_PATTERN_DATA_FOUND" in xml or "no pattern data" in xml.lower():
+                self.logger.log("LLM reported: No pattern data found in source")
+                raise Exception("LLM could not find antenna pattern data in the provided text. The document may not contain numerical pattern data.")
+            
+            # Strip markdown code blocks if present (```xml or ```)
+            if xml.startswith('```'):
+                self.logger.log("Detected markdown code blocks, stripping...")
+                # Remove opening code block
+                lines = xml.split('\n')
+                if lines[0].startswith('```'):
+                    lines = lines[1:]  # Remove first line
+                # Remove closing code block
+                if lines and lines[-1].strip() == '```':
+                    lines = lines[:-1]  # Remove last line
+                xml = '\n'.join(lines).strip()
+                self.logger.log(f"After stripping: {xml[:300]}...")
+            
+            # Basic validation - check if XML contains antenna tags
+            # Strip XML declaration if present
+            xml_content = xml
+            if xml_content.startswith('<?xml'):
+                # Find the end of XML declaration and strip it
+                decl_end = xml_content.find('?>') 
+                if decl_end != -1:
+                    xml_content = xml_content[decl_end + 2:].strip()
+            
+            if not ('<antenna>' in xml_content or '<antenna ' in xml_content):
+                self.logger.log("ERROR: XML does not contain antenna element")
+                self.logger.log(f"XML starts with: {xml[:50]}")
+                self.logger.log(f"XML ends with: {xml[-50:]}")
+                raise Exception("LLM did not return valid XML format with antenna element.")
+            
+            # Parse to ensure valid XML
+            try:
+                ET.fromstring(xml)
+                self.logger.log("SUCCESS: XML is valid and parseable")
+            except ET.ParseError as e:
+                self.logger.log(f"ERROR: XML parse failed: {e}")
+                self.logger.log(f"Full XML:\n{xml}")
+                raise Exception(f"Generated XML is invalid: {e}")
+            
+            # NEW: Validate that pattern looks realistic
+            is_valid, validation_msg = self.validate_antenna_pattern(xml)
+            if not is_valid:
+                self.logger.log(f"PATTERN VALIDATION FAILED: {validation_msg}")
+                raise Exception(f"Generated pattern failed validation: {validation_msg}")
+            
+            self.logger.log(f"PATTERN VALIDATION PASSED: {validation_msg}")
+            return xml
+            
+        except requests.exceptions.RequestException as e:
+            self.logger.log(f"ERROR: Connection to Ollama failed: {e}")
+            raise Exception(f"Failed to connect to Ollama. Ensure Ollama is running: {e}")
+        except Exception as e:
+            self.logger.log(f"ERROR: LLM processing exception: {e}")
+            raise Exception(f"LLM processing failed: {e}")
+
+    def ok(self):
+        if self.result:
+            self.logger.log("User clicked OK - importing antenna pattern")
+            self.on_import_callback(self.result)
+        else:
+            self.logger.log("User clicked OK but no XML result to import")
+        self.logger.log("="*80)
+        self.logger.log("AI ANTENNA IMPORT DIALOG CLOSED")
+        self.logger.log("="*80)
+        self.dialog.destroy()
+
+    def cancel(self):
+        self.logger.log("User cancelled antenna import")
+        self.logger.log("="*80)
+        self.logger.log("AI ANTENNA IMPORT DIALOG CLOSED (CANCELLED)")
+        self.logger.log("="*80)
+        self.dialog.destroy()
+
+
+class AntennaMetadataDialog:
+    """Dialog for entering antenna metadata when saving to library"""
+    
+    def __init__(self, parent, default_name="Imported Antenna"):
+        self.result = None
+        self.dialog = tk.Toplevel(parent)
+        self.dialog.title("Save Antenna to Library")
+        self.dialog.geometry("500x450")
+        self.dialog.transient(parent)
+        self.dialog.grab_set()
+        
+        # Instructions
+        ttk.Label(self.dialog, text="Enter antenna details:", 
+                 font=('Arial', 10, 'bold')).grid(row=0, column=0, columnspan=2, padx=10, pady=10, sticky=tk.W)
+        
+        # Antenna Name (required)
+        ttk.Label(self.dialog, text="*Antenna Name:").grid(row=1, column=0, padx=10, pady=5, sticky=tk.W)
+        self.name_var = tk.StringVar(value=default_name)
+        ttk.Entry(self.dialog, textvariable=self.name_var, width=40).grid(row=1, column=1, padx=10, pady=5)
+        
+        # Manufacturer
+        ttk.Label(self.dialog, text="Manufacturer:").grid(row=2, column=0, padx=10, pady=5, sticky=tk.W)
+        self.manufacturer_var = tk.StringVar()
+        ttk.Entry(self.dialog, textvariable=self.manufacturer_var, width=40).grid(row=2, column=1, padx=10, pady=5)
+        
+        # Part Number
+        ttk.Label(self.dialog, text="Part Number:").grid(row=3, column=0, padx=10, pady=5, sticky=tk.W)
+        self.part_number_var = tk.StringVar()
+        ttk.Entry(self.dialog, textvariable=self.part_number_var, width=40).grid(row=3, column=1, padx=10, pady=5)
+        
+        # Gain
+        ttk.Label(self.dialog, text="Gain (dBi):").grid(row=4, column=0, padx=10, pady=5, sticky=tk.W)
+        self.gain_var = tk.StringVar(value="0")
+        ttk.Entry(self.dialog, textvariable=self.gain_var, width=40).grid(row=4, column=1, padx=10, pady=5)
+        
+        # Band
+        ttk.Label(self.dialog, text="Band:").grid(row=5, column=0, padx=10, pady=5, sticky=tk.W)
+        self.band_var = tk.StringVar()
+        ttk.Entry(self.dialog, textvariable=self.band_var, width=40).grid(row=5, column=1, padx=10, pady=5)
+        ttk.Label(self.dialog, text="(e.g., VHF, UHF, 700 MHz)", font=('Arial', 8)).grid(row=5, column=1, padx=10, sticky=tk.E)
+        
+        # Frequency Range
+        ttk.Label(self.dialog, text="Frequency Range:").grid(row=6, column=0, padx=10, pady=5, sticky=tk.W)
+        self.freq_range_var = tk.StringVar()
+        ttk.Entry(self.dialog, textvariable=self.freq_range_var, width=40).grid(row=6, column=1, padx=10, pady=5)
+        ttk.Label(self.dialog, text="(e.g., 746-869 MHz)", font=('Arial', 8)).grid(row=6, column=1, padx=10, sticky=tk.E)
+        
+        # Type
+        ttk.Label(self.dialog, text="Type:").grid(row=7, column=0, padx=10, pady=5, sticky=tk.W)
+        self.type_var = tk.StringVar(value="Omni")
+        type_combo = ttk.Combobox(self.dialog, textvariable=self.type_var, width=37)
+        type_combo['values'] = ('Omni', 'Directional', 'Yagi', 'Panel', 'Sector', 'Dipole', 'Other')
+        type_combo.grid(row=7, column=1, padx=10, pady=5)
+        
+        # Notes
+        ttk.Label(self.dialog, text="Notes:").grid(row=8, column=0, padx=10, pady=5, sticky=tk.W+tk.N)
+        self.notes_text = tk.Text(self.dialog, width=40, height=4)
+        self.notes_text.grid(row=8, column=1, padx=10, pady=5)
+        
+        # Buttons
+        button_frame = ttk.Frame(self.dialog)
+        button_frame.grid(row=9, column=0, columnspan=2, pady=20)
+        ttk.Button(button_frame, text="Save", command=self.save).pack(side=tk.LEFT, padx=5)
+        ttk.Button(button_frame, text="Cancel", command=self.cancel).pack(side=tk.LEFT, padx=5)
+    
+    def save(self):
+        """Validate and save antenna metadata"""
+        name = self.name_var.get().strip()
+        if not name:
+            messagebox.showerror("Error", "Antenna name is required")
+            return
+        
+        try:
+            gain = float(self.gain_var.get())
+        except ValueError:
+            messagebox.showerror("Error", "Gain must be a number")
+            return
+        
+        import datetime
+        
+        self.result = {
+            'name': name,
+            'manufacturer': self.manufacturer_var.get().strip() or 'Unknown',
+            'part_number': self.part_number_var.get().strip() or 'N/A',
+            'gain': gain,
+            'band': self.band_var.get().strip() or 'N/A',
+            'frequency_range': self.freq_range_var.get().strip() or 'N/A',
+            'type': self.type_var.get(),
+            'notes': self.notes_text.get('1.0', tk.END).strip(),
+            'import_date': datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        }
+        self.dialog.destroy()
+    
+    def cancel(self):
+        """Cancel without saving"""
+        self.result = None
         self.dialog.destroy()

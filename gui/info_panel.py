@@ -53,7 +53,8 @@ class InfoPanel:
     
     def update(self, callsign, frequency, tx_mode, tx_type, 
               tx_lat, tx_lon, height, erp, pattern_name,
-              max_distance, signal_threshold, use_terrain, terrain_quality):
+              max_distance, signal_threshold, use_terrain, terrain_quality,
+              antenna_details=None):
         """Update the information display
         
         Args:
@@ -70,11 +71,26 @@ class InfoPanel:
             signal_threshold: Signal threshold (dBm)
             use_terrain: Whether terrain is enabled
             terrain_quality: Terrain quality setting
+            antenna_details: Optional dict with manufacturer, part_number, gain, band, etc.
         """
         self.info_text.config(state='normal')
         self.info_text.delete('1.0', tk.END)
         
         eirp = PropagationModel.erp_to_eirp(erp)
+        
+        # Build antenna section with details if available
+        antenna_section = f"Antenna:      {pattern_name}\n"
+        if antenna_details:
+            antenna_section += f"Manufacturer: {antenna_details.get('manufacturer', 'Unknown')}\n"
+            antenna_section += f"Part Number:  {antenna_details.get('part_number', 'N/A')}\n"
+            antenna_section += f"Gain:         {antenna_details.get('gain', 0)} dBi\n"
+            antenna_section += f"Band:         {antenna_details.get('band', 'N/A')}\n"
+            freq_range = antenna_details.get('frequency_range', 'N/A')
+            if freq_range != 'N/A':
+                antenna_section += f"Freq Range:   {freq_range}\n"
+            ant_type = antenna_details.get('type', 'N/A')
+            if ant_type != 'N/A':
+                antenna_section += f"Type:         {ant_type}"
         
         info = f"""
 ╔═══════════════════════════════╗
@@ -100,7 +116,7 @@ Height AGL:   {height} m
 
 ERP:          {erp} dBm
 EIRP:         {eirp:.2f} dBm
-Antenna:      {pattern_name}
+{antenna_section}
 
 ╔═══════════════════════════════╗
 ║      COVERAGE SETTINGS        ║

@@ -159,8 +159,16 @@ class PropagationController:
                                     dist_grid[i, j], frequency_mhz
                                 )
 
-                # For Longley-Rice, terrain_loss_grid is not separate
+                # Still calculate terrain diffraction if enabled and add to total loss
                 terrain_loss_grid = np.zeros_like(dist_grid)
+                if use_terrain:
+                    terrain_loss_grid = self._calculate_terrain_loss(
+                        tx_lat, tx_lon, tx_height, rx_height, max_distance_km,
+                        frequency_mhz, terrain_quality,
+                        custom_azimuth_count, custom_distance_points,
+                        mask, dist_grid, az_grid
+                    )
+                    total_loss_grid += terrain_loss_grid
 
             else:  # Default model (FSPL + diffraction)
                 print(f"Using default propagation model (FSPL + diffraction)...")

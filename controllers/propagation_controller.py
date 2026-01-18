@@ -162,6 +162,21 @@ class PropagationController:
                 # Still calculate terrain diffraction if enabled and add to total loss
                 terrain_loss_grid = np.zeros_like(dist_grid)
                 if use_terrain:
+                    # =================================================================================
+                    # TERRAIN ACCURACY IMPROVEMENT FOR LARGE AREAS
+                    # =================================================================================
+                    # Scale terrain sampling points with coverage distance for consistent accuracy
+                    # at all zoom levels. More points = better resolution but slower calculation.
+                    # ROLLBACK: Remove this block to use fixed points.
+                    # =================================================================================
+                    if custom_distance_points is None:
+                        # Base 500 points for 100km, scale up for larger areas
+                        base_distance = 100  # km
+                        base_points = 500
+                        scale_factor = max(1.0, max_distance_km / base_distance)
+                        custom_distance_points = int(base_points * scale_factor)
+                        print(f"Scaled terrain points to {custom_distance_points} for {max_distance_km}km coverage")
+
                     terrain_loss_grid = self._calculate_terrain_loss(
                         tx_lat, tx_lon, tx_height, rx_height, max_distance_km,
                         frequency_mhz, terrain_quality,
@@ -169,6 +184,9 @@ class PropagationController:
                         mask, dist_grid, az_grid
                     )
                     total_loss_grid += terrain_loss_grid
+                    # =================================================================================
+                    # END TERRAIN ACCURACY IMPROVEMENT
+                    # =================================================================================
 
             else:  # Default model (FSPL + diffraction)
                 print(f"Using default propagation model (FSPL + diffraction)...")
@@ -176,12 +194,30 @@ class PropagationController:
                 # Terrain analysis
                 terrain_loss_grid = np.zeros_like(dist_grid)
                 if use_terrain:
+                    # =================================================================================
+                    # TERRAIN ACCURACY IMPROVEMENT FOR LARGE AREAS
+                    # =================================================================================
+                    # Scale terrain sampling points with coverage distance for consistent accuracy
+                    # at all zoom levels. More points = better resolution but slower calculation.
+                    # ROLLBACK: Remove this block to use fixed points.
+                    # =================================================================================
+                    if custom_distance_points is None:
+                        # Base 500 points for 100km, scale up for larger areas
+                        base_distance = 100  # km
+                        base_points = 500
+                        scale_factor = max(1.0, max_distance_km / base_distance)
+                        custom_distance_points = int(base_points * scale_factor)
+                        print(f"Scaled terrain points to {custom_distance_points} for {max_distance_km}km coverage")
+
                     terrain_loss_grid = self._calculate_terrain_loss(
                         tx_lat, tx_lon, tx_height, rx_height, max_distance_km,
                         frequency_mhz, terrain_quality,
                         custom_azimuth_count, custom_distance_points,
                         mask, dist_grid, az_grid
                     )
+                    # =================================================================================
+                    # END TERRAIN ACCURACY IMPROVEMENT
+                    # =================================================================================
 
                 # Total loss = FSPL + terrain diffraction
                 total_loss_grid = fspl_grid + terrain_loss_grid

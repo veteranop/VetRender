@@ -266,12 +266,15 @@ class VetRender:
             if self.terrain_quality == 'Custom':
                 custom_az, custom_dist = self.toolbar.get_custom_values()
             
+            # Get propagation model from toolbar
+            propagation_model = self.toolbar.get_propagation_model()
+
             # 🔥 ALL FIXES ARE IN THE CONTROLLER!
             result = self.propagation_controller.calculate_coverage(
                 self.tx_lat, self.tx_lon, self.height, self.erp, self.frequency,
                 self.max_distance, self.resolution, self.signal_threshold, self.rx_height,
                 self.use_terrain.get(), self.terrain_quality,
-                custom_az, custom_dist
+                custom_az, custom_dist,propagation_model=propagation_model
             )
             
             if result is None:

@@ -339,10 +339,10 @@ class PropagationModel:
             loss = PropagationModel.longley_rice_loss(10, 88.5, 50, 1.5)
         """
         try:
-            from radio_propagation.longley_rice import longley_rice
+            from pycoverage.longley_rice import LongleyRice
         except ImportError:
-            raise ImportError("radio-propagation library required for Longley-Rice model. "
-                            "Install with: pip install radio-propagation")
+            raise ImportError("pycoverage library required for Longley-Rice model. "
+                            "Install with: pip install pycoverage")
 
         # Input validation
         if distance_km <= 0 or frequency_mhz <= 0:
@@ -359,19 +359,15 @@ class PropagationModel:
         frequency_hz = frequency_mhz * 1e6
 
         # Call Longley-Rice model
-        # Note: radio_propagation.longley_rice returns loss in dB
+        # Note: pycoverage.longley_rice returns loss in dB
         try:
-            loss_db = longley_rice(
-                frequency_hz=frequency_hz,
-                distance_m=distance_m,
-                tx_height_m=tx_height_m,
-                rx_height_m=rx_height_m,
-                ground_conductivity=ground_conductivity,
-                ground_dielectric=ground_dielectric,
-                polarization=polarization,
-                mode=mode,
-                time_percentage=time_percentage
+            lr = LongleyRice(
+                frequency=frequency_mhz,
+                conductivity=ground_conductivity,
+                permittivity=ground_dielectric,
+                polarization=polarization
             )
+            loss_db = lr.get_loss(distance_km, tx_height_m, rx_height_m, mode=mode, time_percent=time_percentage)
             return float(loss_db)
 
         except Exception as e:

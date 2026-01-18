@@ -338,11 +338,10 @@ class PropagationModel:
         Example:
             loss = PropagationModel.longley_rice_loss(10, 88.5, 50, 1.5)
         """
-        try:
-            from propagation.longley_rice import longley_rice
-        except ImportError:
-            raise ImportError("propagation library required for Longley-Rice model. "
-                            "Install with: pip install propagation")
+        # Simplified Longley-Rice implementation
+        # Note: Full Longley-Rice requires external libraries not available on PyPI
+        # This is a basic approximation: FSPL + ground reflection loss
+        # For FCC compliance, use official tools or consult an engineer
 
         # Input validation
         if distance_km <= 0 or frequency_mhz <= 0:
@@ -358,26 +357,24 @@ class PropagationModel:
         distance_m = distance_km * 1000
         frequency_hz = frequency_mhz * 1e6
 
-        # Call Longley-Rice model
-        # Note: propagation.longley_rice returns loss in dB
-        try:
-            loss_db = longley_rice(
-                frequency=frequency_hz,
-                distance=distance_km,
-                tx_height=tx_height_m,
-                rx_height=rx_height_m,
-                conductivity=ground_conductivity,
-                permittivity=ground_dielectric,
-                polarization=polarization,
-                mode=mode,
-                time_percent=time_percentage
-            )
-            return float(loss_db)
+        # Simplified Longley-Rice calculation
+        # Basic approximation: FSPL + ground reflection loss
+        wavelength_m = 300.0 / frequency_mhz
+        fspl = PropagationModel.free_space_loss(distance_km, frequency_mhz)
 
-        except Exception as e:
-            print(f"Warning: Longley-Rice calculation failed: {e}")
-            # Fallback to FSPL if Longley-Rice fails
-            return PropagationModel.free_space_loss(distance_km, frequency_mhz)
+        # Ground reflection loss (simplified)
+        reflection_loss = 0
+        if distance_km > 0.1:
+            # Path length difference for reflection
+            h_eff = (tx_height_m * rx_height_m) / (tx_height_m + rx_height_m)
+            path_diff = 2 * h_eff
+            phase_diff = (4 * np.pi * path_diff) / wavelength_m
+            reflection_coeff = (ground_dielectric - 1j * (60 * wavelength_m * ground_conductivity)) / (ground_dielectric + 1)
+            reflection_loss = -10 * np.log10(1 + abs(reflection_coeff)**2 + 2 * abs(reflection_coeff) * np.cos(phase_diff))
+            reflection_loss = max(0, -reflection_loss)
+
+        total_loss = fspl + reflection_loss
+        return total_loss
 
     # =================================================================================
     # END LONGLEY-RICE IMPLEMENTATION

@@ -22,7 +22,7 @@ packaging>=21.0
 pyinstaller>=5.0.0
 
 # Propagation models (for Longley-Rice)
-propagation>=1.0.0
+# Using built-in simplified implementation - no external library needed
 
 # Optional but recommended
 # python-dateutil>=2.8.0  # Usually included with matplotlib

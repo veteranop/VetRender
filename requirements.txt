@@ -22,7 +22,7 @@ packaging>=21.0
 pyinstaller>=5.0.0
 
 # Propagation models (for Longley-Rice)
-ITURHFProp>=1.0.0
+radio-propagation>=1.0.0
 
 # Optional but recommended
 # python-dateutil>=2.8.0  # Usually included with matplotlib

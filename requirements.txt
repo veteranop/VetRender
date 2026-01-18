@@ -21,5 +21,8 @@ packaging>=21.0
 # Build tools (for creating MSI installer)
 pyinstaller>=5.0.0
 
+# Propagation models (for Longley-Rice)
+ITURHFProp>=1.0.0
+
 # Optional but recommended
 # python-dateutil>=2.8.0  # Usually included with matplotlib

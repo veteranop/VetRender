@@ -35,6 +35,7 @@ class Toolbar:
         # Variables
         self.zoom_var = tk.StringVar()
         self.quality_var = tk.StringVar()
+        self.propagation_model_var = tk.StringVar(value='default')  # Propagation model selector
         self.azimuth_var = tk.StringVar()
         self.dist_points_var = tk.StringVar()
         self.transparency_var = tk.DoubleVar(value=0.65)  # 🔥 NEW: Default 65% transparency
@@ -197,7 +198,7 @@ class Toolbar:
     
     def get_zoom(self):
         """Get current zoom level
-        
+
         Returns:
             int: Zoom level
         """
@@ -205,7 +206,15 @@ class Toolbar:
             return int(self.zoom_var.get())
         except ValueError:
             return 13
-    
+
+    def get_propagation_model(self):
+        """Get selected propagation model
+
+        Returns:
+            str: 'default' or 'longley_rice'
+        """
+        return self.propagation_model_var.get()
+
     def set_quality(self, quality):
         """Set quality preset
         

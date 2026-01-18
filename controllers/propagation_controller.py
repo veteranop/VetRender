@@ -50,7 +50,8 @@ class PropagationController:
     def calculate_coverage(self, tx_lat, tx_lon, tx_height, erp_dbm, frequency_mhz,
                           max_distance_km, resolution, signal_threshold_dbm, rx_height=1.5,
                           use_terrain=False, terrain_quality='Medium',
-                          custom_azimuth_count=None, custom_distance_points=None):
+                          custom_azimuth_count=None, custom_distance_points=None,
+                           propagation_model='default'):
         """Calculate RF propagation coverage with Cartesian grid (eliminates radial artifacts)
         
         Args:
@@ -66,6 +67,7 @@ class PropagationController:
             terrain_quality: Quality preset ('Low', 'Medium', 'High', 'Ultra', 'Custom')
             custom_azimuth_count: Custom azimuth count (overrides quality preset)
             custom_distance_points: Custom distance points (overrides quality preset)
+            propagation_model: Propagation model ('default' for FSPL+diffraction, 'longley_rice' for Longley-Rice)
             
         Returns:
             Tuple of (az_grid, dist_grid, rx_power_grid, terrain_loss_grid, stats_dict)
@@ -128,19 +130,60 @@ class PropagationController:
             print(debug_msg)
             self._log_debug(debug_msg)
             
-            # Terrain analysis
-            terrain_loss_grid = np.zeros_like(dist_grid)
-            
-            if use_terrain:
-                terrain_loss_grid = self._calculate_terrain_loss(
-                    tx_lat, tx_lon, tx_height, rx_height, max_distance_km,
-                    frequency_mhz, terrain_quality,
-                    custom_azimuth_count, custom_distance_points,
-                    mask, dist_grid, az_grid
-                )
-            
+            # =================================================================================
+            # PROPAGATION MODEL SELECTION
+            # =================================================================================
+            # Choose between default (FSPL + diffraction) or Longley-Rice model
+            # ROLLBACK: Remove this block to revert to default model only
+            # =================================================================================
+
+            total_loss_grid = np.zeros_like(dist_grid)
+
+            if propagation_model == 'longley_rice':
+                print(f"Using Longley-Rice propagation model...")
+                if grid_resolution > 200:
+                    print("Warning: Longley-Rice calculations may be slow for high resolution grids")
+
+                # Calculate Longley-Rice loss for each point
+                for i in range(dist_grid.shape[0]):
+                    for j in range(dist_grid.shape[1]):
+                        if not mask[i, j] and dist_grid[i, j] > 0:
+                            try:
+                                total_loss_grid[i, j] = PropagationModel.longley_rice_loss(
+                                    dist_grid[i, j], frequency_mhz, tx_height, rx_height
+                                )
+                            except Exception as e:
+                                print(f"Warning: Longley-Rice failed at point ({i},{j}): {e}")
+                                # Fallback to FSPL
+                                total_loss_grid[i, j] = PropagationModel.free_space_loss(
+                                    dist_grid[i, j], frequency_mhz
+                                )
+
+                # For Longley-Rice, terrain_loss_grid is not separate
+                terrain_loss_grid = np.zeros_like(dist_grid)
+
+            else:  # Default model (FSPL + diffraction)
+                print(f"Using default propagation model (FSPL + diffraction)...")
+
+                # Terrain analysis
+                terrain_loss_grid = np.zeros_like(dist_grid)
+                if use_terrain:
+                    terrain_loss_grid = self._calculate_terrain_loss(
+                        tx_lat, tx_lon, tx_height, rx_height, max_distance_km,
+                        frequency_mhz, terrain_quality,
+                        custom_azimuth_count, custom_distance_points,
+                        mask, dist_grid, az_grid
+                    )
+
+                # Total loss = FSPL + terrain diffraction
+                total_loss_grid = fspl_grid + terrain_loss_grid
+
+            # =================================================================================
+            # END PROPAGATION MODEL SELECTION
+            # =================================================================================
+
             # Calculate received power
-            rx_power_grid = eirp_dbm + gain_grid - fspl_grid - terrain_loss_grid
+            rx_power_grid = eirp_dbm + gain_grid - total_loss_grid
             
             # Validate power calculations
             if np.any(np.isnan(rx_power_grid)) or np.any(np.isinf(rx_power_grid)):

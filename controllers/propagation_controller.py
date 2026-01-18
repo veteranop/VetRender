@@ -170,11 +170,11 @@ class PropagationController:
                     # ROLLBACK: Remove this block to use fixed points.
                     # =================================================================================
                     if custom_distance_points is None:
-                        # Base 500 points for 100km, scale up for larger areas
+                        # Base 500 points for 100km, scale up for larger areas, cap at 2000
                         base_distance = 100  # km
                         base_points = 500
-                        scale_factor = max(1.0, max_distance_km / base_distance)
-                        custom_distance_points = int(base_points * scale_factor)
+                        scale_factor = min(max(1.0, max_distance_km / base_distance), 4.0)  # Cap scale at 4x
+                        custom_distance_points = min(int(base_points * scale_factor), 1000)  # Cap at 1000 points
                         print(f"Scaled terrain points to {custom_distance_points} for {max_distance_km}km coverage")
 
                     terrain_loss_grid = self._calculate_terrain_loss(
@@ -202,11 +202,11 @@ class PropagationController:
                     # ROLLBACK: Remove this block to use fixed points.
                     # =================================================================================
                     if custom_distance_points is None:
-                        # Base 500 points for 100km, scale up for larger areas
+                        # Base 500 points for 100km, scale up for larger areas, cap at 2000
                         base_distance = 100  # km
                         base_points = 500
-                        scale_factor = max(1.0, max_distance_km / base_distance)
-                        custom_distance_points = int(base_points * scale_factor)
+                        scale_factor = min(max(1.0, max_distance_km / base_distance), 4.0)  # Cap scale at 4x
+                        custom_distance_points = min(int(base_points * scale_factor), 1000)  # Cap at 1000 points
                         print(f"Scaled terrain points to {custom_distance_points} for {max_distance_km}km coverage")
 
                     terrain_loss_grid = self._calculate_terrain_loss(

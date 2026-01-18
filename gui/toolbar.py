@@ -81,6 +81,22 @@ class Toolbar:
         quality_combo.bind('<<ComboboxSelected>>', 
                           lambda e: self.callbacks['on_quality_change']())
         
+        # =================================================================================
+        # PROPAGATION MODEL SELECTOR
+        # =================================================================================
+        # Dropdown to choose between default and Longley-Rice models
+        # ROLLBACK: Remove this block and propagation_model_var to revert
+        # =================================================================================
+        ttk.Label(self.frame, text="Model:").pack(side=tk.LEFT, padx=(10, 5))
+        model_combo = ttk.Combobox(self.frame, textvariable=self.propagation_model_var, width=12,
+                                   values=['default', 'longley_rice'],
+                                   state='readonly')
+        model_combo.pack(side=tk.LEFT, padx=2)
+        # Note: No callback needed - model is read when calculating
+        # =================================================================================
+        # END PROPAGATION MODEL SELECTOR
+        # =================================================================================
+
         # Custom controls (hidden by default)
         self.custom_frame = ttk.Frame(self.frame)
         ttk.Label(self.custom_frame, text="Az:").pack(side=tk.LEFT, padx=(5, 2))

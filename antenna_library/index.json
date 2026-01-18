@@ -10,5 +10,65 @@
     "type": "Omni",
     "notes": "",
     "import_date": "2026-01-14 15:27:05"
+  },
+  "CMD1106-1_1": {
+    "name": "CMD1106-1",
+    "xml_file": "CMD1106-1_1.xml",
+    "manufacturer": "Commander",
+    "part_number": "1106-1",
+    "gain": 6.1,
+    "band": "800 Mhz",
+    "frequency_range": "806-866 Mhz",
+    "type": "Omni",
+    "notes": "This collinear antenna provides consistent gain and impedance across the operating frequency band\nand is designed to meet various omnidirectional requirements for repeated control stations.\nThis antenna utilizes copper radiating elements and is encased in small diameter fiberglass to reduce\nwind resistance. Commander Antennas incorporate design enhancements not normally\navailable in other fiberglass collinear antennas of comparable size.",
+    "import_date": "2026-01-15 16:03:13"
+  },
+  "JLCP_LOW_POWER_ANTENNA_2": {
+    "name": "JLCP LOW POWER ANTENNA",
+    "xml_file": "JLCP_LOW_POWER_ANTENNA_2.xml",
+    "manufacturer": "Jampro",
+    "part_number": "N/A",
+    "gain": 0.0,
+    "band": "FM",
+    "frequency_range": "88-108 MHz",
+    "type": "Omni",
+    "notes": "Manufacturer: A stacking \nharness is\nPart Number: 7-16\nBand: FM\nFrequency Range: 88-108 MHz\nOmnidirectional antenna\nDescription: JLCP LOW POWER ANTENNA The JAMPRO JLCP is a low power antenna designed specifically for Omni-Directional low power applications such as LPFM, Trans-...",
+    "import_date": "2026-01-15 16:21:43"
+  },
+  "FM_Educational_Series_3": {
+    "name": "FM Educational Series",
+    "xml_file": "FM_Educational_Series_3.xml",
+    "manufacturer": "ERI",
+    "part_number": "FM-11",
+    "gain": -1.0,
+    "band": "FM",
+    "frequency_range": "88-108 MHz",
+    "type": "Omni",
+    "notes": "Manufacturer: an ERI representative\nPart Number: FM-11\nBand: FM\nFrequency Range: 88-108 MHz\nOmnidirectional antenna\nDescription: FM Educational Series Low Power Horizontally Polarized FM Antenna Educational FM antennas are specifically designed for...",
+    "import_date": "2026-01-15 16:29:52"
+  },
+  "SDC010926B_4": {
+    "name": "SDC010926B",
+    "xml_file": "SDC010926B_4.xml",
+    "manufacturer": "Jampro",
+    "part_number": "SDC010926B",
+    "gain": 0.0,
+    "band": "FM",
+    "frequency_range": "N/A",
+    "type": "Directional",
+    "notes": "Band: FM\nDescription: Description:  FM Sidemount Antenna Free Space Azimuth Pattern   Notes:  Blue=H -Pol ; Red=V -Pol Values in Relative Field...",
+    "import_date": "2026-01-16 07:14:48"
+  },
+  "Jampro_low_power_FM_5": {
+    "name": "Jampro low power FM",
+    "xml_file": "Jampro_low_power_FM_5.xml",
+    "manufacturer": "Jampro",
+    "part_number": "SDC010926B",
+    "gain": 0.0,
+    "band": "FM",
+    "frequency_range": "88-108 MHz",
+    "type": "Omni",
+    "notes": "Band: FM\nDescription: Description:  FM Sidemount Antenna Free Space Azimuth Pattern   Notes:  Blue=H -Pol ; Red=V -Pol Values in Relative Field...",
+    "import_date": "2026-01-16 07:21:46"
   }
 }

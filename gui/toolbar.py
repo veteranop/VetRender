@@ -61,7 +61,7 @@ class Toolbar:
         # Zoom control
         ttk.Label(self.frame, text="Zoom:").pack(side=tk.LEFT, padx=5)
         zoom_combo = ttk.Combobox(self.frame, textvariable=self.zoom_var, width=5,
-                                  values=['10', '11', '12', '13', '14', '15', '16'])
+                                  values=['8', '9', '10', '11', '12', '13', '14', '15', '16'])
         zoom_combo.pack(side=tk.LEFT, padx=5)
         zoom_combo.bind('<<ComboboxSelected>>', 
                        lambda e: self.callbacks['on_zoom_change']())
@@ -100,7 +100,11 @@ class Toolbar:
         self.transparency_slider.pack(side=tk.LEFT, padx=5)
         self.transparency_label = ttk.Label(self.frame, text="65%", width=4)
         self.transparency_label.pack(side=tk.LEFT, padx=2)
-        
+        ttk.Button(self.frame, text="Apply",
+                  command=self._apply_transparency).pack(side=tk.LEFT, padx=2)
+        ttk.Button(self.frame, text="Reset",
+                  command=self._reset_transparency).pack(side=tk.LEFT, padx=2)
+
         ttk.Separator(self.frame, orient='vertical').pack(side=tk.LEFT, fill=tk.Y, padx=10)
         
         # Project buttons
@@ -118,7 +122,16 @@ class Toolbar:
                   command=self.callbacks['on_calculate']).pack(side=tk.LEFT, padx=10)
         
         ttk.Separator(self.frame, orient='vertical').pack(side=tk.LEFT, fill=tk.Y, padx=10)
-        
+
+        # Live probe checkbox
+        self.live_probe_var = tk.BooleanVar(value=False)
+        tk.Checkbutton(self.frame, text="Live Probe", variable=self.live_probe_var,
+                      command=self._toggle_live_probe).pack(side=tk.LEFT, padx=5)
+
+        # Signal level display
+        self.signal_var = tk.StringVar(value="")
+        tk.Label(self.frame, textvariable=self.signal_var, width=15).pack(side=tk.LEFT, padx=5)
+
         # Status label
         ttk.Label(self.frame, textvariable=self.status_var).pack(side=tk.LEFT, padx=5)
     
@@ -126,11 +139,27 @@ class Toolbar:
         """Handle transparency slider change (internal)"""
         percent = int(float(value) * 100)
         self.transparency_label.config(text=f"{percent}%")
-        
-        # Call callback if available
+
+        # Call callback if available (disabled to prevent map resizing)
+        # if 'on_transparency_change' in self.callbacks:
+        #     self.callbacks['on_transparency_change']()
+
+    def _apply_transparency(self):
+        """Apply current transparency setting"""
         if 'on_transparency_change' in self.callbacks:
             self.callbacks['on_transparency_change']()
-    
+
+    def _reset_transparency(self):
+        """Reset transparency to default 65% (doesn't apply automatically)"""
+        self.transparency_var.set(0.65)
+        self.transparency_label.config(text="65%")
+        # Note: Doesn't automatically apply - use Apply button
+
+    def _toggle_live_probe(self):
+        """Toggle live probe mode"""
+        if 'on_toggle_live_probe' in self.callbacks:
+            self.callbacks['on_toggle_live_probe']()
+
     def get_transparency(self):
         """Get current transparency value (0.0 to 1.0)
         

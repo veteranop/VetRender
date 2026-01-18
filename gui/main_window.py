@@ -28,7 +28,8 @@ from gui.toolbar import Toolbar
 from gui.menus import MenuBar
 from gui.dialogs import (TransmitterConfigDialog, AntennaInfoDialog,
                         CacheManagerDialog, ProjectSetupDialog, SetLocationDialog,
-                        PlotsManagerDialog, AntennaImportDialog, AntennaMetadataDialog)
+                        PlotsManagerDialog, AntennaImportDialog, AntennaMetadataDialog,
+                        ManualAntennaDialog)
 
 from controllers.propagation_controller import PropagationController
 
@@ -71,6 +72,7 @@ class VetRender:
         self.erp = 40
         self.frequency = 88.5
         self.height = 30
+        self.rx_height = 1.5  # Receiver height in meters
         self.max_distance = 100
         self.resolution = 500
         self.signal_threshold = -110
@@ -110,7 +112,7 @@ class VetRender:
         # Update info
         self.info_panel.update(
             self.callsign, self.frequency, self.transmission_mode, self.tx_type,
-            self.tx_lat, self.tx_lon, self.height, self.erp, self.pattern_name,
+            self.tx_lat, self.tx_lon, self.height, self.rx_height, self.erp, self.pattern_name,
             self.max_distance, self.signal_threshold, 
             self.use_terrain.get(), self.terrain_quality
         )
@@ -180,7 +182,7 @@ class VetRender:
         
         # Connect events
         self.canvas.mpl_connect('button_press_event', self.on_map_click)
-        self.canvas.mpl_connect('scroll_event', self.on_scroll_zoom)
+        # self.canvas.mpl_connect('scroll_event', self.on_scroll_zoom)  # Disabled - use toolbar zoom
         
         # Context menu
         self.context_menu = tk.Menu(self.root, tearoff=0)
@@ -228,8 +230,10 @@ class VetRender:
             'on_ai_assistant': self.ai_antenna_assistant,
             'on_ai_import_antenna': self.import_antenna_pattern,
             'on_manual_import': self.manual_import_antenna,
+            'on_create_manual_antenna': self.create_manual_antenna,
             'on_view_antennas': self.view_antennas,
             'on_export_antenna': self.export_antenna,
+            # 'on_toggle_live_probe': self.toggle_live_probe,  # Temporarily disabled
             'on_exit': self.on_closing,
             'on_basemap_change': self.on_basemap_change,
             'on_toggle_coverage': self.toggle_coverage_overlay,
@@ -265,7 +269,7 @@ class VetRender:
             # 🔥 ALL FIXES ARE IN THE CONTROLLER!
             result = self.propagation_controller.calculate_coverage(
                 self.tx_lat, self.tx_lon, self.height, self.erp, self.frequency,
-                self.max_distance, self.resolution, self.signal_threshold,
+                self.max_distance, self.resolution, self.signal_threshold, self.rx_height,
                 self.use_terrain.get(), self.terrain_quality,
                 custom_az, custom_dist
             )
@@ -567,11 +571,11 @@ class VetRender:
     def edit_tx_config(self):
         """Edit transmitter configuration"""
         dialog = TransmitterConfigDialog(self.root, self.erp, self.frequency,
-                                        self.height, self.signal_threshold)
+                                        self.height, self.rx_height, self.signal_threshold)
         self.root.wait_window(dialog.dialog)
         
         if dialog.result:
-            self.erp, self.frequency, self.height, self.signal_threshold = dialog.result
+            self.erp, self.frequency, self.height, self.rx_height, self.signal_threshold = dialog.result
             self.update_info_panel()
             self.toolbar.set_status(f"Config updated - ERP: {self.erp} dBm, Freq: {self.frequency} MHz")
             self.save_auto_config()
@@ -610,6 +614,7 @@ class VetRender:
             'tx_lat': self.tx_lat,
             'tx_lon': self.tx_lon,
             'height': self.height,
+            'rx_height': self.rx_height,
             'erp': self.erp,
             'zoom': self.zoom,
             'basemap': self.basemap,
@@ -627,6 +632,7 @@ class VetRender:
             self.tx_lat = dialog.result['tx_lat']
             self.tx_lon = dialog.result['tx_lon']
             self.height = dialog.result.get('height', self.height)
+            self.rx_height = dialog.result.get('rx_height', self.rx_height)
             self.erp = dialog.result.get('erp', self.erp)
             self.zoom = dialog.result['zoom']
             self.basemap = dialog.result['basemap']
@@ -782,10 +788,10 @@ class VetRender:
         self.logger.log("AI ANTENNA IMPORT STARTED")
         self.logger.log("="*80)
         
-        def on_import(xml_content):
+        def on_import(xml_content, initial_metadata=None):
             # Ask user for metadata
             self.logger.log("Asking user for antenna metadata...")
-            metadata_dialog = AntennaMetadataDialog(self.root)
+            metadata_dialog = AntennaMetadataDialog(self.root, initial_values=initial_metadata)
             self.root.wait_window(metadata_dialog.dialog)
             
             if not metadata_dialog.result:
@@ -1052,6 +1058,46 @@ class VetRender:
                 messagebox.showinfo("Success", "Antenna pattern loaded successfully!")
             else:
                 messagebox.showerror("Error", "Failed to load XML file. Check format.")
+
+    def create_manual_antenna(self):
+        """Create a custom antenna pattern manually"""
+        def on_create(xml_content, metadata):
+            # Open save dialog with pre-filled metadata
+            self.logger.log("Manual antenna created, opening save dialog...")
+            metadata_dialog = AntennaMetadataDialog(self.root, initial_values=metadata)
+            self.root.wait_window(metadata_dialog.dialog)
+
+            if not metadata_dialog.result:
+                self.logger.log("User cancelled manual antenna save")
+                return
+
+            save_metadata = metadata_dialog.result
+            antenna_name = save_metadata['name']
+
+            self.logger.log(f"Saving manual antenna to library: {antenna_name}")
+
+            # Save to antenna library
+            success = self.antenna_library.add_antenna(antenna_name, xml_content, save_metadata)
+
+            if not success:
+                self.logger.log("ERROR: Failed to save manual antenna to library")
+                messagebox.showerror("Error", "Failed to save antenna to library.")
+                return
+
+            self.logger.log(f"SUCCESS: Manual antenna '{antenna_name}' saved to library")
+
+            # Load the antenna pattern
+            antenna_list = self.antenna_library.list_antennas()
+            if antenna_list:
+                new_antenna_id = antenna_list[-1][0]
+                self.load_antenna_from_library(new_antenna_id)
+
+                self.logger.log(f"Loaded manual antenna pattern: {antenna_name}")
+                messagebox.showinfo("Success",
+                    f"Manual antenna '{antenna_name}' created and loaded successfully!")
+
+        # Open manual creation dialog
+        ManualAntennaDialog(self.root, on_create)
     
     def load_antenna_from_library(self, antenna_id):
         """Load an antenna pattern from the library
@@ -1080,7 +1126,9 @@ class VetRender:
         if antenna_info:
             self.pattern_name = antenna_info['name']
             self.current_antenna_id = antenna_id
-            self.logger.log(f"Successfully loaded antenna: {self.pattern_name}")
+            # Set the antenna gain from library metadata
+            self.antenna_pattern.max_gain = antenna_info.get('gain', 0.0)
+            self.logger.log(f"Successfully loaded antenna: {self.pattern_name} (gain: {self.antenna_pattern.max_gain} dBi)")
             self.update_info_panel()
             return True
         
@@ -1204,7 +1252,7 @@ class VetRender:
         
         self.info_panel.update(
             self.callsign, self.frequency, self.transmission_mode, self.tx_type,
-            self.tx_lat, self.tx_lon, self.height, self.erp, self.pattern_name,
+            self.tx_lat, self.tx_lon, self.height, self.rx_height, self.erp, self.pattern_name,
             self.max_distance, self.signal_threshold,
             self.use_terrain.get(), self.terrain_quality,
             antenna_details=antenna_details

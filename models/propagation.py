@@ -295,6 +295,6 @@ class PropagationModel:
         return max(0, total_loss)
 
     @staticmethod
-    def erp_to_eirp(erp_dbm):
-        """Convert ERP to EIRP (add 2.15 dB for dipole reference)"""
-        return erp_dbm + 2.15
+    def erp_to_eirp(erp_dbm, antenna_gain_dbi=0.0):
+        """Convert ERP to EIRP by adding antenna gain"""
+        return erp_dbm + antenna_gain_dbi

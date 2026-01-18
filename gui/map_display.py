@@ -159,7 +159,14 @@ class MapDisplay:
         )
         
         return lat, lon
-    
+
+    def set_overlay_transparency(self, transparency):
+        """Set overlay transparency (placeholder - actual implementation in propagation plotting)"""
+        # This method is called by the toolbar slider
+        # The actual transparency is applied during coverage plotting
+        # For now, store the value for when coverage is next calculated
+        pass
+
     def handle_scroll_zoom(self, event):
         """Handle scroll wheel zoom events
         

@@ -48,7 +48,7 @@ class PropagationController:
             print(f"Warning: Failed to write debug log: {e}")
     
     def calculate_coverage(self, tx_lat, tx_lon, tx_height, erp_dbm, frequency_mhz,
-                          max_distance_km, resolution, signal_threshold_dbm,
+                          max_distance_km, resolution, signal_threshold_dbm, rx_height=1.5,
                           use_terrain=False, terrain_quality='Medium',
                           custom_azimuth_count=None, custom_distance_points=None):
         """Calculate RF propagation coverage with Cartesian grid (eliminates radial artifacts)
@@ -80,7 +80,7 @@ class PropagationController:
             print(f"Antenna Height: {tx_height} m, Max Distance: {max_distance_km} km")
             
             # Convert ERP to EIRP
-            eirp_dbm = PropagationModel.erp_to_eirp(erp_dbm)
+            eirp_dbm = PropagationModel.erp_to_eirp(erp_dbm, self.antenna_pattern.max_gain)
             print(f"EIRP: {eirp_dbm:.2f} dBm")
             
             # 🔥 FIX #1: Adaptive grid resolution based on coverage distance
@@ -133,7 +133,7 @@ class PropagationController:
             
             if use_terrain:
                 terrain_loss_grid = self._calculate_terrain_loss(
-                    tx_lat, tx_lon, tx_height, max_distance_km,
+                    tx_lat, tx_lon, tx_height, rx_height, max_distance_km,
                     frequency_mhz, terrain_quality,
                     custom_azimuth_count, custom_distance_points,
                     mask, dist_grid, az_grid
@@ -179,7 +179,7 @@ class PropagationController:
             traceback.print_exc()
             return None
     
-    def _calculate_terrain_loss(self, tx_lat, tx_lon, tx_height, max_distance_km,
+    def _calculate_terrain_loss(self, tx_lat, tx_lon, tx_height, rx_height, max_distance_km,
                                 frequency_mhz, terrain_quality, custom_azimuth_count,
                                 custom_distance_points, mask, dist_grid, az_grid):
         """Calculate terrain diffraction loss with segment-by-segment LOS
@@ -190,6 +190,7 @@ class PropagationController:
         Args:
             tx_lat, tx_lon: Transmitter location
             tx_height: Transmitter height AGL (m)
+            rx_height: Receiver height AGL (m)
             max_distance_km: Coverage radius
             frequency_mhz: Frequency
             terrain_quality: Quality preset
@@ -231,7 +232,7 @@ class PropagationController:
         
         terrain_loss_samples = np.zeros((sample_distances_count, sample_azimuths_count))
         
-        rx_height = 2.0  # Mobile receiver height (people, cars)
+        # rx_height is passed as parameter
         
         for i, az in enumerate(sample_azimuths):
             if i % max(1, sample_azimuths_count // 10) == 0:

@@ -51,8 +51,8 @@ class InfoPanel:
         btn.pack(fill=tk.X, pady=2)
         return btn
     
-    def update(self, callsign, frequency, tx_mode, tx_type, 
-              tx_lat, tx_lon, height, erp, pattern_name,
+    def update(self, callsign, frequency, tx_mode, tx_type,
+              tx_lat, tx_lon, height, rx_height, erp, pattern_name,
               max_distance, signal_threshold, use_terrain, terrain_quality,
               antenna_details=None):
         """Update the information display
@@ -75,8 +75,12 @@ class InfoPanel:
         """
         self.info_text.config(state='normal')
         self.info_text.delete('1.0', tk.END)
-        
-        eirp = PropagationModel.erp_to_eirp(erp)
+
+        # Calculate EIRP using antenna gain if available
+        antenna_gain = 0.0
+        if antenna_details:
+            antenna_gain = antenna_details.get('gain', 0.0)
+        eirp = PropagationModel.erp_to_eirp(erp, antenna_gain)
         
         # Build antenna section with details if available
         antenna_section = f"Antenna:      {pattern_name}\n"
@@ -109,6 +113,7 @@ Tx Type:      {tx_type}
 Latitude:     {tx_lat:.6f}°
 Longitude:    {tx_lon:.6f}°
 Height AGL:   {height} m
+Rx Height:    {rx_height} m
 
 ╔═══════════════════════════════╗
 ║      POWER & ANTENNA          ║

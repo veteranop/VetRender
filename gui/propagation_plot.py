@@ -136,15 +136,11 @@ class PropagationPlot:
                         markeredgecolor='white', markeredgewidth=2, 
                         label='Transmitter', zorder=10)
             
-            # Restore or reset zoom
-            if zoom_state:
-                xlim, ylim = zoom_state
-                self.ax.set_xlim(xlim)
-                self.ax.set_ylim(ylim)
-            else:
-                self.ax.set_xlim(0, map_image.size[0])
-                self.ax.set_ylim(map_image.size[1], 0)
-            
+            # Force axes to map boundaries to prevent resizing
+            self.ax.set_xlim(0, map_image.size[0])
+            self.ax.set_ylim(map_image.size[1], 0)
+            self.ax.set_aspect('equal', adjustable='box')  # Maintain aspect ratio
+
             self.ax.axis('off')
             self.ax.legend(loc='upper right', fontsize=10, framealpha=0.9)
         

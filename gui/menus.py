@@ -99,6 +99,8 @@ class MenuBar:
                                 command=self.callbacks.get('on_ai_import_antenna', lambda: None))
         antenna_menu.add_command(label="Manual Import",
                                 command=self.callbacks.get('on_manual_import', lambda: None))
+        antenna_menu.add_command(label="Create Manual Antenna",
+                                command=self.callbacks.get('on_create_manual_antenna', lambda: None))
         antenna_menu.add_separator()
         antenna_menu.add_command(label="View Antennas",
                                 command=self.callbacks.get('on_view_antennas', lambda: None))

@@ -261,7 +261,20 @@ class PropagationModel:
         except:
             main_loss = 10
         
-        return max(0, min(main_loss, 80))
+        # =================================================================================
+        # DIFFRACTION LOSS ADJUSTMENT FOR CONSERVATIVE MODELING
+        # =================================================================================
+        # Increase diffraction loss for more realistic dead spots in mountainous terrain
+        # Multiplier >1 makes model more pessimistic (blocks more signals)
+        # ROLLBACK: Change multiplier back to 1.0
+        # =================================================================================
+        diffraction_multiplier = 1.5  # Increase for more conservative blocking
+        adjusted_loss = main_loss * diffraction_multiplier
+        # =================================================================================
+        # END DIFFRACTION LOSS ADJUSTMENT
+        # =================================================================================
+
+        return max(0, min(adjusted_loss, 80))
     
     @staticmethod
     def itm_path_loss(distance_km, frequency_mhz, tx_height_m, rx_height_m, terrain_profile=None, climate='continental_temperate'):

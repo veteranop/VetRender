@@ -201,6 +201,14 @@ class PropagationController:
                         mask, dist_grid, az_grid
                     )
                     total_loss_grid += terrain_loss_grid
+
+                    # =================================================================================
+                    # CLAMP TERRAIN LOSS TO PREVENT NEGATIVE VALUES
+                    # =================================================================================
+                    # Ensure no negative terrain loss (gain) for realistic modeling
+                    # ROLLBACK: Remove this line
+                    # =================================================================================
+                    total_loss_grid = np.maximum(total_loss_grid, fspl_grid)  # At least FSPL
                     # =================================================================================
                     # END TERRAIN ACCURACY IMPROVEMENT
                     # =================================================================================
@@ -238,6 +246,14 @@ class PropagationController:
 
                 # Total loss = FSPL + terrain diffraction
                 total_loss_grid = fspl_grid + terrain_loss_grid
+
+                # =================================================================================
+                # CLAMP TERRAIN LOSS TO PREVENT NEGATIVE VALUES
+                # =================================================================================
+                # Ensure no negative terrain loss (gain) for realistic modeling
+                # ROLLBACK: Remove this line
+                # =================================================================================
+                total_loss_grid = np.maximum(total_loss_grid, fspl_grid)  # At least FSPL
 
             # =================================================================================
             # END PROPAGATION MODEL SELECTION

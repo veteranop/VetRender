@@ -10,7 +10,7 @@
   "height": 2.0,
   "max_distance": 500.0,
   "signal_threshold": -91.0,
-  "terrain_quality": "Custom",
+  "terrain_quality": "Ultra",
   "pattern_name": "Jampro_low_power_FM_5",
   "zoom": 10,
   "basemap": "Esri WorldImagery",

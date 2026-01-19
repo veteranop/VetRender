@@ -10,6 +10,7 @@ including the custom colormap, contour plotting, and shadow zone visualization.
 import numpy as np
 from matplotlib.colors import LinearSegmentedColormap
 from matplotlib.patches import Patch
+import scipy.ndimage
 
 
 class PropagationPlot:
@@ -79,9 +80,21 @@ class PropagationPlot:
             x = tx_pixel_x + dist_grid * pixel_scale * np.sin(az_rad)
             y = tx_pixel_y - dist_grid * pixel_scale * np.cos(az_rad)
             
+            # =================================================================================
+            # SMOOTHING FOR REDUCED GRID CHUNKING
+            # =================================================================================
+            # Apply Gaussian smoothing to reduce visible grid artifacts at low zoom
+            # Sigma=0.5 provides subtle smoothing without losing detail
+            # ROLLBACK: Remove this block
+            # =================================================================================
+            rx_power_smoothed = scipy.ndimage.gaussian_filter(rx_power_grid, sigma=0.5)
+            # =================================================================================
+            # END SMOOTHING
+            # =================================================================================
+
             # Mask areas below threshold
-            rx_power_masked = np.ma.masked_where(rx_power_grid < signal_threshold, rx_power_grid)
-            
+            rx_power_masked = np.ma.masked_where(rx_power_smoothed < signal_threshold, rx_power_smoothed)
+
             # Create contour plot if we have valid data
             max_power = float(rx_power_masked.max())
             min_power = float(max(rx_power_masked.min(), signal_threshold))

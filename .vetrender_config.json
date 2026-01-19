@@ -8,11 +8,11 @@
   "erp": 50.0,
   "frequency": 88.5,
   "height": 2.0,
-  "max_distance": 500.0,
+  "max_distance": 200.0,
   "signal_threshold": -91.0,
-  "terrain_quality": "Ultra",
+  "terrain_quality": "Custom",
   "pattern_name": "Jampro_low_power_FM_5",
-  "zoom": 10,
+  "zoom": 8,
   "basemap": "Esri WorldImagery",
   "use_terrain": true
 }

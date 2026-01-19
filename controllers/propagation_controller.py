@@ -104,7 +104,7 @@ class PropagationController:
                 # For large areas with high terrain points, increase grid resolution
                 base_res = 500
                 scale_factor = min(max(1.0, max_distance_km / 100), 4.0)  # Cap at 4x
-                grid_resolution = min(int(base_res * scale_factor), 2000)  # Cap at 2000x2000
+                grid_resolution = min(int(base_res * scale_factor), 4000)  # Cap at 4000x4000
                 print(f"Scaled grid resolution to {grid_resolution}x{grid_resolution} for {max_distance_km}km coverage")
             # =================================================================================
             # END ADAPTIVE GRID RESOLUTION

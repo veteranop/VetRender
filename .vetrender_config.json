@@ -12,7 +12,7 @@
   "signal_threshold": -91.0,
   "terrain_quality": "Custom",
   "pattern_name": "Jampro_low_power_FM_5",
-  "zoom": 8,
+  "zoom": 10,
   "basemap": "Esri WorldImagery",
   "use_terrain": true
 }

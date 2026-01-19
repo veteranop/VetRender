@@ -85,13 +85,30 @@ class PropagationController:
             eirp_dbm = PropagationModel.erp_to_eirp(erp_dbm, self.antenna_pattern.max_gain)
             print(f"EIRP: {eirp_dbm:.2f} dBm")
             
-            # 🔥 FIX #1: Adaptive grid resolution based on coverage distance
-            if max_distance_km <= 50:
-                grid_resolution = resolution
-            elif max_distance_km <= 100:
-                grid_resolution = max(300, resolution // 2)
+            # =================================================================================
+            # ADAPTIVE GRID RESOLUTION FOR LARGE AREAS
+            # =================================================================================
+            # Scale grid resolution with coverage distance for smoother contours at low zoom
+            # Higher resolution = less blocky but slower calculation
+            # ROLLBACK: Remove this block to use fixed resolution scaling
+            # =================================================================================
+            if custom_distance_points is None or custom_distance_points <= 500:
+                # Use original adaptive logic for small areas
+                if max_distance_km <= 50:
+                    grid_resolution = resolution
+                elif max_distance_km <= 100:
+                    grid_resolution = max(300, resolution // 2)
+                else:
+                    grid_resolution = max(200, resolution // 3)
             else:
-                grid_resolution = max(200, resolution // 3)
+                # For large areas with high terrain points, increase grid resolution
+                base_res = 500
+                scale_factor = min(max(1.0, max_distance_km / 100), 4.0)  # Cap at 4x
+                grid_resolution = min(int(base_res * scale_factor), 2000)  # Cap at 2000x2000
+                print(f"Scaled grid resolution to {grid_resolution}x{grid_resolution} for {max_distance_km}km coverage")
+            # =================================================================================
+            # END ADAPTIVE GRID RESOLUTION
+            # =================================================================================
             
             print(f"Grid resolution: {grid_resolution} (optimized for {max_distance_km}km)")
             self._log_debug(f"Grid resolution: {grid_resolution} for {max_distance_km}km coverage")

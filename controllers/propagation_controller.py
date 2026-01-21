@@ -18,7 +18,7 @@ import datetime
 from models.propagation import PropagationModel
 from models.terrain import TerrainHandler
 from models.antenna_models.antenna import AntennaPattern
-from models.land_cover import LandCoverHandler
+# from models.land_cover import LandCoverHandler  # TODO: Future feature
 
 
 class PropagationController:
@@ -45,7 +45,7 @@ class PropagationController:
     
     def _log_debug(self, message):
         """Write to debug log
-        
+
         Args:
             message: Debug message to log
         """
@@ -54,12 +54,79 @@ class PropagationController:
                 f.write(f"[{datetime.datetime.now()}] {message}\n")
         except Exception as e:
             print(f"Warning: Failed to write debug log: {e}")
-    
+
+    def _calculate_zoom_aware_parameters(self, quality, zoom_level, coverage_km):
+        """Calculate optimal parameters based on quality, zoom, and coverage area
+
+        Args:
+            quality: User's quality selection ('Low', 'Medium', 'High', 'Ultra')
+            zoom_level: Map zoom level (8-16)
+            coverage_km: Coverage radius in km
+
+        Returns:
+            tuple: (grid_resolution, scaled_quality_dict)
+                grid_resolution: Grid points per dimension
+                scaled_quality_dict: {'azimuths': int, 'distances': int}
+        """
+        # Quality base multipliers (before zoom scaling)
+        quality_multipliers = {
+            'Low': 0.7,
+            'Medium': 1.0,
+            'High': 1.4,
+            'Ultra': 1.8
+        }
+
+        # Zoom scale factors
+        if zoom_level <= 9:
+            zoom_scale = 0.7  # Wide view, reduce quality
+        elif zoom_level <= 11:
+            zoom_scale = 1.0  # Normal view, standard quality
+        elif zoom_level <= 13:
+            zoom_scale = 1.3  # Close view, increase quality
+        else:  # 14+
+            zoom_scale = 1.6  # Very close, maximum quality
+
+        # Combined multiplier
+        base_multiplier = quality_multipliers.get(quality, 1.0)
+        combined_multiplier = base_multiplier * zoom_scale
+
+        # Grid resolution based on coverage area and combined multiplier
+        if coverage_km <= 25:
+            base_grid = 800
+        elif coverage_km <= 50:
+            base_grid = 1000
+        elif coverage_km <= 100:
+            base_grid = 750
+        elif coverage_km <= 200:
+            base_grid = 600
+        else:
+            base_grid = 500
+
+        grid_resolution = int(base_grid * combined_multiplier)
+        grid_resolution = min(grid_resolution, 2500)  # Cap at 2500 to prevent memory issues
+        grid_resolution = max(grid_resolution, 400)   # Minimum 400 for acceptable quality
+
+        # Terrain sampling parameters
+        base_azimuths = 3600  # Always use 3600 for smoothness
+        base_distances = 1500  # Base distance samples
+
+        scaled_azimuths = base_azimuths  # Keep azimuths locked at 3600
+        scaled_distances = int(base_distances * combined_multiplier)
+        scaled_distances = min(scaled_distances, 8000)  # Cap at 8000
+        scaled_distances = max(scaled_distances, 800)   # Minimum 800
+
+        scaled_quality = {
+            'azimuths': scaled_azimuths,
+            'distances': scaled_distances
+        }
+
+        return grid_resolution, scaled_quality
+
     def calculate_coverage(self, tx_lat, tx_lon, tx_height, erp_dbm, frequency_mhz,
                           max_distance_km, resolution, signal_threshold_dbm, rx_height=1.5,
                           use_terrain=False, terrain_quality='Medium',
                           custom_azimuth_count=None, custom_distance_points=None,
-                           propagation_model='default', progress_callback=None):
+                           propagation_model='default', progress_callback=None, zoom_level=11):
         """Calculate RF propagation coverage with Cartesian grid (eliminates radial artifacts)
         
         Args:
@@ -94,27 +161,20 @@ class PropagationController:
             print(f"EIRP: {eirp_dbm:.2f} dBm")
             
             # =================================================================================
-            # MODERATE-RESOLUTION CARTESIAN GRID FOR FAST RENDERING
+            # ZOOM-AWARE QUALITY SCALING
             # =================================================================================
-            # Reduced from previous ultra-high resolutions to prevent matplotlib freezing
-            # With cubic interpolation, we don't need as many grid points for smooth results
-            # Target: ~0.1-0.2 km per pixel - still plenty smooth with cubic interpolation
-            # ROLLBACK: Double these values to restore ultra-high resolution (slower rendering)
+            # Auto-adjust grid resolution, azimuths, and distance points based on:
+            # 1. User's quality selection (Low/Medium/High/Ultra)
+            # 2. Current zoom level (higher zoom = more detail needed)
+            # 3. Coverage distance (larger area = coarser acceptable)
             # =================================================================================
-            if max_distance_km <= 50:
-                grid_resolution = 1000  # 0.1 km/pixel - high detail (was 2000)
-            elif max_distance_km <= 100:
-                grid_resolution = 750   # 0.27 km/pixel - good detail (was 1500)
-            elif max_distance_km <= 200:
-                grid_resolution = 600   # 0.67 km/pixel - moderate detail (was 1200)
-            elif max_distance_km <= 300:
-                grid_resolution = 500   # 1.2 km/pixel - acceptable (was 1000)
-            else:
-                grid_resolution = 400   # 2.0 km/pixel - coarse but fast (was 800)
+            grid_resolution, scaled_quality = self._calculate_zoom_aware_parameters(
+                terrain_quality, zoom_level, max_distance_km
+            )
 
-            print(f"Grid resolution: {grid_resolution}x{grid_resolution} for {max_distance_km}km coverage (~{2*max_distance_km/grid_resolution:.2f} km/pixel)")
+            print(f"Quality: {terrain_quality} (zoom {zoom_level}) → Grid: {grid_resolution}x{grid_resolution} (~{2*max_distance_km/grid_resolution:.2f} km/pixel)")
             # =================================================================================
-            # END HIGH-RESOLUTION GRID
+            # END ZOOM-AWARE SCALING
             # =================================================================================
 
             self._log_debug(f"Grid resolution: {grid_resolution} for {max_distance_km}km coverage")
@@ -131,7 +191,13 @@ class PropagationController:
             
             # Mask points outside coverage circle
             mask = dist_grid > max_distance_km
-            
+
+            # Apply scaled quality parameters if custom values not provided
+            if custom_azimuth_count is None and custom_distance_points is None:
+                custom_azimuth_count = scaled_quality['azimuths']
+                custom_distance_points = scaled_quality['distances']
+                print(f"Using scaled quality: {custom_azimuth_count} az × {custom_distance_points} dist (quality={terrain_quality}, zoom={zoom_level})")
+
             print(f"Coverage area: {np.sum(~mask)} points within {max_distance_km} km")
             
             # Calculate antenna gains

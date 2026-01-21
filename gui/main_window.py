@@ -284,7 +284,8 @@ class VetRender:
                 self.max_distance, self.resolution, self.signal_threshold, self.rx_height,
                 self.use_terrain.get(), self.terrain_quality,
                 custom_az, custom_dist, propagation_model=propagation_model,
-                progress_callback=progress_callback
+                progress_callback=progress_callback,
+                zoom_level=self.zoom
             )
             
             if result is None:

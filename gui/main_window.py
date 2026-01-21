@@ -79,6 +79,11 @@ class VetRender:
         self.terrain_quality = 'Medium'
         self.zoom = 13
         self.basemap = 'Esri WorldImagery'
+
+        # RF chain system loss/gain (from Station Builder)
+        self.system_loss_db = 0.0
+        self.system_gain_db = 0.0
+        self.rf_chain = []  # List of (component_dict, length_ft) tuples
         
         # Terrain calculation parameters
         self.terrain_azimuths = 3600  # 🔥 LOCKED at 3600 (0.1° resolution) - eliminates blocks
@@ -167,6 +172,7 @@ class VetRender:
         self.info_panel = InfoPanel(content_frame)
         self.info_panel.pack(side=tk.LEFT, fill=tk.Y, padx=(5, 0), pady=5)
         self.info_panel.add_button("Edit Station Info", self.edit_station_info)
+        self.info_panel.add_button("Station Builder", self.open_station_builder)
         self.info_panel.add_button("Plots", self.show_plots_manager)
         
         # Map area on right
@@ -661,7 +667,27 @@ class VetRender:
             self.reload_map()
             self.update_info_panel()
             self.save_auto_config()
-    
+
+    def open_station_builder(self):
+        """Open Station Builder dialog"""
+        from gui.station_builder import StationBuilderDialog
+
+        def update_system(total_loss, total_gain, net_change, rf_chain):
+            """Callback to update system loss/gain and save RF chain"""
+            self.system_loss_db = total_loss
+            self.system_gain_db = total_gain
+            self.rf_chain = rf_chain
+
+            # Save to project config
+            self.save_auto_config()
+
+            # Update displayed ERP (add net change to current ERP)
+            print(f"System updated: Loss={total_loss:.2f} dB, Gain={total_gain:.2f} dB, Net={net_change:+.2f} dB")
+            self.update_info_panel()
+
+        StationBuilderDialog(self.root, self.frequency, callback=update_system,
+                            initial_chain=self.rf_chain)
+
     def show_plots_manager(self):
         """Show plots manager dialog"""
         if len(self.saved_plots) == 0:
@@ -1531,8 +1557,15 @@ class VetRender:
                 self.basemap = config.get('basemap', self.basemap)
                 use_terrain = config.get('use_terrain', False)
                 self.use_terrain.set(use_terrain)
-                
+
+                # Load RF chain if present
+                self.rf_chain = config.get('rf_chain', [])
+                self.system_loss_db = config.get('system_loss_db', 0.0)
+                self.system_gain_db = config.get('system_gain_db', 0.0)
+
                 print(f"Auto-loaded previous session: {self.callsign}")
+                if self.rf_chain:
+                    print(f"  RF chain: {len(self.rf_chain)} components, Net: {self.system_gain_db - self.system_loss_db:+.2f} dB")
                 return True
         except Exception as e:
             print(f"Could not load auto-config: {e}")
@@ -1558,7 +1591,10 @@ class VetRender:
                 'pattern_name': self.pattern_name,
                 'zoom': self.zoom,
                 'basemap': self.basemap,
-                'use_terrain': self.use_terrain.get()
+                'use_terrain': self.use_terrain.get(),
+                'rf_chain': self.rf_chain,
+                'system_loss_db': self.system_loss_db,
+                'system_gain_db': self.system_gain_db
             }
             
             with open(self.CONFIG_FILE, 'w') as f:

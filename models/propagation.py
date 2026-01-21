@@ -196,8 +196,21 @@ class PropagationModel:
             else:
                 # Combine using power addition
                 total_loss = -10 * np.log10(10**(-total_loss/10) + 10**(-hill_loss/10))
-        
-        return max(0, min(total_loss, 80))
+
+        # =================================================================================
+        # DIFFRACTION LOSS ADJUSTMENT FOR CONSERVATIVE MODELING
+        # =================================================================================
+        # Apply 2.0x multiplier for realistic VHF FM propagation in mountainous terrain
+        # Makes model more pessimistic with stronger terrain blocking
+        # ROLLBACK: Remove this block or change multiplier to 1.0
+        # =================================================================================
+        diffraction_multiplier = 2.0
+        total_loss = total_loss * diffraction_multiplier
+        # =================================================================================
+        # END DIFFRACTION LOSS ADJUSTMENT
+        # =================================================================================
+
+        return max(0, min(total_loss, 160))  # Cap at 160 dB (was 80) to allow 2x multiplier headroom
     
     @staticmethod
     def _terrain_loss_entire_path(tx_height, rx_height, terrain_profile, frequency_mhz,
@@ -266,9 +279,10 @@ class PropagationModel:
         # =================================================================================
         # Increase diffraction loss for more realistic dead spots in mountainous terrain
         # Multiplier >1 makes model more pessimistic (blocks more signals)
-        # ROLLBACK: Change multiplier back to 1.0
+        # 2.0x provides realistic VHF FM propagation in mountainous terrain
+        # ROLLBACK: Change multiplier back to 1.0 or 1.5
         # =================================================================================
-        diffraction_multiplier = 1.5  # Increase for more conservative blocking
+        diffraction_multiplier = 2.0  # Pessimistic model for realistic dead spots
         adjusted_loss = main_loss * diffraction_multiplier
         # =================================================================================
         # END DIFFRACTION LOSS ADJUSTMENT

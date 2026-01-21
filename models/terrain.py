@@ -295,3 +295,83 @@ class TerrainHandler:
         elevations = [e if e is not None else 0 for e in elevations]
 
         return elevations
+
+    @staticmethod
+    def export_cache_for_area(center_lat, center_lon, radius_km):
+        """Export terrain cache for a coverage area to include in project file
+
+        Args:
+            center_lat: Center latitude
+            center_lon: Center longitude
+            radius_km: Coverage radius in km
+
+        Returns:
+            Dictionary with lat/lon keys and elevation values (JSON serializable)
+        """
+        import math
+
+        # Calculate bounding box
+        lat_delta = radius_km / 111.0  # 1° latitude ≈ 111 km
+        lon_delta = radius_km / (111.0 * math.cos(math.radians(center_lat)))
+
+        min_lat = center_lat - lat_delta
+        max_lat = center_lat + lat_delta
+        min_lon = center_lon - lon_delta
+        max_lon = center_lon + lon_delta
+
+        # Extract relevant cache entries
+        cache_export = {}
+
+        # Check memory cache
+        for (lat, lon), elevation in TerrainHandler._memory_cache.items():
+            if min_lat <= lat <= max_lat and min_lon <= lon <= max_lon:
+                cache_export[f"{lat:.6f},{lon:.6f}"] = elevation
+
+        # Also check disk cache
+        if os.path.exists(TerrainHandler.CACHE_DIR):
+            for root, dirs, files in os.walk(TerrainHandler.CACHE_DIR):
+                for file in files:
+                    if file.endswith('.pkl'):
+                        try:
+                            filepath = os.path.join(root, file)
+                            with open(filepath, 'rb') as f:
+                                data = pickle.load(f)
+                                lat, lon = data['location']
+                                elevation = data['elevation']
+                                if min_lat <= lat <= max_lat and min_lon <= lon <= max_lon:
+                                    cache_export[f"{lat:.6f},{lon:.6f}"] = elevation
+                        except:
+                            pass
+
+        return cache_export
+
+    @staticmethod
+    def import_cache(cache_data):
+        """Import terrain cache from project file
+
+        Args:
+            cache_data: Dictionary with "lat,lon" keys and elevation values
+        """
+        if not cache_data:
+            return
+
+        imported_count = 0
+
+        for key, elevation in cache_data.items():
+            try:
+                lat_str, lon_str = key.split(',')
+                lat = float(lat_str)
+                lon = float(lon_str)
+
+                # Add to memory cache
+                cache_key = TerrainHandler._get_cache_key(lat, lon)
+                TerrainHandler._memory_cache[cache_key] = elevation
+
+                # Also save to disk cache
+                TerrainHandler._save_to_cache(lat, lon, elevation)
+
+                imported_count += 1
+            except:
+                pass
+
+        print(f"Imported {imported_count} terrain elevation points from project cache")

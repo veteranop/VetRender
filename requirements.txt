@@ -12,6 +12,9 @@ PyPDF2>=3.0.0
 # Scientific computing
 scipy>=1.7.0
 
+# Geospatial (for land cover / terrain type analysis)
+shapely>=2.0.0
+
 # Auto-updater
 packaging>=21.0
 

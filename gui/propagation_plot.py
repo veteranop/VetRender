@@ -48,19 +48,19 @@ class PropagationPlot:
             N=256
         )
     
-    def plot_coverage(self, map_image, tx_pixel_x, tx_pixel_y, 
-                     az_grid, dist_grid, rx_power_grid, 
+    def plot_coverage(self, map_image, tx_pixel_x, tx_pixel_y,
+                     x_grid_km, y_grid_km, rx_power_grid,
                      signal_threshold, pixel_scale,
                      terrain_loss_grid=None, show_shadow=False,
                      zoom_state=None, alpha=0.65):
         """Plot propagation coverage overlay on map
-        
+
         Args:
             map_image: PIL Image of the map
             tx_pixel_x: Transmitter X pixel position
             tx_pixel_y: Transmitter Y pixel position
-            az_grid: Azimuth grid (degrees)
-            dist_grid: Distance grid (km)
+            x_grid_km: Cartesian X grid in km (relative to transmitter)
+            y_grid_km: Cartesian Y grid in km (relative to transmitter)
             rx_power_grid: Received power grid (dBm)
             signal_threshold: Minimum signal threshold (dBm)
             pixel_scale: Pixels per km
@@ -70,24 +70,25 @@ class PropagationPlot:
             alpha: Transparency of coverage overlay (0.0-1.0, default 0.65)
         """
         self.ax.clear()
-        
+
         if map_image:
             # Display map
             self.ax.imshow(map_image, extent=[0, map_image.size[0], map_image.size[1], 0])
+
+            # Convert Cartesian km grid to pixel coordinates
+            # x_grid_km and y_grid_km are already in Cartesian coordinates
+            x_pixels = tx_pixel_x + x_grid_km * pixel_scale
+            y_pixels = tx_pixel_y - y_grid_km * pixel_scale  # Negative because Y increases downward in pixels
             
-            # Convert distance/azimuth to pixel coordinates
-            az_rad = np.deg2rad(az_grid)
-            x = tx_pixel_x + dist_grid * pixel_scale * np.sin(az_rad)
-            y = tx_pixel_y - dist_grid * pixel_scale * np.cos(az_rad)
-            
             # =================================================================================
-            # SMOOTHING FOR REDUCED GRID CHUNKING
+            # SMOOTHING DISABLED - NOT NEEDED WITH 3600 AZIMUTH SAMPLING
             # =================================================================================
-            # Apply Gaussian smoothing to reduce visible grid artifacts at low zoom
-            # Sigma=0.5 provides subtle smoothing without losing detail
-            # ROLLBACK: Remove this block
+            # With 3600 azimuths (every 0.1°), the data is already extremely smooth
+            # Gaussian smoothing would only blur terrain detail
+            # ROLLBACK: Uncomment line below to re-enable with sigma=0.1
             # =================================================================================
-            rx_power_smoothed = scipy.ndimage.gaussian_filter(rx_power_grid, sigma=0.5)
+            # rx_power_smoothed = scipy.ndimage.gaussian_filter(rx_power_grid, sigma=0.1)
+            rx_power_smoothed = rx_power_grid  # No smoothing - use raw high-resolution data
             # =================================================================================
             # END SMOOTHING
             # =================================================================================
@@ -104,12 +105,12 @@ class PropagationPlot:
                 
                 print(f"DEBUG: Plotting contours - {np.sum(~rx_power_masked.mask)} valid points")
                 print(f"DEBUG: Power range: {min_power:.1f} to {max_power:.1f} dBm")
-                
-                contour = self.ax.contourf(x, y, rx_power_masked, 
-                                          levels=levels, 
-                                          cmap=self.signal_cmap, 
-                                          alpha=alpha, 
-                                          extend='neither', 
+
+                contour = self.ax.contourf(x_pixels, y_pixels, rx_power_masked,
+                                          levels=levels,
+                                          cmap=self.signal_cmap,
+                                          alpha=alpha,
+                                          extend='neither',
                                           antialiased=True)
                 
                 # Update colorbar
@@ -132,10 +133,10 @@ class PropagationPlot:
                 shadow_mask = terrain_loss_grid > 40  # Severe obstruction
                 if np.any(shadow_mask):
                     shadow_overlay = np.ma.masked_where(~shadow_mask, terrain_loss_grid)
-                    self.ax.contourf(x, y, shadow_overlay, 
-                                   levels=[40, 100], 
-                                   colors=['red'], 
-                                   alpha=0.15, 
+                    self.ax.contourf(x_pixels, y_pixels, shadow_overlay,
+                                   levels=[40, 100],
+                                   colors=['red'],
+                                   alpha=0.15,
                                    hatches=['///'])
                     
                     # Add legend entry for shadow zones

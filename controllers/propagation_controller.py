@@ -18,19 +18,27 @@ import datetime
 from models.propagation import PropagationModel
 from models.terrain import TerrainHandler
 from models.antenna_models.antenna import AntennaPattern
+from models.land_cover import LandCoverHandler
 
 
 class PropagationController:
     """Orchestrates propagation calculations with terrain analysis"""
     
-    def __init__(self, antenna_pattern=None):
+    def __init__(self, antenna_pattern=None, use_land_cover=False):
         """Initialize controller
-        
+
         Args:
             antenna_pattern: AntennaPattern instance (optional)
+            use_land_cover: Enable land cover (urban/water/forest) loss calculations (optional)
         """
         self.antenna_pattern = antenna_pattern or AntennaPattern()
-        
+
+        # Land cover handler (optional feature)
+        self.use_land_cover = use_land_cover
+        self.land_cover_handler = None
+        if use_land_cover:
+            self.land_cover_handler = LandCoverHandler()
+
         # Debug logging
         self.debug_log_path = os.path.join("logs", "propagation_debug.log")
         os.makedirs("logs", exist_ok=True)
@@ -51,7 +59,7 @@ class PropagationController:
                           max_distance_km, resolution, signal_threshold_dbm, rx_height=1.5,
                           use_terrain=False, terrain_quality='Medium',
                           custom_azimuth_count=None, custom_distance_points=None,
-                           propagation_model='default'):
+                           propagation_model='default', progress_callback=None):
         """Calculate RF propagation coverage with Cartesian grid (eliminates radial artifacts)
         
         Args:
@@ -86,31 +94,29 @@ class PropagationController:
             print(f"EIRP: {eirp_dbm:.2f} dBm")
             
             # =================================================================================
-            # ADAPTIVE GRID RESOLUTION FOR LARGE AREAS
+            # HIGH-RESOLUTION CARTESIAN GRID FOR SMOOTH VISUALIZATION
             # =================================================================================
-            # Scale grid resolution with coverage distance for smoother contours at low zoom
-            # Higher resolution = less blocky but slower calculation
-            # ROLLBACK: Remove this block to use fixed resolution scaling
+            # With 3600 azimuth sampling, we need high grid resolution to display all detail
+            # Grid resolution determines final visualization smoothness
+            # Target: ~0.2-0.3 km per pixel for smooth coverage without visible blocks
+            # ROLLBACK: Reduce these values if memory/performance issues
             # =================================================================================
-            if custom_distance_points is None or custom_distance_points <= 500:
-                # Use original adaptive logic for small areas
-                if max_distance_km <= 50:
-                    grid_resolution = resolution
-                elif max_distance_km <= 100:
-                    grid_resolution = max(300, resolution // 2)
-                else:
-                    grid_resolution = max(200, resolution // 3)
+            if max_distance_km <= 50:
+                grid_resolution = 2000  # 0.05 km/pixel - ultra detail
+            elif max_distance_km <= 100:
+                grid_resolution = 1500  # 0.13 km/pixel - very high detail
+            elif max_distance_km <= 200:
+                grid_resolution = 1200  # 0.33 km/pixel - high detail (was 500!)
+            elif max_distance_km <= 300:
+                grid_resolution = 1000  # 0.6 km/pixel - good detail
             else:
-                # For large areas with high terrain points, increase grid resolution
-                base_res = 500
-                scale_factor = min(max(1.0, max_distance_km / 100), 4.0)  # Cap at 4x
-                grid_resolution = min(int(base_res * scale_factor), 4000)  # Cap at 4000x4000
-                print(f"Scaled grid resolution to {grid_resolution}x{grid_resolution} for {max_distance_km}km coverage")
+                grid_resolution = 800   # 1.0 km/pixel - acceptable for very large areas
+
+            print(f"Grid resolution: {grid_resolution}x{grid_resolution} for {max_distance_km}km coverage (~{2*max_distance_km/grid_resolution:.2f} km/pixel)")
             # =================================================================================
-            # END ADAPTIVE GRID RESOLUTION
+            # END HIGH-RESOLUTION GRID
             # =================================================================================
-            
-            print(f"Grid resolution: {grid_resolution} (optimized for {max_distance_km}km)")
+
             self._log_debug(f"Grid resolution: {grid_resolution} for {max_distance_km}km coverage")
             
             # Create Cartesian grid (eliminates radial artifacts)
@@ -184,21 +190,34 @@ class PropagationController:
                     # =================================================================================
                     # Scale terrain sampling points with coverage distance for consistent accuracy
                     # at all zoom levels. More points = better resolution but slower calculation.
-                    # ROLLBACK: Remove this block to use fixed points.
+                    # High-accuracy mode: 2200 base points, up to 3300 max
+                    # ROLLBACK: Reduce base_points to 500 and cap to 1000
                     # =================================================================================
                     if custom_distance_points is None:
-                        # Base 500 points for 100km, scale up for larger areas, cap at 2000
-                        base_distance = 100  # km
-                        base_points = 500
-                        scale_factor = min(max(1.0, max_distance_km / base_distance), 4.0)  # Cap scale at 4x
-                        custom_distance_points = min(int(base_points * scale_factor), 1000)  # Cap at 1000 points
+                        # Use quality preset values, scale up slightly for very large areas
+                        quality_distance_presets = {
+                            'Low': 1000,
+                            'Medium': 2200,
+                            'High': 4000,
+                            'Ultra': 5000,
+                        }
+                        base_points = quality_distance_presets.get(terrain_quality, 2200)
+
+                        # Scale up for very large coverage areas (>200km)
+                        if max_distance_km > 200:
+                            scale_factor = min(1.0 + (max_distance_km - 200) / 400, 1.5)  # Up to 1.5x for 400km+
+                            custom_distance_points = min(int(base_points * scale_factor), 10000)  # Cap at 10k
+                        else:
+                            custom_distance_points = base_points
+
                         print(f"Scaled terrain points to {custom_distance_points} for {max_distance_km}km coverage")
 
                     terrain_loss_grid = self._calculate_terrain_loss(
                         tx_lat, tx_lon, tx_height, rx_height, max_distance_km,
                         frequency_mhz, terrain_quality,
                         custom_azimuth_count, custom_distance_points,
-                        mask, dist_grid, az_grid
+                        mask, dist_grid, az_grid, x_grid, y_grid,
+                        progress_callback
                     )
                     total_loss_grid += terrain_loss_grid
 
@@ -224,21 +243,34 @@ class PropagationController:
                     # =================================================================================
                     # Scale terrain sampling points with coverage distance for consistent accuracy
                     # at all zoom levels. More points = better resolution but slower calculation.
-                    # ROLLBACK: Remove this block to use fixed points.
+                    # High-accuracy mode: 2200 base points, up to 3300 max
+                    # ROLLBACK: Reduce base_points to 500 and cap to 1000
                     # =================================================================================
                     if custom_distance_points is None:
-                        # Base 500 points for 100km, scale up for larger areas, cap at 2000
-                        base_distance = 100  # km
-                        base_points = 500
-                        scale_factor = min(max(1.0, max_distance_km / base_distance), 4.0)  # Cap scale at 4x
-                        custom_distance_points = min(int(base_points * scale_factor), 1000)  # Cap at 1000 points
+                        # Use quality preset values, scale up slightly for very large areas
+                        quality_distance_presets = {
+                            'Low': 1000,
+                            'Medium': 2200,
+                            'High': 4000,
+                            'Ultra': 5000,
+                        }
+                        base_points = quality_distance_presets.get(terrain_quality, 2200)
+
+                        # Scale up for very large coverage areas (>200km)
+                        if max_distance_km > 200:
+                            scale_factor = min(1.0 + (max_distance_km - 200) / 400, 1.5)  # Up to 1.5x for 400km+
+                            custom_distance_points = min(int(base_points * scale_factor), 10000)  # Cap at 10k
+                        else:
+                            custom_distance_points = base_points
+
                         print(f"Scaled terrain points to {custom_distance_points} for {max_distance_km}km coverage")
 
                     terrain_loss_grid = self._calculate_terrain_loss(
                         tx_lat, tx_lon, tx_height, rx_height, max_distance_km,
                         frequency_mhz, terrain_quality,
                         custom_azimuth_count, custom_distance_points,
-                        mask, dist_grid, az_grid
+                        mask, dist_grid, az_grid, x_grid, y_grid,
+                        progress_callback
                     )
                     # =================================================================================
                     # END TERRAIN ACCURACY IMPROVEMENT
@@ -290,8 +322,10 @@ class PropagationController:
             print(f"{'='*60}")
             print(f"Power range: {stats['min_power']:.2f} to {stats['max_power']:.2f} dBm")
             print(f"Points above threshold: {stats['points_above_threshold']}/{stats['total_points']}")
-            
-            return az_grid, dist_grid, rx_power_grid, terrain_loss_grid, stats
+
+            # Return Cartesian grids (x_grid, y_grid) for direct plotting
+            # This avoids double polar-to-Cartesian conversion in the plotter
+            return x_grid, y_grid, rx_power_grid, terrain_loss_grid, stats
             
         except Exception as e:
             print(f"\nERROR in calculate_coverage: {e}")
@@ -301,7 +335,8 @@ class PropagationController:
     
     def _calculate_terrain_loss(self, tx_lat, tx_lon, tx_height, rx_height, max_distance_km,
                                 frequency_mhz, terrain_quality, custom_azimuth_count,
-                                custom_distance_points, mask, dist_grid, az_grid):
+                                custom_distance_points, mask, dist_grid, az_grid, x_grid, y_grid,
+                                progress_callback=None):
         """Calculate terrain diffraction loss with segment-by-segment LOS
         
         🔥 FIX #2: This uses 360° azimuth sampling to eliminate radial artifacts
@@ -325,26 +360,39 @@ class PropagationController:
         """
         print(f"Fetching terrain data...")
         
-        # 🔥 FIX #2: Quality presets with MORE azimuths for smoother interpolation
-        quality_presets = {
-            'Low': (180, 100),      # 180° for low quality
-            'Medium': (540, 200),   # 540° = every 0.67° (was 360°)
-            'High': (720, 300),     # 720° = every 0.5° (was 360°)
-            'Ultra': (1080, 500),   # 1080° = every 0.33° (was 360°)
+        # =================================================================================
+        # FORCE 3600 AZIMUTH SAMPLING FOR SMOOTH INTERPOLATION
+        # =================================================================================
+        # ALWAYS use 3600 azimuths (0.1° resolution) to eliminate blocky square artifacts
+        # This is locked and cannot be overridden by user settings
+        # Only distance points vary based on quality/custom settings
+        # =================================================================================
+        LOCKED_AZIMUTH_COUNT = 3600  # Every 0.1 degree - NEVER CHANGE THIS
+
+        # Quality presets for DISTANCE POINTS ONLY (azimuths are locked at 3600)
+        # These control terrain elevation sampling density along each radial
+        quality_distance_presets = {
+            'Low': 1000,      # Fast, basic accuracy
+            'Medium': 2200,   # Good accuracy, reasonable speed
+            'High': 4000,     # High accuracy, slower
+            'Ultra': 5000,    # MAXIMUM accuracy, slowest (perfect detail)
         }
-        
-        # Get sampling parameters
-        if custom_azimuth_count is not None and custom_distance_points is not None:
-            sample_azimuths_count = custom_azimuth_count
+
+        # Get distance sampling parameter
+        if custom_distance_points is not None:
             sample_distances_count = custom_distance_points
-            print(f"Using CUSTOM terrain sampling: {sample_azimuths_count}° × {sample_distances_count} pts")
+            print(f"Using CUSTOM distance sampling: {sample_distances_count} pts (azimuth locked at {LOCKED_AZIMUTH_COUNT})")
         else:
-            sample_azimuths_count, sample_distances_count = quality_presets.get(
-                terrain_quality, (360, 300)
-            )
-            print(f"Using {terrain_quality} quality: {sample_azimuths_count}° × {sample_distances_count} pts")
-        
+            sample_distances_count = quality_distance_presets.get(terrain_quality, 2200)
+            print(f"Using {terrain_quality} quality: {sample_distances_count} distance pts (azimuth locked at {LOCKED_AZIMUTH_COUNT})")
+
+        # FORCE azimuth count - user cannot override this
+        sample_azimuths_count = LOCKED_AZIMUTH_COUNT
+
         self._log_debug(f"Terrain sampling: {sample_azimuths_count} azimuths × {sample_distances_count} distances")
+        # =================================================================================
+        # END FORCED AZIMUTH SAMPLING
+        # =================================================================================
         
         # Sample terrain at specific azimuths (polar sampling for efficiency)
         sample_azimuths = np.linspace(0, 360, sample_azimuths_count, endpoint=False)
@@ -394,7 +442,13 @@ class PropagationController:
                 )
             
             terrain_loss_samples[:, i] = terrain_loss
-        
+
+            # Progressive rendering: invoke callback every 10% completion
+            if progress_callback and i % max(1, sample_azimuths_count // 10) == 0:
+                progress_percent = int(100 * (i + 1) / sample_azimuths_count)
+                progress_callback(progress_percent, terrain_loss_samples[:, :i+1],
+                                sample_distances, sample_azimuths[:i+1])
+
         print(f"Interpolating terrain loss to Cartesian grid...")
         
         # Convert polar samples to Cartesian coordinates for proper interpolation
@@ -417,38 +471,48 @@ class PropagationController:
         points = np.column_stack([sample_x, sample_y])
         values = np.array(sample_loss)
         
-        # Recreate Cartesian grids from polar coordinates for interpolation
-        # Convert back from polar (dist, az) to Cartesian (x, y)
-        x_grid = dist_grid * np.sin(np.radians(az_grid))
-        y_grid = dist_grid * np.cos(np.radians(az_grid))
+        # Use the original Cartesian grids passed from calculate_coverage
+        # This avoids polar-to-Cartesian conversion artifacts
+        # (x_grid and y_grid are now function parameters)
         
         # Flatten the Cartesian grid for interpolation
         grid_points = np.column_stack([x_grid.flatten(), y_grid.flatten()])
         
         # Use scipy griddata for smooth interpolation from polar samples to Cartesian grid
+        # With 3600 azimuth samples, linear interpolation is smooth enough and MUCH faster
         try:
             from scipy.interpolate import griddata
-            # Use 'cubic' for smoothest results, or 'linear' if cubic fails
-            print(f"  Using scipy griddata with cubic interpolation")
-            terrain_loss_flat = griddata(points, values, grid_points, method='cubic', fill_value=0.0)
-            # If cubic produces NaNs, fall back to linear
+            print(f"  Using scipy griddata with linear interpolation (fast, smooth with dense samples)")
+            terrain_loss_flat = griddata(points, values, grid_points, method='linear', fill_value=0.0)
+
+            # Check for NaNs (shouldn't happen with linear, but just in case)
             if np.any(np.isnan(terrain_loss_flat)):
-                print(f"  Cubic produced NaNs, falling back to linear")
-                terrain_loss_flat = griddata(points, values, grid_points, method='linear', fill_value=0.0)
-        except:
-            # Fallback: use nearest neighbor if scipy not available or fails
-            print(f"  Warning: scipy griddata failed, using nearest neighbor")
+                print(f"  Warning: Linear produced NaNs, falling back to nearest neighbor")
+                terrain_loss_flat = griddata(points, values, grid_points, method='nearest', fill_value=0.0)
+        except Exception as e:
+            # Fallback: use nearest neighbor if scipy fails
+            print(f"  Warning: scipy griddata failed ({e}), using nearest neighbor")
             from scipy.interpolate import griddata
             terrain_loss_flat = griddata(points, values, grid_points, method='nearest', fill_value=0.0)
         
         # Reshape back to grid
         terrain_loss_grid = terrain_loss_flat.reshape(dist_grid.shape)
-        
+
+        # =================================================================================
+        # CLAMP TERRAIN LOSS TO PREVENT NEGATIVE VALUES (INTERPOLATION ARTIFACTS)
+        # =================================================================================
+        # Cubic interpolation can produce negative values between sample points
+        # Terrain should never provide gain, only loss (minimum 0 dB)
+        # ROLLBACK: Remove this line
+        # =================================================================================
+        terrain_loss_grid = np.maximum(terrain_loss_grid, 0)  # No negative terrain loss
+        # =================================================================================
+
         # Ensure masked areas stay zero
         terrain_loss_grid[mask] = 0
-        
+
         terrain_msg = f"Terrain loss range: {terrain_loss_grid[~mask].min():.2f} to {terrain_loss_grid[~mask].max():.2f} dB"
         print(terrain_msg)
         self._log_debug(terrain_msg)
-        
+
         return terrain_loss_grid

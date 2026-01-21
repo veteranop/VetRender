@@ -81,8 +81,8 @@ class VetRender:
         self.basemap = 'Esri WorldImagery'
         
         # Terrain calculation parameters
-        self.terrain_azimuths = 540  # 🔥 Default to 540° for smooth interpolation
-        self.terrain_distances = 500  # High detail by default
+        self.terrain_azimuths = 3600  # 🔥 LOCKED at 3600 (0.1° resolution) - eliminates blocks
+        self.terrain_distances = 2200  # High detail by default (updated for accuracy)
         
         # UI state
         self.use_terrain = tk.BooleanVar(value=False)
@@ -269,12 +269,21 @@ class VetRender:
             # Get propagation model from toolbar
             propagation_model = self.toolbar.get_propagation_model()
 
+            # Define progress callback for real-time rendering
+            def progress_callback(percent, partial_terrain, distances, azimuths):
+                try:
+                    self.toolbar.set_status(f"Calculating... {percent}%")
+                    self.root.update_idletasks()
+                except:
+                    pass  # Ignore errors during progress updates
+
             # 🔥 ALL FIXES ARE IN THE CONTROLLER!
             result = self.propagation_controller.calculate_coverage(
                 self.tx_lat, self.tx_lon, self.height, self.erp, self.frequency,
                 self.max_distance, self.resolution, self.signal_threshold, self.rx_height,
                 self.use_terrain.get(), self.terrain_quality,
-                custom_az, custom_dist,propagation_model=propagation_model
+                custom_az, custom_dist, propagation_model=propagation_model,
+                progress_callback=progress_callback
             )
             
             if result is None:
@@ -282,10 +291,10 @@ class VetRender:
                 self.toolbar.set_status("Calculation failed")
                 return
             
-            az_grid, dist_grid, rx_power_grid, terrain_loss_grid, stats = result
+            x_grid, y_grid, rx_power_grid, terrain_loss_grid, stats = result
             
             # Store results
-            self.last_propagation = (az_grid, dist_grid, rx_power_grid)
+            self.last_propagation = (x_grid, y_grid, rx_power_grid)
             self.last_terrain_loss = terrain_loss_grid if self.use_terrain.get() else None
             
             # Get transmitter pixel position
@@ -297,7 +306,7 @@ class VetRender:
             self.propagation_plot.plot_coverage(
                 self.map_display.map_image,
                 tx_pixel_x, tx_pixel_y,
-                az_grid, dist_grid, rx_power_grid,
+                x_grid, y_grid, rx_power_grid,
                 self.signal_threshold,
                 self.map_display.get_pixel_scale(),
                 terrain_loss_grid,
@@ -379,14 +388,14 @@ class VetRender:
                               "Calculate coverage first before probing signal strength.")
             return
         
-        az_grid, dist_grid, rx_power_grid = self.last_propagation
+        x_grid, y_grid, rx_power_grid = self.last_propagation
         tx_pixel_x, tx_pixel_y = self.map_display.get_tx_pixel_position(
             self.tx_lat, self.tx_lon
         )
         
         signal, distance, azimuth = self.propagation_plot.get_signal_at_pixel(
             self.click_x, self.click_y, tx_pixel_x, tx_pixel_y,
-            az_grid, dist_grid, rx_power_grid,
+            x_grid, y_grid, rx_power_grid,
             self.map_display.get_pixel_scale()
         )
         
@@ -466,14 +475,14 @@ class VetRender:
             current_xlim = self.ax.get_xlim()
             current_ylim = self.ax.get_ylim()
             
-            az_grid, dist_grid, rx_power_grid = self.last_propagation
+            x_grid, y_grid, rx_power_grid = self.last_propagation
             tx_pixel_x, tx_pixel_y = self.map_display.get_tx_pixel_position(
                 self.tx_lat, self.tx_lon
             )
             alpha = self.toolbar.get_transparency()
             self.propagation_plot.plot_coverage(
                 self.map_display.map_image, tx_pixel_x, tx_pixel_y,
-                az_grid, dist_grid, rx_power_grid, self.signal_threshold,
+                x_grid, y_grid, rx_power_grid, self.signal_threshold,
                 self.map_display.get_pixel_scale(),
                 self.last_terrain_loss, self.show_shadow.get(),
                 (current_xlim, current_ylim),  # Pass saved limits!
@@ -493,8 +502,9 @@ class VetRender:
             "Custom Terrain Detail",
             "Enter number of elevation points per radial:\n\n"
             "(Higher = more accurate, slower)\n\n"
-            "Recommended: 500-1000",
-            initialvalue=current, minvalue=50, maxvalue=2000
+            "Presets: Low=1000, Med=2200, High=4000, Ultra=5000\n"
+            "Note: Azimuth locked at 3600 for all quality levels",
+            initialvalue=current, minvalue=50, maxvalue=10000
         )
         
         if new_detail is not None:
@@ -530,13 +540,13 @@ class VetRender:
         if self.last_propagation is not None:
             if self.show_coverage.get():
                 # Show coverage
-                az_grid, dist_grid, rx_power_grid = self.last_propagation
+                x_grid, y_grid, rx_power_grid = self.last_propagation
                 tx_pixel_x, tx_pixel_y = self.map_display.get_tx_pixel_position(
                     self.tx_lat, self.tx_lon
                 )
                 self.propagation_plot.plot_coverage(
                     self.map_display.map_image, tx_pixel_x, tx_pixel_y,
-                    az_grid, dist_grid, rx_power_grid, self.signal_threshold,
+                    x_grid, y_grid, rx_power_grid, self.signal_threshold,
                     self.map_display.get_pixel_scale(),
                     self.last_terrain_loss, self.show_shadow.get(),
                     (self.map_display.plot_xlim, self.map_display.plot_ylim),
@@ -554,13 +564,13 @@ class VetRender:
     def update_shadow_display(self):
         """Update shadow zone display"""
         if self.last_propagation is not None and self.show_coverage.get():
-            az_grid, dist_grid, rx_power_grid = self.last_propagation
+            x_grid, y_grid, rx_power_grid = self.last_propagation
             tx_pixel_x, tx_pixel_y = self.map_display.get_tx_pixel_position(
                 self.tx_lat, self.tx_lon
             )
             self.propagation_plot.plot_coverage(
                 self.map_display.map_image, tx_pixel_x, tx_pixel_y,
-                az_grid, dist_grid, rx_power_grid, self.signal_threshold,
+                x_grid, y_grid, rx_power_grid, self.signal_threshold,
                 self.map_display.get_pixel_scale(),
                 self.last_terrain_loss, self.show_shadow.get(),
                 (self.map_display.plot_xlim, self.map_display.plot_ylim),
@@ -696,20 +706,36 @@ class VetRender:
         self.show_project_setup()
     
     def save_project(self):
-        """Save project"""
+        """Save project with terrain and land cover cache data"""
         from tkinter import filedialog
-        
+        from models.terrain import TerrainHandler
+
         filename = filedialog.asksaveasfilename(
             title="Save Project",
             defaultextension=".vtr",
             filetypes=[("VetRender Project", "*.vtr"), ("All Files", "*.*")],
             initialfile=f"{self.callsign}.vtr"
         )
-        
+
         if filename:
             try:
+                print("Saving project with cached data...")
+
+                # Export terrain cache for coverage area
+                terrain_cache_data = TerrainHandler.export_cache_for_area(
+                    self.tx_lat, self.tx_lon, self.max_distance
+                )
+
+                # Export land cover cache if available
+                land_cover_cache_data = None
+                if hasattr(self, 'propagation_controller') and self.propagation_controller.land_cover_handler:
+                    try:
+                        land_cover_cache_data = self.propagation_controller.land_cover_handler.export_cache()
+                    except:
+                        pass
+
                 project_data = {
-                    'version': '3.0',  # Refactored version
+                    'version': '3.1',  # Bumped for cache support
                     'callsign': self.callsign,
                     'tx_type': self.tx_type,
                     'transmission_mode': self.transmission_mode,
@@ -724,32 +750,45 @@ class VetRender:
                     'pattern_name': self.pattern_name,
                     'zoom': self.zoom,
                     'basemap': self.basemap,
-                    'saved_plots': self.saved_plots
+                    'saved_plots': self.saved_plots,
+
+                    # Cached data for offline use
+                    'terrain_cache': terrain_cache_data,
+                    'land_cover_cache': land_cover_cache_data,
                 }
-                
+
                 with open(filename, 'w') as f:
                     json.dump(project_data, f, indent=2)
-                
+
+                cache_info = f"Terrain cache: {len(terrain_cache_data) if terrain_cache_data else 0} points"
+                if land_cover_cache_data:
+                    cache_info += f"\nLand cover: {len(land_cover_cache_data.get('water', []))} water + {len(land_cover_cache_data.get('urban', []))} urban features"
+
                 messagebox.showinfo("Success",
                                   f"Project saved to:\n{filename}\n\n"
-                                  f"Included {len(self.saved_plots)} coverage plots")
+                                  f"Included {len(self.saved_plots)} coverage plots\n"
+                                  f"{cache_info}")
+                print(f"  Saved terrain cache: {len(terrain_cache_data) if terrain_cache_data else 0} points")
             except Exception as e:
                 messagebox.showerror("Error", f"Failed to save project:\n{e}")
     
     def load_project(self):
-        """Load project"""
+        """Load project with terrain and land cover cache data"""
         from tkinter import filedialog
-        
+        from models.terrain import TerrainHandler
+
         filename = filedialog.askopenfilename(
             title="Load Project",
             filetypes=[("VetRender Project", "*.vtr"), ("All Files", "*.*")]
         )
-        
+
         if filename:
             try:
                 with open(filename, 'r') as f:
                     project_data = json.load(f)
-                
+
+                print("Loading project with cached data...")
+
                 # Load parameters
                 self.callsign = project_data.get('callsign', 'UNKNOWN')
                 self.tx_type = project_data.get('tx_type', 'Unknown')
@@ -766,7 +805,22 @@ class VetRender:
                 self.zoom = 10  # Always start at zoom 10
                 self.basemap = project_data.get('basemap', 'Esri WorldImagery')
                 self.saved_plots = project_data.get('saved_plots', [])
-                
+
+                # Import terrain cache if available
+                terrain_cache_data = project_data.get('terrain_cache')
+                if terrain_cache_data:
+                    TerrainHandler.import_cache(terrain_cache_data)
+                    print(f"  Loaded terrain cache: {len(terrain_cache_data)} points")
+
+                # Import land cover cache if available
+                land_cover_cache_data = project_data.get('land_cover_cache')
+                if land_cover_cache_data and hasattr(self, 'propagation_controller') and self.propagation_controller.land_cover_handler:
+                    try:
+                        self.propagation_controller.land_cover_handler.import_cache(land_cover_cache_data)
+                        print(f"  Loaded land cover cache")
+                    except Exception as e:
+                        print(f"  Land cover cache load failed: {e}")
+
                 # Update UI
                 self.toolbar.update_location(self.tx_lat, self.tx_lon)
                 self.toolbar.set_zoom(10)
@@ -774,14 +828,20 @@ class VetRender:
                 self.menubar.vars['max_dist_var'].set(str(self.max_distance))
                 self.toolbar.set_quality(self.terrain_quality)
                 self.on_quality_change()
-                
+
                 self.update_info_panel()
                 self.last_propagation = None
                 self.reload_map(preserve_propagation=False)
-                
+
+                cache_info = ""
+                if terrain_cache_data:
+                    cache_info = f"\n\nTerrain cache: {len(terrain_cache_data)} points loaded"
+                if land_cover_cache_data:
+                    cache_info += f"\nLand cover cache loaded"
+
                 messagebox.showinfo("Success",
                                   f"Project loaded:\n{self.callsign}\n\n"
-                                  f"{len(self.saved_plots)} coverage plots restored")
+                                  f"{len(self.saved_plots)} coverage plots restored{cache_info}")
             except Exception as e:
                 messagebox.showerror("Error", f"Failed to load project:\n{e}")
 
@@ -1231,13 +1291,13 @@ class VetRender:
         if success:
             if preserve_propagation and self.last_propagation is not None and self.show_coverage.get():
                 # Redraw propagation overlay
-                az_grid, dist_grid, rx_power_grid = self.last_propagation
+                x_grid, y_grid, rx_power_grid = self.last_propagation
                 tx_pixel_x, tx_pixel_y = self.map_display.get_tx_pixel_position(
                     self.tx_lat, self.tx_lon
                 )
                 self.propagation_plot.plot_coverage(
                     self.map_display.map_image, tx_pixel_x, tx_pixel_y,
-                    az_grid, dist_grid, rx_power_grid, self.signal_threshold,
+                    x_grid, y_grid, rx_power_grid, self.signal_threshold,
                     self.map_display.get_pixel_scale(),
                     self.last_terrain_loss, self.show_shadow.get(),
                     (self.map_display.plot_xlim, self.map_display.plot_ylim),
@@ -1342,8 +1402,8 @@ class VetRender:
                 'zoom': self.zoom,
                 'basemap': self.basemap
             },
-            'az_grid': self.last_propagation[0].tolist(),
-            'dist_grid': self.last_propagation[1].tolist(),
+            'x_grid': self.last_propagation[0].tolist(),
+            'y_grid': self.last_propagation[1].tolist(),
             'rx_power_grid': self.last_propagation[2].tolist(),
             'terrain_loss_grid': self.last_terrain_loss.tolist() if self.last_terrain_loss is not None else None
         }
@@ -1380,8 +1440,8 @@ class VetRender:
             
             # Restore grids from saved data
             import numpy as np
-            az_grid = np.array(plot_data['az_grid'])
-            dist_grid = np.array(plot_data['dist_grid'])
+            x_grid = np.array(plot_data.get('x_grid', plot_data.get('az_grid')))
+            y_grid = np.array(plot_data.get('y_grid', plot_data.get('dist_grid')))
             rx_power_grid = np.array(plot_data['rx_power_grid'])
             
             terrain_loss_grid = None
@@ -1389,7 +1449,7 @@ class VetRender:
                 terrain_loss_grid = np.array(plot_data['terrain_loss_grid'])
             
             # Store as current propagation
-            self.last_propagation = (az_grid, dist_grid, rx_power_grid)
+            self.last_propagation = (x_grid, y_grid, rx_power_grid)
             self.last_terrain_loss = terrain_loss_grid
             
             # Restore parameters

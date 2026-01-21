@@ -1,0 +1,126 @@
+{
+  "version": "1.0",
+  "description": "Ollama prompts for extracting RF component specifications from datasheets",
+  "prompts": {
+    "cable": {
+      "system_prompt": "You are an expert RF engineer analyzing coaxial cable datasheets. Extract technical specifications and return ONLY valid JSON with no additional commentary.",
+      "user_prompt": "Analyze this coaxial cable datasheet and extract the following specifications. Return ONLY a JSON object with these fields:\n\n{\n  \"component_type\": \"cable\",\n  \"manufacturer\": \"<manufacturer name>\",\n  \"model\": \"<model number>\",\n  \"part_number\": \"<part number if different from model>\",\n  \"description\": \"<brief description including diameter and type>\",\n  \"impedance_ohms\": <50 or 75>,\n  \"velocity_factor\": <decimal value 0.60-0.95>,\n  \"outer_diameter_inches\": <diameter in inches>,\n  \"loss_db_per_100ft\": {\n    \"<freq_mhz>\": <loss value>,\n    // Include all frequencies listed in datasheet\n  },\n  \"power_rating_watts\": {\n    \"<freq_mhz>_mhz\": <power in watts>,\n    // Include all frequencies listed\n  },\n  \"weight_lbs_per_100ft\": <weight>,\n  \"minimum_bend_radius_inches\": <bend radius>,\n  \"datasheet_url\": \"<URL if mentioned in document>\",\n  \"common_uses\": [\"<use 1>\", \"<use 2>\"],\n  \"notes\": \"<any important notes about this cable>\"\n}\n\nIf a field is not found in the datasheet, use null. Be precise with numeric values. Extract ALL frequency points for loss and power ratings.",
+      "extraction_hints": [
+        "Look for attenuation tables (dB/100ft or dB/100m)",
+        "Power rating often in charts vs frequency",
+        "Velocity factor usually in electrical characteristics",
+        "Bend radius in mechanical specifications",
+        "Convert metric to imperial if needed (1m = 3.28ft, 1cm = 0.394in)"
+      ]
+    },
+    "transmitter": {
+      "system_prompt": "You are an expert broadcast engineer analyzing transmitter datasheets. Extract technical specifications and return ONLY valid JSON with no additional commentary.",
+      "user_prompt": "Analyze this transmitter datasheet and extract specifications. Return ONLY a JSON object:\n\n{\n  \"component_type\": \"transmitter\",\n  \"manufacturer\": \"<manufacturer>\",\n  \"model\": \"<model number>\",\n  \"part_number\": \"<part number>\",\n  \"description\": \"<type of transmitter, power level, technology>\",\n  \"frequency_range_mhz\": [<min>, <max>],\n  \"power_output_watts\": <rated output power>,\n  \"power_output_dbm\": <calculated: 10*log10(watts*1000)>,\n  \"power_output_dbw\": <calculated: 10*log10(watts)>,\n  \"efficiency_percent\": <efficiency if listed>,\n  \"mains_voltage\": \"<voltage and phase, e.g. 230VAC or 400VAC 3-phase>\",\n  \"power_consumption_watts\": <AC power draw>,\n  \"output_impedance_ohms\": <usually 50>,\n  \"connector_type\": \"<output connector type>\",\n  \"harmonic_suppression_dbc\": <-dB below carrier>,\n  \"spurious_suppression_dbc\": <-dB below carrier>,\n  \"audio_input\": [\"<input 1>\", \"<input 2>\"],\n  \"datasheet_url\": \"<URL if found>\",\n  \"common_uses\": [\"<use cases>\"],\n  \"notes\": \"<special features, modular design, etc>\"\n}\n\nCalculate dBm = 10*log10(watts*1000), dBW = 10*log10(watts). Use null for missing fields.",
+      "extraction_hints": [
+        "Power output in specifications table",
+        "Efficiency usually in electrical characteristics",
+        "Harmonic suppression in RF output specs",
+        "Audio inputs in block diagram or I/O section",
+        "Check for modular/redundancy features"
+      ]
+    },
+    "antenna": {
+      "system_prompt": "You are an expert antenna engineer analyzing antenna datasheets. Extract specifications and return ONLY valid JSON.",
+      "user_prompt": "Analyze this antenna datasheet and extract specifications. Return ONLY JSON:\n\n{\n  \"component_type\": \"antenna\",\n  \"manufacturer\": \"<manufacturer>\",\n  \"model\": \"<model>\",\n  \"part_number\": \"<part number>\",\n  \"description\": \"<antenna type, elements, polarization>\",\n  \"gain_dbi\": <gain in dBi>,\n  \"gain_relative_dipole\": <numeric gain relative to dipole, if listed>,\n  \"frequency_range_mhz\": [<min>, <max>],\n  \"polarization\": \"<vertical/horizontal/circular>\",\n  \"vswr\": <maximum VSWR>,\n  \"impedance_ohms\": <usually 50>,\n  \"connector_type\": \"<connector type>\",\n  \"power_rating_watts\": <max power>,\n  \"wind_survival_mph\": <wind speed rating>,\n  \"pattern\": \"<omni-directional/directional>\",\n  \"azimuth_pattern\": \"<omni/custom/etc>\",\n  \"datasheet_url\": \"<URL>\",\n  \"common_uses\": [\"<uses>\"],\n  \"notes\": \"<mounting, construction, special features>\"\n}\n\nFor broadcast antennas, gain_relative_dipole is common. Convert if needed: dBd = dBi - 2.15",
+      "extraction_hints": [
+        "Gain might be in dBi or dBd (dBd = dBi - 2.15)",
+        "Look for radiation patterns",
+        "VSWR in electrical specs",
+        "Wind survival in mechanical specs",
+        "Broadcast antennas often specify EIA flange connectors"
+      ]
+    },
+    "lightning_arrestor": {
+      "system_prompt": "You are an expert RF protection engineer analyzing lightning arrestor datasheets. Extract specs and return ONLY valid JSON.",
+      "user_prompt": "Analyze this lightning arrestor/surge protector datasheet. Return ONLY JSON:\n\n{\n  \"component_type\": \"lightning_arrestor\",\n  \"manufacturer\": \"<manufacturer>\",\n  \"model\": \"<model>\",\n  \"part_number\": \"<part number>\",\n  \"description\": \"<type, mounting style, DC pass/block>\",\n  \"insertion_loss_db\": <typical insertion loss>,\n  \"frequency_range_mhz\": [<min>, <max>],\n  \"connector_type\": \"<input/output connectors>\",\n  \"voltage_rating_kv\": <surge voltage rating in kV>,\n  \"dc_pass\": <true/false>,\n  \"power_rating_watts\": <if applicable>,\n  \"datasheet_url\": \"<URL>\",\n  \"common_uses\": [\"<uses>\"],\n  \"notes\": \"<DC pass, bulkhead mount, gas tube vs MOV, etc>\"\n}\n\nNote if DC pass/block, connector types, and mounting style (bulkhead, inline, DIN rail).",
+      "extraction_hints": [
+        "Insertion loss in RF specs",
+        "Surge voltage rating in protection specs",
+        "Check for DC pass or DC block",
+        "Note mounting style (bulkhead, inline, panel)"
+      ]
+    },
+    "isolator": {
+      "system_prompt": "You are an expert RF engineer analyzing isolator/circulator datasheets. Extract specs and return ONLY valid JSON.",
+      "user_prompt": "Analyze this isolator or circulator datasheet. Return ONLY JSON:\n\n{\n  \"component_type\": \"isolator\",\n  \"manufacturer\": \"<manufacturer>\",\n  \"model\": \"<model>\",\n  \"part_number\": \"<part number>\",\n  \"description\": \"<type, frequency band, power>\",\n  \"insertion_loss_db\": <forward loss>,\n  \"isolation_db\": <reverse isolation>,\n  \"frequency_range_mhz\": [<min>, <max>],\n  \"power_rating_watts\": <average power>,\n  \"connector_type\": \"<connector type>\",\n  \"vswr\": <max VSWR>,\n  \"datasheet_url\": \"<URL>\",\n  \"common_uses\": [\"<uses>\"],\n  \"notes\": \"<3-port circulator vs 2-port isolator, etc>\"\n}\n\nIsolation is the key spec - how much reverse protection.",
+      "extraction_hints": [
+        "Insertion loss (forward direction)",
+        "Isolation (reverse direction)",
+        "Power rating (average and peak if listed)",
+        "VSWR at all ports"
+      ]
+    },
+    "combiner": {
+      "system_prompt": "You are an expert RF engineer analyzing combiner datasheets. Extract specs and return ONLY valid JSON.",
+      "user_prompt": "Analyze this combiner datasheet. Return ONLY JSON:\n\n{\n  \"component_type\": \"combiner\",\n  \"manufacturer\": \"<manufacturer>\",\n  \"model\": \"<model>\",\n  \"part_number\": \"<part number>\",\n  \"description\": \"<type of combiner, number of ports>\",\n  \"insertion_loss_db\": <typical insertion loss>,\n  \"isolation_db\": <port-to-port isolation>,\n  \"frequency_range_mhz\": [<min>, <max>],\n  \"power_rating_watts\": <max power per port>,\n  \"number_of_ports\": <number of input ports>,\n  \"connector_type\": \"<connector type>\",\n  \"datasheet_url\": \"<URL>\",\n  \"common_uses\": [\"<uses>\"],\n  \"notes\": \"<cavity design, field tunable, etc>\"\n}\n\nNote if cavity, notch filter, or hybrid design. Isolation between ports is critical.",
+      "extraction_hints": [
+        "Insertion loss per port",
+        "Isolation between any two ports",
+        "Number of input ports",
+        "Tuning method (fixed, field tunable)"
+      ]
+    },
+    "filter": {
+      "system_prompt": "You are an expert RF engineer analyzing filter datasheets. Extract specs and return ONLY valid JSON.",
+      "user_prompt": "Analyze this RF filter datasheet. Return ONLY JSON:\n\n{\n  \"component_type\": \"filter\",\n  \"manufacturer\": \"<manufacturer>\",\n  \"model\": \"<model>\",\n  \"part_number\": \"<part number>\",\n  \"description\": \"<filter type: bandpass/notch/cavity/harmonic>\",\n  \"insertion_loss_db\": <loss in passband>,\n  \"rejection_db\": <attenuation in stopband>,\n  \"passband_mhz\": [<min>, <max>],\n  \"stopband_mhz\": [<stop1_min>, <stop1_max>, <stop2_min>, <stop2_max>],\n  \"power_rating_watts\": <max power>,\n  \"connector_type\": \"<connector type>\",\n  \"datasheet_url\": \"<URL>\",\n  \"common_uses\": [\"<uses>\"],\n  \"notes\": \"<tunable, cavity design, etc>\"\n}\n\nSpecify passband (frequencies that pass) and stopband (frequencies rejected).",
+      "extraction_hints": [
+        "Insertion loss in passband",
+        "Rejection in stopband",
+        "Passband edges (3dB points)",
+        "Stopband specification"
+      ]
+    },
+    "generic": {
+      "system_prompt": "You are an expert RF engineer analyzing component datasheets. Extract all relevant specifications and return ONLY valid JSON.",
+      "user_prompt": "Analyze this RF component datasheet and extract all relevant specifications. Determine the component type (cable, transmitter, antenna, isolator, combiner, filter, connector, lightning_arrestor, etc.) and return appropriate fields in JSON format.\n\nReturn ONLY a JSON object with at minimum:\n{\n  \"component_type\": \"<type>\",\n  \"manufacturer\": \"<manufacturer>\",\n  \"model\": \"<model>\",\n  \"part_number\": \"<part number>\",\n  \"description\": \"<description>\",\n  \"datasheet_url\": \"<URL if found>\",\n  \"frequency_range_mhz\": [<min>, <max>],\n  ...<additional relevant fields based on component type>\n}\n\nInclude all technical specifications you can find. Use null for missing values.",
+      "extraction_hints": [
+        "Identify component type first",
+        "Extract all numeric specifications",
+        "Note units carefully",
+        "Include frequency-dependent data",
+        "Capture special features"
+      ]
+    }
+  },
+  "post_processing": {
+    "unit_conversions": {
+      "length": {
+        "meters_to_feet": 3.28084,
+        "cm_to_inches": 0.393701,
+        "mm_to_inches": 0.0393701
+      },
+      "power": {
+        "watts_to_dbm": "10 * log10(watts * 1000)",
+        "watts_to_dbw": "10 * log10(watts)",
+        "dbm_to_watts": "10^(dbm/10) / 1000"
+      },
+      "loss": {
+        "db_per_meter_to_db_per_100ft": "multiply by 30.48",
+        "db_per_km_to_db_per_100ft": "multiply by 0.03048"
+      }
+    },
+    "validation_rules": {
+      "cable": [
+        "impedance_ohms should be 50 or 75",
+        "velocity_factor should be between 0.60 and 0.95",
+        "loss_db_per_100ft should increase with frequency",
+        "power_rating_watts should decrease with frequency"
+      ],
+      "transmitter": [
+        "power_output_watts must be positive",
+        "efficiency_percent should be 30-85%",
+        "harmonic_suppression_dbc should be negative (below carrier)"
+      ],
+      "antenna": [
+        "gain_dbi typically -3 to +20 for most antennas",
+        "vswr should be 1.0 to 3.0",
+        "impedance_ohms usually 50 or 75"
+      ]
+    }
+  }
+}

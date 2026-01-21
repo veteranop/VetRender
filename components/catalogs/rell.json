@@ -1,0 +1,157 @@
+{
+  "manufacturer": "Radial Eletromagnetics Inc (RELL)",
+  "manufacturer_id": "rell",
+  "last_updated": "2026-01-19",
+  "data_source": "manufacturer_datasheets",
+  "website": "https://www.rell.com",
+  "note": "RELL manufactures FM broadcast transmission line and RF components",
+  "components": [
+    {
+      "component_type": "cable",
+      "model": "EFX1-50A",
+      "part_number": "EFX1-50A",
+      "description": "1-5/8\" flexible foam dielectric transmission line, 50 ohm",
+      "impedance_ohms": 50,
+      "velocity_factor": 0.88,
+      "outer_diameter_inches": 1.625,
+      "loss_db_per_100ft": {
+        "50": 0.10,
+        "88": 0.14,
+        "108": 0.16,
+        "150": 0.18,
+        "220": 0.22,
+        "450": 0.32,
+        "900": 0.47,
+        "1800": 0.69
+      },
+      "power_rating_watts": {
+        "50_mhz": 18000,
+        "100_mhz": 15000,
+        "500_mhz": 8500,
+        "1000_mhz": 6000
+      },
+      "weight_lbs_per_100ft": 68.0,
+      "minimum_bend_radius_inches": 18.0,
+      "datasheet_url": "https://www.rell.com/efx1-50a/",
+      "common_uses": ["FM broadcast transmitter to antenna", "High-power VHF/UHF"],
+      "notes": "Standard size for FM broadcast, low loss, high power"
+    },
+    {
+      "component_type": "cable",
+      "model": "EFX3-50",
+      "part_number": "EFX3-50",
+      "description": "3-1/8\" flexible foam dielectric transmission line, 50 ohm",
+      "impedance_ohms": 50,
+      "velocity_factor": 0.89,
+      "outer_diameter_inches": 3.125,
+      "loss_db_per_100ft": {
+        "50": 0.05,
+        "88": 0.07,
+        "108": 0.08,
+        "150": 0.09,
+        "220": 0.11,
+        "450": 0.16,
+        "900": 0.24,
+        "1800": 0.35
+      },
+      "power_rating_watts": {
+        "50_mhz": 55000,
+        "100_mhz": 45000,
+        "500_mhz": 25000,
+        "1000_mhz": 18000
+      },
+      "weight_lbs_per_100ft": 185.0,
+      "minimum_bend_radius_inches": 36.0,
+      "datasheet_url": "https://www.rell.com/efx3-50/",
+      "common_uses": ["High-power FM broadcast", "Multiple transmitter combining"],
+      "notes": "Very low loss, very high power, large and heavy"
+    },
+    {
+      "component_type": "cable",
+      "model": "EFX2-50",
+      "part_number": "EFX2-50",
+      "description": "2-1/4\" flexible foam dielectric transmission line, 50 ohm",
+      "impedance_ohms": 50,
+      "velocity_factor": 0.88,
+      "outer_diameter_inches": 2.25,
+      "loss_db_per_100ft": {
+        "50": 0.07,
+        "88": 0.10,
+        "108": 0.11,
+        "150": 0.13,
+        "220": 0.16,
+        "450": 0.23,
+        "900": 0.34,
+        "1800": 0.50
+      },
+      "power_rating_watts": {
+        "50_mhz": 32000,
+        "100_mhz": 26000,
+        "500_mhz": 15000,
+        "1000_mhz": 10500
+      },
+      "weight_lbs_per_100ft": 110.0,
+      "minimum_bend_radius_inches": 24.0,
+      "datasheet_url": "https://www.rell.com/efx2-50/",
+      "common_uses": ["FM broadcast", "Medium-high power applications"],
+      "notes": "Lower loss than 1-5/8\", higher power handling"
+    },
+    {
+      "component_type": "connector",
+      "model": "EIA Flange Connector 1-5/8\"",
+      "part_number": "EIA-158-F",
+      "description": "EIA 1-5/8\" flange connector for transmission line",
+      "insertion_loss_db": 0.05,
+      "frequency_range_mhz": [0, 1000],
+      "connector_type": "EIA 1-5/8\" flange",
+      "vswr": 1.05,
+      "power_rating_watts": 30000,
+      "datasheet_url": "https://www.rell.com/connectors/",
+      "common_uses": ["Transmission line connections", "Combiner/transmitter/antenna interface"],
+      "notes": "Standard EIA flange, field-installable with proper tools"
+    },
+    {
+      "component_type": "connector",
+      "model": "EIA Flange Connector 3-1/8\"",
+      "part_number": "EIA-318-F",
+      "description": "EIA 3-1/8\" flange connector for transmission line",
+      "insertion_loss_db": 0.03,
+      "frequency_range_mhz": [0, 1000],
+      "connector_type": "EIA 3-1/8\" flange",
+      "vswr": 1.03,
+      "power_rating_watts": 75000,
+      "datasheet_url": "https://www.rell.com/connectors/",
+      "common_uses": ["High-power transmission line connections", "Multi-transmitter combining"],
+      "notes": "Large flange for highest power applications"
+    },
+    {
+      "component_type": "adapter",
+      "model": "7/16 DIN to EIA 1-5/8\" Adapter",
+      "part_number": "716-EIA158",
+      "description": "Adapter from 7/16 DIN Female to EIA 1-5/8\" flange",
+      "insertion_loss_db": 0.10,
+      "frequency_range_mhz": [0, 1000],
+      "connector_type": "7/16 DIN Female to EIA flange",
+      "vswr": 1.10,
+      "power_rating_watts": 5000,
+      "datasheet_url": "https://www.rell.com/adapters/",
+      "common_uses": ["Connecting 7/16 DIN equipment to EIA transmission line"],
+      "notes": "Useful for interfacing equipment to larger transmission lines"
+    },
+    {
+      "component_type": "filter",
+      "model": "FM Harmonic Filter",
+      "part_number": "FM-HF",
+      "description": "FM broadcast harmonic filter, 2nd and 3rd harmonic rejection",
+      "insertion_loss_db": 0.2,
+      "rejection_db": 70,
+      "passband_mhz": [88, 108],
+      "stopband_mhz": [176, 216, 264, 324],
+      "power_rating_watts": 10000,
+      "connector_type": "EIA 1-5/8\" flange",
+      "datasheet_url": "https://www.rell.com/filters/",
+      "common_uses": ["Harmonic suppression on FM transmitters", "FCC compliance"],
+      "notes": "Rejects 2nd and 3rd harmonics while passing FM band"
+    }
+  ]
+}

@@ -207,3 +207,110 @@ class ComponentLibrary:
         # Calculate total loss for length
         total_loss = loss_per_100ft * (length_ft / 100.0)
         return total_loss
+
+    def ollama_search_component(self, query: str, frequency_mhz: float) -> Optional[Dict]:
+        """Search for component using Ollama AI
+
+        Args:
+            query: Component name, model, or part number
+            frequency_mhz: Operating frequency for loss calculations
+
+        Returns:
+            Component dict with specifications, or None if not found
+        """
+        import requests
+        import json
+
+        # Construct prompt for Ollama
+        prompt = f"""You are an RF component database expert. I need detailed specifications for the following RF component:
+
+Component: {query}
+Operating Frequency: {frequency_mhz} MHz
+
+Please provide the component specifications in VALID JSON format with the following structure:
+{{
+  "model": "exact model number",
+  "manufacturer": "manufacturer name",
+  "component_type": "cable|connector|isolator|combiner|amplifier|attenuator|filter|duplexer|antenna",
+  "description": "brief description",
+  "part_number": "manufacturer part number",
+
+  // For cables only:
+  "loss_db_per_100ft": {{
+    "50": 1.0,
+    "150": 1.8,
+    "220": 2.2,
+    "450": 3.0
+  }},
+  "impedance_ohms": 50,
+  "velocity_factor": 0.84,
+
+  // For components with loss:
+  "insertion_loss_db": 0.5,
+
+  // For amplifiers/antennas:
+  "gain_dbi": 10.0,
+
+  // General:
+  "frequency_range_mhz": [50, 1000],
+  "power_rating_watts": 100,
+  "connector_type": "N-type"
+}}
+
+IMPORTANT:
+1. Return ONLY valid JSON - no markdown, no code blocks, no explanations
+2. Use real specifications from manufacturer datasheets
+3. If the component is a cable, include loss_db_per_100ft with multiple frequency points
+4. If you cannot find this component, return: {{"error": "Component not found"}}
+"""
+
+        try:
+            # Query Ollama API
+            response = requests.post(
+                'http://localhost:11434/api/generate',
+                json={
+                    'model': 'llama3.2',
+                    'prompt': prompt,
+                    'stream': False,
+                    'format': 'json'
+                },
+                timeout=30
+            )
+
+            if response.status_code == 200:
+                result = response.json()
+                response_text = result.get('response', '')
+
+                # Parse JSON response
+                try:
+                    component_data = json.loads(response_text)
+
+                    # Check for error
+                    if 'error' in component_data:
+                        print(f"Ollama: {component_data['error']}")
+                        return None
+
+                    # Validate required fields
+                    if 'model' in component_data and 'component_type' in component_data:
+                        # Add to cache
+                        self.add_to_cache(component_data)
+                        print(f"Ollama: Found {component_data.get('model')} - {component_data.get('description', 'N/A')}")
+                        return component_data
+                    else:
+                        print("Ollama: Invalid component data (missing required fields)")
+                        return None
+
+                except json.JSONDecodeError as e:
+                    print(f"Ollama: Failed to parse JSON response: {e}")
+                    print(f"Raw response: {response_text[:200]}")
+                    return None
+            else:
+                print(f"Ollama API error: {response.status_code}")
+                return None
+
+        except requests.exceptions.ConnectionError:
+            raise Exception("Cannot connect to Ollama. Make sure Ollama is running (ollama serve)")
+        except requests.exceptions.Timeout:
+            raise Exception("Ollama request timed out. The model may be loading or too slow.")
+        except Exception as e:
+            raise Exception(f"Ollama search failed: {str(e)}")

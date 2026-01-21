@@ -1,0 +1,245 @@
+{
+  "version": "1.0",
+  "last_updated": "2026-01-19",
+  "manufacturers": [
+    {
+      "id": "andrew_commscope",
+      "name": "Andrew / CommScope",
+      "categories": ["cable", "antenna", "connector", "lightning_arrestor", "combiner"],
+      "catalog_file": "andrew_commscope.json",
+      "resources": {
+        "website": "https://www.commscope.com",
+        "product_catalog_url": "https://www.commscope.com/product-type/cables/coaxial-cables/",
+        "spec_sheet_search": "https://www.commscope.com/globalassets/digizuite/",
+        "loss_calculator_url": "https://www.commscope.com/rfcalculator/",
+        "notes": "Industry leader in Heliax coaxial cable"
+      },
+      "popular_products": ["LDF4-50A", "LDF5-50A", "LDF6-50", "LDF7-50A"]
+    },
+    {
+      "id": "times_microwave",
+      "name": "Times Microwave Systems",
+      "categories": ["cable", "connector", "adapter"],
+      "catalog_file": "times_microwave.json",
+      "resources": {
+        "website": "https://www.timesmicrowave.com",
+        "product_catalog_url": "https://www.timesmicrowave.com/products/",
+        "spec_sheet_pdf": "https://www.timesmicrowave.com/documents/resources/",
+        "loss_calculator_url": "https://www.timesmicrowave.com/calculator/",
+        "notes": "LMR series flexible coax - popular for portable/flexible applications"
+      },
+      "popular_products": ["LMR-240", "LMR-400", "LMR-600", "LMR-900", "LMR-1200"]
+    },
+    {
+      "id": "polyphaser",
+      "name": "PolyPhaser (Transtector)",
+      "categories": ["lightning_arrestor", "surge_protector", "grounding"],
+      "catalog_file": "polyphaser.json",
+      "resources": {
+        "website": "https://www.polyphaser.com",
+        "product_catalog_url": "https://www.polyphaser.com/product-finder/",
+        "spec_sheets": "https://www.polyphaser.com/products/",
+        "notes": "Industry standard for lightning protection"
+      },
+      "popular_products": ["IS-B50LN-C0", "IS-50UX-C1", "DGXZ+05NF"]
+    },
+    {
+      "id": "bird_technologies",
+      "name": "Bird Technologies",
+      "categories": ["isolator", "combiner", "coupler", "power_divider", "attenuator", "termination"],
+      "catalog_file": "bird_technologies.json",
+      "resources": {
+        "website": "https://www.bird-technologies.com",
+        "product_catalog_url": "https://www.bird-technologies.com/products/",
+        "notes": "Circulators, isolators, and RF components for broadcast and wireless"
+      },
+      "popular_products": ["CX", "APR", "Termaline"]
+    },
+    {
+      "id": "decibel_products",
+      "name": "Decibel Products",
+      "categories": ["antenna"],
+      "catalog_file": "decibel_products.json",
+      "resources": {
+        "website": "https://www.decibelproducts.com",
+        "product_catalog_url": "https://www.decibelproducts.com/product-category/antennas/",
+        "notes": "VHF/UHF land mobile antennas"
+      },
+      "popular_products": ["DB224", "DB404", "DB408", "DB420"]
+    },
+    {
+      "id": "sinclair_technologies",
+      "name": "Sinclair Technologies",
+      "categories": ["combiner", "filter", "antenna", "coupler"],
+      "catalog_file": "sinclair_technologies.json",
+      "resources": {
+        "website": "https://www.sinctech.com",
+        "product_catalog_url": "https://www.sinctech.com/products/",
+        "notes": "Combiners and filters for public safety and commercial wireless"
+      },
+      "popular_products": ["Q2000", "Q4000", "Quantum"]
+    },
+    {
+      "id": "telewave",
+      "name": "Telewave Inc",
+      "categories": ["combiner", "filter", "isolator", "coupler"],
+      "catalog_file": "telewave.json",
+      "resources": {
+        "website": "https://www.telewave.com",
+        "product_catalog_url": "https://www.telewave.com/product-category/",
+        "notes": "Land mobile radio combiners and filters"
+      },
+      "popular_products": ["Celwave", "Telewave combiners"]
+    },
+    {
+      "id": "kathrein",
+      "name": "Kathrein",
+      "categories": ["antenna", "combiner", "filter"],
+      "catalog_file": "kathrein.json",
+      "resources": {
+        "website": "https://www.kathrein-solutions.com",
+        "product_catalog_url": "https://www.kathrein-solutions.com/en/products/",
+        "notes": "Antennas for broadcast and wireless communications"
+      },
+      "popular_products": ["K-Series antennas"]
+    },
+    {
+      "id": "rf_industries",
+      "name": "RF Industries",
+      "categories": ["connector", "adapter", "cable_assembly"],
+      "catalog_file": "rf_industries.json",
+      "resources": {
+        "website": "https://www.rfindustries.com",
+        "product_catalog_url": "https://www.rfindustries.com/products/",
+        "notes": "Connectors and cable assemblies"
+      },
+      "popular_products": ["N-type connectors", "SMA connectors"]
+    },
+    {
+      "id": "amphenol",
+      "name": "Amphenol RF",
+      "categories": ["connector", "adapter"],
+      "catalog_file": "amphenol.json",
+      "resources": {
+        "website": "https://www.amphenolrf.com",
+        "product_catalog_url": "https://www.amphenolrf.com/connectors.html",
+        "notes": "Wide range of RF connectors"
+      },
+      "popular_products": ["N-type", "SMA", "TNC connectors"]
+    },
+    {
+      "id": "bw_broadcast",
+      "name": "BW Broadcast",
+      "categories": ["transmitter", "exciter", "antenna"],
+      "catalog_file": "bw_broadcast.json",
+      "resources": {
+        "website": "https://www.bwbroadcast.com",
+        "product_catalog_url": "https://www.bwbroadcast.com/products/",
+        "notes": "FM broadcast transmitters and exciters, 300W to 10kW"
+      },
+      "popular_products": ["TX300 V2", "TX600 V2", "TX1000 V5", "TX2500 V5", "TX5000 V5"]
+    },
+    {
+      "id": "harris_broadcast",
+      "name": "Harris Broadcast (GatesAir)",
+      "categories": ["transmitter", "exciter", "combiner"],
+      "catalog_file": "harris_broadcast.json",
+      "resources": {
+        "website": "https://www.gatesair.com",
+        "product_catalog_url": "https://www.gatesair.com/products/",
+        "notes": "FM/AM/TV broadcast transmitters, now GatesAir. Legacy Harris products still deployed."
+      },
+      "popular_products": ["Flexiva FAX250", "FAX1", "FAX3", "FAX10", "FAX20", "FlexStar HDx"]
+    },
+    {
+      "id": "shively_labs",
+      "name": "Shively Labs",
+      "categories": ["antenna", "combiner", "filter"],
+      "catalog_file": "shively_labs.json",
+      "resources": {
+        "website": "https://www.shively.com",
+        "product_catalog_url": "https://www.shively.com/products/",
+        "notes": "FM broadcast antennas and combiners, industry standard"
+      },
+      "popular_products": ["6810", "6812", "6814", "6816", "Multi-Station Combiner"]
+    },
+    {
+      "id": "jampro",
+      "name": "Jampro Antennas",
+      "categories": ["antenna", "combiner", "filter"],
+      "catalog_file": "jampro.json",
+      "resources": {
+        "website": "https://www.jampro.com",
+        "product_catalog_url": "https://www.jampro.com/products/",
+        "notes": "FM/TV broadcast antennas and RF components"
+      },
+      "popular_products": ["JCPV", "JHDV", "JHPV", "JDDP"]
+    },
+    {
+      "id": "rell",
+      "name": "RELL (Radial Electromagnetics)",
+      "categories": ["cable", "connector", "adapter", "filter"],
+      "catalog_file": "rell.json",
+      "resources": {
+        "website": "https://www.rell.com",
+        "product_catalog_url": "https://www.rell.com/products/",
+        "notes": "FM broadcast transmission line and RF components"
+      },
+      "popular_products": ["EFX1-50A", "EFX2-50", "EFX3-50"]
+    }
+  ],
+  "component_categories": {
+    "cable": {
+      "description": "Coaxial transmission line",
+      "typical_specs": ["loss_per_100ft", "velocity_factor", "impedance", "power_rating"]
+    },
+    "connector": {
+      "description": "RF connector (N-type, SMA, etc)",
+      "typical_specs": ["insertion_loss", "frequency_range", "connector_type"]
+    },
+    "lightning_arrestor": {
+      "description": "Surge protection device",
+      "typical_specs": ["insertion_loss", "frequency_range", "voltage_rating"]
+    },
+    "isolator": {
+      "description": "One-way RF device",
+      "typical_specs": ["insertion_loss", "isolation", "frequency_range", "power_rating"]
+    },
+    "combiner": {
+      "description": "Combines multiple signals",
+      "typical_specs": ["insertion_loss", "isolation", "frequency_range", "number_of_ports"]
+    },
+    "coupler": {
+      "description": "Directional coupler",
+      "typical_specs": ["coupling_db", "insertion_loss", "directivity", "frequency_range"]
+    },
+    "power_divider": {
+      "description": "Splits signal to multiple outputs",
+      "typical_specs": ["insertion_loss", "isolation", "frequency_range", "split_ratio"]
+    },
+    "filter": {
+      "description": "Bandpass, notch, or cavity filter",
+      "typical_specs": ["insertion_loss", "rejection", "passband", "stopband"]
+    },
+    "amplifier": {
+      "description": "RF amplifier",
+      "typical_specs": ["gain", "noise_figure", "frequency_range", "output_power"]
+    },
+    "attenuator": {
+      "description": "Fixed or variable attenuator",
+      "typical_specs": ["attenuation_db", "frequency_range", "power_rating"]
+    },
+    "antenna": {
+      "description": "Radiating element",
+      "typical_specs": ["gain_dbi", "frequency_range", "pattern", "vswr"]
+    },
+    "transmitter": {
+      "description": "RF transmitter (FM, AM, VHF, UHF)",
+      "typical_specs": ["power_output_watts", "frequency_range", "efficiency", "harmonic_suppression"]
+    },
+    "exciter": {
+      "description": "RF exciter (drives power amplifier)",
+      "typical_specs": ["power_output_watts", "frequency_range", "modulation"]
+    }
+  }
+}

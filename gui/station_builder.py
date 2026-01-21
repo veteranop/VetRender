@@ -29,10 +29,14 @@ class StationBuilderDialog:
 
         # RF chain components
         self.rf_chain = initial_chain if initial_chain else []  # List of (component, length_ft) tuples
+        self.search_results = []  # Initialize search results list
 
         self._create_dialog()
         self._update_chain_display()
         self._calculate_totals()
+
+        # Initialize search results with all components
+        self._search_components()
 
     def _create_dialog(self):
         """Create dialog window"""

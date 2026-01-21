@@ -12,9 +12,17 @@ class TerrainHandler:
     # Cache directory
     CACHE_DIR = "terrain_cache"
 
+    # =================================================================================
+    # HIGH-RESOLUTION TERRAIN CACHING (FIXES 1KM BLOCK ARTIFACTS!)
+    # =================================================================================
     # Grid resolution for caching (degrees)
-    # 0.01 degrees ≈ 1km at equator
-    GRID_RESOLUTION = 0.01
+    # OLD: 0.01 degrees ≈ 1.1km caused huge square blocks in coverage plots
+    # NEW: 0.0001 degrees ≈ 11 meters for smooth terrain representation
+    # This allows proper interpolation without visible grid artifacts
+    # ROLLBACK: Change to 0.001 (110m) or 0.01 (1.1km) to reduce API calls/cache size
+    # =================================================================================
+    GRID_RESOLUTION = 0.0001  # 11 meters - smooth terrain without visible blocks
+    # =================================================================================
 
     # In-memory cache for quick access
     _memory_cache = {}

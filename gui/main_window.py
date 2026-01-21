@@ -274,8 +274,9 @@ class VetRender:
                 try:
                     self.toolbar.set_status(f"Calculating... {percent}%")
                     self.root.update_idletasks()
-                except:
-                    pass  # Ignore errors during progress updates
+                except Exception as e:
+                    # Log error but don't crash the calculation
+                    print(f"Progress callback error: {e}")
 
             # 🔥 ALL FIXES ARE IN THE CONTROLLER!
             result = self.propagation_controller.calculate_coverage(

@@ -72,6 +72,10 @@ class VetRender:
         self.export_handler = ExportHandler(self.config_manager)
         self.fcc_api = FCCAPIHandler()
         self.report_generator = ReportGenerator(self.config_manager, self.fcc_api)
+
+        # FCC data storage
+        self.fcc_data = None  # Will store FCC query results
+        print("INIT: FCC data storage initialized")
         
         # Station parameters
         self.callsign = "KDPI"
@@ -80,6 +84,7 @@ class VetRender:
         self.tx_lat = 43.4665
         self.tx_lon = -112.0340
         self.erp = 40
+        self.tx_power = 40  # Transmitter output power in dBm (from Station Builder)
         self.frequency = 88.5
         self.height = 30
         self.rx_height = 1.5  # Receiver height in meters
@@ -128,7 +133,7 @@ class VetRender:
         # Update info
         self.info_panel.update(
             self.callsign, self.frequency, self.transmission_mode, self.tx_type,
-            self.tx_lat, self.tx_lon, self.height, self.rx_height, self.erp, self.pattern_name,
+            self.tx_lat, self.tx_lon, self.height, self.rx_height, self.erp, self.tx_power, self.system_loss_db, self.system_gain_db, self.pattern_name,
             self.max_distance, self.signal_threshold, 
             self.use_terrain.get(), self.terrain_quality
         )
@@ -165,7 +170,7 @@ class VetRender:
             'terrain_detail_var': tk.StringVar(value=str(self.terrain_distances))
         }
         
-        self.menubar = MenuBar(self.root, self.get_menu_callbacks(), menu_vars)
+        self.menubar = MenuBar(self.root, self.get_menu_callbacks(), menu_vars, main_window=self)
         
         # Setup toolbar
         self.toolbar = Toolbar(self.root, self.get_toolbar_callbacks())
@@ -432,6 +437,9 @@ class VetRender:
             # Get propagation model from toolbar
             propagation_model = self.toolbar.get_propagation_model()
 
+            # Calculate effective ERP from tx_power + system gain/loss (antenna gain already in system_gain_db)
+            effective_erp = self.tx_power + self.system_gain_db - self.system_loss_db
+
             # Define progress callback for real-time rendering
             def progress_callback(percent, partial_terrain, distances, azimuths):
                 try:
@@ -443,7 +451,7 @@ class VetRender:
 
             # 🔥 ALL FIXES ARE IN THE CONTROLLER!
             result = self.propagation_controller.calculate_coverage(
-                self.tx_lat, self.tx_lon, self.height, self.erp, self.frequency,
+                self.tx_lat, self.tx_lon, self.height, effective_erp, self.frequency,
                 self.max_distance, self.resolution, self.signal_threshold, self.rx_height,
                 self.use_terrain.get(), self.terrain_quality,
                 custom_az, custom_dist, propagation_model=propagation_model,
@@ -886,6 +894,18 @@ class VetRender:
             self.system_gain_db = total_gain
             self.rf_chain = rf_chain
 
+            # Extract transmitter power if present in RF chain
+            tx_power_found = False
+            for component, length_ft in rf_chain:
+                if component.get('component_type') == 'transmitter' and 'transmit_power_watts' in component:
+                    import math
+                    self.tx_power = 10 * math.log10(component['transmit_power_watts'] * 1000)  # Convert watts to dBm
+                    tx_power_found = True
+                    break
+            if not tx_power_found and rf_chain:
+                # If no transmitter found but chain exists, keep current tx_power
+                pass
+
             # Update antenna if selected
             if antenna_id:
                 self.current_antenna_id = antenna_id
@@ -1232,15 +1252,21 @@ class VetRender:
                     'tx_lat': self.tx_lat,
                     'tx_lon': self.tx_lon,
                     'erp': self.erp,
+                    'tx_power': self.tx_power,
+                    'system_loss_db': self.system_loss_db,
+                    'system_gain_db': self.system_gain_db,
+                    'rf_chain': self.rf_chain,
                     'frequency': self.frequency,
                     'height': self.height,
                     'max_distance': self.max_distance,
                     'signal_threshold': self.signal_threshold,
                     'terrain_quality': self.terrain_quality,
                     'pattern_name': self.pattern_name,
+                    'current_antenna_id': self.current_antenna_id,
                     'zoom': self.zoom,
                     'basemap': self.basemap,
                     'saved_plots': self.saved_plots,
+                    'fcc_data': self.fcc_data,
 
                     # Cached data for offline use
                     'terrain_cache': terrain_cache_data,
@@ -1286,15 +1312,25 @@ class VetRender:
                 self.tx_lat = project_data.get('tx_lat', 43.4665)
                 self.tx_lon = project_data.get('tx_lon', -112.0340)
                 self.erp = project_data.get('erp', 40)
+                self.tx_power = project_data.get('tx_power', 40)
+                self.system_loss_db = project_data.get('system_loss_db', 0.0)
+                self.system_gain_db = project_data.get('system_gain_db', 0.0)
+                self.rf_chain = project_data.get('rf_chain', [])
                 self.frequency = project_data.get('frequency', 88.5)
                 self.height = project_data.get('height', 30)
                 self.max_distance = project_data.get('max_distance', 100)
                 self.signal_threshold = project_data.get('signal_threshold', -110)
                 self.terrain_quality = project_data.get('terrain_quality', 'Medium')
                 self.pattern_name = project_data.get('pattern_name', 'Default Omni (0 dBi)')
+                self.current_antenna_id = project_data.get('current_antenna_id', None)
                 self.zoom = 10  # Always start at zoom 10
                 self.basemap = project_data.get('basemap', 'Esri WorldImagery')
                 self.saved_plots = project_data.get('saved_plots', [])
+                self.fcc_data = project_data.get('fcc_data', None)
+
+                # Load antenna pattern if specified
+                if self.current_antenna_id:
+                    self.load_antenna_from_library(self.current_antenna_id)
 
                 # Import terrain cache if available
                 terrain_cache_data = project_data.get('terrain_cache')
@@ -1805,7 +1841,7 @@ class VetRender:
         
         self.info_panel.update(
             self.callsign, self.frequency, self.transmission_mode, self.tx_type,
-            self.tx_lat, self.tx_lon, self.height, self.rx_height, self.erp, self.pattern_name,
+            self.tx_lat, self.tx_lon, self.height, self.rx_height, self.erp, self.tx_power, self.system_loss_db, self.system_gain_db, self.pattern_name,
             self.max_distance, self.signal_threshold,
             self.use_terrain.get(), self.terrain_quality,
             antenna_details=antenna_details
@@ -2075,6 +2111,94 @@ class VetRender:
             Configuration value or default
         """
         return getattr(self, key, default)
+
+    # FCC query methods
+    def fcc_pull_current_station(self):
+        """Pull FCC data for current station"""
+        print("=== FCC MENU: Pull Report for Current Station clicked ===")
+        print("FCC: fcc_pull_current_station() called")
+
+        # Ensure fcc_data exists
+        if not hasattr(self, 'fcc_data'):
+            print("FCC: Initializing missing fcc_data attribute")
+            self.fcc_data = None
+
+        try:
+            from gui.fcc_dialog import FCCDialog
+            print("FCC: Creating FCCDialog...")
+            dialog = FCCDialog(self.root, self.fcc_api, self.tx_lat, self.tx_lon, self.frequency, self.fcc_data)
+            print("FCC: Dialog created, opening...")
+            self.root.wait_window(dialog.dialog)
+            print("FCC: Dialog closed")
+            # Update our FCC data if it was modified
+            self.fcc_data = dialog.fcc_data
+            print(f"FCC: Updated fcc_data: {self.fcc_data is not None}")
+        except Exception as e:
+            print(f"FCC ERROR in fcc_pull_current_station: {e}")
+            import traceback
+            traceback.print_exc()
+
+    def fcc_view_data(self):
+        """View FCC data"""
+        print("=== FCC MENU: View FCC Data for This Project clicked ===")
+        print("FCC: fcc_view_data() called")
+
+        # Ensure fcc_data exists
+        if not hasattr(self, 'fcc_data'):
+            print("FCC: Initializing missing fcc_data attribute")
+            self.fcc_data = None
+
+        try:
+            from gui.fcc_dialog import FCCDialog
+            dialog = FCCDialog(self.root, self.fcc_api, self.tx_lat, self.tx_lon, self.frequency, self.fcc_data)
+            self.root.wait_window(dialog.dialog)
+            self.fcc_data = dialog.fcc_data
+        except Exception as e:
+            print(f"FCC ERROR in fcc_view_data: {e}")
+            import traceback
+            traceback.print_exc()
+
+    def fcc_purge_data(self):
+        """Purge FCC data"""
+        print("=== FCC MENU: Purge FCC Data from Project clicked ===")
+        print("FCC: fcc_purge_data() called")
+
+        # Ensure fcc_data exists
+        if not hasattr(self, 'fcc_data'):
+            print("FCC: Initializing missing fcc_data attribute")
+            self.fcc_data = None
+
+        try:
+            from gui.fcc_dialog import FCCDialog
+            dialog = FCCDialog(self.root, self.fcc_api, self.tx_lat, self.tx_lon, self.frequency, self.fcc_data)
+            self.root.wait_window(dialog.dialog)
+            self.fcc_data = dialog.fcc_data
+        except Exception as e:
+            print(f"FCC ERROR in fcc_purge_data: {e}")
+            import traceback
+            traceback.print_exc()
+
+    def fcc_manual_query(self):
+        """Manual FCC query"""
+        print("=== FCC MENU: Pull Report from Station ID clicked ===")
+        print("FCC: fcc_manual_query() called")
+
+        # Ensure fcc_data exists
+        if not hasattr(self, 'fcc_data'):
+            print("FCC: Initializing missing fcc_data attribute")
+            self.fcc_data = None
+
+        try:
+            from gui.fcc_dialog import FCCDialog
+            dialog = FCCDialog(self.root, self.fcc_api, self.tx_lat, self.tx_lon, self.frequency, self.fcc_data)
+            # Switch to manual query tab
+            dialog.notebook.select(dialog.manual_tab)
+            self.root.wait_window(dialog.dialog)
+            self.fcc_data = dialog.fcc_data
+        except Exception as e:
+            print(f"FCC ERROR in fcc_manual_query: {e}")
+            import traceback
+            traceback.print_exc()
 
     # ===== EXPORT AND REPORTING METHODS =====
 

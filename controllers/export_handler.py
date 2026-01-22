@@ -62,47 +62,39 @@ class ExportHandler:
             ]]>
             """
 
-            # Add coverage contours if coverage data is provided
+            # Add coverage overlay if coverage data is provided
             if coverage_data is not None:
                 x_grid, y_grid, rx_power_grid = coverage_data
 
-                # Create signal strength contours at different levels
-                # Order from weakest to strongest for proper layering in Google Earth
-                contour_levels = [
-                    (signal_threshold, "Weak", simplekml.Color.rgb(255, 0, 0, 70)),     # Red, very transparent
-                    (-90, "Marginal", simplekml.Color.rgb(255, 100, 0, 85)),            # Orange
-                    (-80, "Fair", simplekml.Color.rgb(255, 200, 0, 100)),               # Yellow
-                    (-70, "Good", simplekml.Color.rgb(150, 255, 0, 115)),               # Yellow-Green
-                    (-60, "Excellent", simplekml.Color.rgb(0, 255, 0, 130)),            # Green
-                ]
+                print("Generating coverage overlay image...")
 
-                # Create folder for contours
-                contour_folder = kml.newfolder(name="Signal Strength Contours")
+                # Create ground overlay with coverage image
+                overlay_path = self._create_coverage_overlay(x_grid, y_grid, rx_power_grid,
+                                                             tx_lat, tx_lon, max_distance,
+                                                             signal_threshold)
 
-                # Generate contours for each level
-                for signal_level, level_name, color in contour_levels:
-                    print(f"Generating contours for {level_name} ({signal_level} dBm)...")
-                    contours = self._generate_contours(x_grid, y_grid, rx_power_grid,
-                                                      tx_lat, tx_lon, signal_level)
+                if overlay_path:
+                    # Calculate overlay bounds
+                    earth_radius = 6371.0  # km
 
-                    if contours:
-                        print(f"  Found {len(contours)} contour(s) for {level_name}")
-                        for i, contour_coords in enumerate(contours):
-                            pol = contour_folder.newpolygon(name=f"{level_name} ({signal_level} dBm)")
-                            pol.outerboundaryis = contour_coords
-                            pol.style.polystyle.color = color
-                            pol.style.polystyle.fill = 1
-                            pol.style.polystyle.outline = 1
-                            pol.style.linestyle.color = color
-                            pol.style.linestyle.width = 1
-                            pol.description = f"""
-                            <![CDATA[
-                            <b>Signal Level:</b> {signal_level} dBm<br>
-                            <b>Quality:</b> {level_name}
-                            ]]>
-                            """
-                    else:
-                        print(f"  No contours found for {level_name}")
+                    # North/South/East/West boundaries
+                    north = tx_lat + (max_distance / earth_radius) * (180 / 3.14159)
+                    south = tx_lat - (max_distance / earth_radius) * (180 / 3.14159)
+                    east = tx_lon + (max_distance / earth_radius) * (180 / 3.14159) / \
+                           (3.14159 * tx_lat / 180)
+                    west = tx_lon - (max_distance / earth_radius) * (180 / 3.14159) / \
+                           (3.14159 * tx_lat / 180)
+
+                    # Create ground overlay
+                    ground = kml.newgroundoverlay(name="RF Coverage")
+                    ground.icon.href = overlay_path
+                    ground.latlonbox.north = north
+                    ground.latlonbox.south = south
+                    ground.latlonbox.east = east
+                    ground.latlonbox.west = west
+                    ground.latlonbox.rotation = 0
+
+                    print(f"  Ground overlay created: {overlay_path}")
             else:
                 # Fallback: Add simple coverage circle if no coverage data
                 messagebox.showwarning("No Coverage Data",

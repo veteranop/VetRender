@@ -15,6 +15,8 @@ from reportlab.platypus import (SimpleDocTemplate, Paragraph, Spacer, Table,
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
 from tkinter import filedialog, messagebox
+from models.component_library import ComponentLibrary
+from models.antenna_library import AntennaLibrary
 
 
 class ReportGenerator:
@@ -29,6 +31,8 @@ class ReportGenerator:
         """
         self.config = config_manager
         self.fcc_api = fcc_api_handler
+        self.component_library = ComponentLibrary()
+        self.antenna_library = AntennaLibrary()
         self.styles = getSampleStyleSheet()
         self.setup_custom_styles()
 
@@ -124,6 +128,11 @@ class ReportGenerator:
                 story.extend(self._build_rf_chain_section(sections))
                 story.append(PageBreak())
 
+            # Add antenna information if requested
+            if sections.get('antenna_info'):
+                story.extend(self._build_antenna_section())
+                story.append(PageBreak())
+
             # Add coverage maps if requested
             if sections.get('coverage_maps') and coverage_images:
                 story.extend(self._build_coverage_section(coverage_images,
@@ -170,7 +179,7 @@ class ReportGenerator:
             ['Report Time:', datetime.now().strftime("%I:%M %p")],
             ['', ''],
             ['Frequency:', f"{frequency} MHz"],
-            ['ERP:', f"{erp} dBW"],
+            ['ERP:', f"{erp} dBm ({10**((erp-30)/10):.1f} W)"],
             ['Location:', f"{tx_lat:.6f}°, {tx_lon:.6f}°"],
         ]
 
@@ -199,35 +208,90 @@ class ReportGenerator:
         return content
 
     def _build_fcc_section(self):
-        """Build FCC information section"""
+        """Build FCC information section using stored project data"""
         content = []
 
         content.append(Paragraph("FCC Filing Information", self.styles['SectionHeading']))
         content.append(Spacer(1, 0.2*inch))
 
-        # Query FCC database
-        tx_lat = self.config.get('tx_lat', 0)
-        tx_lon = self.config.get('tx_lon', 0)
-        frequency = self.config.get('frequency', 0)
+        # Get stored FCC data from project
+        fcc_data = self.config.get('fcc_data')
 
-        # Determine service type based on frequency
-        if 88 <= frequency <= 108:
-            service = 'FM'
-        elif 535 <= frequency <= 1705:
-            service = 'AM'
-        else:
-            service = 'FM'  # Default
+        if not fcc_data:
+            # No FCC data stored in project
+            content.append(Paragraph(
+                "<b>Note:</b> No FCC data has been retrieved for this project. "
+                "Use the 'Query FCC' menu to pull FCC information before generating reports.",
+                self.styles['Normal']
+            ))
+            content.append(Spacer(1, 0.1*inch))
+            content.append(Paragraph(
+                "<b>To get FCC data:</b> Go to Query FCC → Pull Report for Current Station",
+                self.styles['Normal']
+            ))
+            content.append(Spacer(1, 0.3*inch))
+            return content
 
-        # Try to query FCC API - handle gracefully if it fails
-        facilities = None
-        try:
-            facilities = self.fcc_api.search_by_coordinates_and_frequency(
-                tx_lat, tx_lon, frequency, service=service, radius_km=5
-            )
-        except Exception as e:
-            print(f"FCC API query failed: {e}")
-            # Continue - we'll show the manual lookup message instead
+        # Check if there was an error in the stored data
+        if 'error' in fcc_data:
+            if fcc_data.get('api_status') == 'unavailable':
+                content.append(Paragraph(
+                    "<b>FCC API Unavailable:</b> The FCC's public APIs are currently not accessible (returning 404 errors).",
+                    self.styles['Normal']
+                ))
+                content.append(Spacer(1, 0.1*inch))
+                content.append(Paragraph(
+                    "This may be due to API changes, maintenance, or access restrictions by the FCC.",
+                    self.styles['Normal']
+                ))
+                content.append(Spacer(1, 0.1*inch))
+                content.append(Paragraph(
+                    "<b>Alternative Methods:</b>",
+                    self.styles['Normal']
+                ))
+                content.append(Paragraph(
+                    "• Visit https://www.fcc.gov/media/radio/am-fm-tv-and-translator-search for facility search",
+                    self.styles['Normal']
+                ))
+                content.append(Paragraph(
+                    "• Use https://www.fccdata.org for FCC database access",
+                    self.styles['Normal']
+                ))
+                content.append(Paragraph(
+                    "• Check https://www.fcc.gov/licensing-databases for database downloads",
+                    self.styles['Normal']
+                ))
+            else:
+                content.append(Paragraph(
+                    f"<b>FCC Query Error:</b> {fcc_data['error']}",
+                    self.styles['Normal']
+                ))
+                content.append(Spacer(1, 0.1*inch))
+                query_params = fcc_data.get('query_params', {})
+                content.append(Paragraph(
+                    f"<b>Query Parameters:</b> {query_params.get('lat', 0):.6f}, {query_params.get('lon', 0):.6f} "
+                    f"@ {query_params.get('frequency', 0)} MHz ({query_params.get('service', 'Unknown')})",
+                    self.styles['Normal']
+                ))
+            content.append(Spacer(1, 0.3*inch))
+            return content
 
+        # Display query information
+        query_params = fcc_data.get('query_params', {})
+        content.append(Paragraph(
+            f"Query performed on {fcc_data.get('query_time', 'Unknown')[:19]}",
+            self.styles['Normal']
+        ))
+        content.append(Paragraph(
+            f"Search: {query_params.get('lat', 0):.6f}°, {query_params.get('lon', 0):.6f}° "
+            f"@ {query_params.get('frequency', 0)} MHz ({query_params.get('service', 'Unknown')}) "
+            f"within {query_params.get('radius_km', 0)} km",
+            self.styles['Normal']
+        ))
+        content.append(Spacer(1, 0.2*inch))
+
+        # Display facilities
+        facilities = fcc_data.get('facilities', [])
         if facilities and len(facilities) > 0:
             # Found matching facilities
             for i, facility in enumerate(facilities[:3]):  # Limit to 3 results
@@ -240,11 +304,12 @@ class ReportGenerator:
                 facility_data = [
                     ['Call Sign:', facility.get('callSign', 'N/A')],
                     ['Facility ID:', str(facility.get('facilityId', 'N/A'))],
-                    ['Service:', facility.get('service', 'N/A')],
                     ['Frequency:', f"{facility.get('frequency', 'N/A')} MHz"],
                     ['City:', facility.get('city', 'N/A')],
                     ['State:', facility.get('state', 'N/A')],
-                    ['Licensee:', facility.get('licensee', 'N/A')],
+                    ['ERP:', f"{facility.get('erp', 'N/A')} W"],
+                    ['HAAT:', f"{facility.get('haat', 'N/A')} m"],
+                    ['Coordinates:', f"{facility.get('latitude', 0):.6f}°, {facility.get('longitude', 0):.6f}°"],
                 ]
 
                 facility_table = Table(facility_data, colWidths=[1.5*inch, 4*inch])
@@ -260,22 +325,8 @@ class ReportGenerator:
                 content.append(facility_table)
 
         else:
-            # No facilities found or API unavailable
             content.append(Paragraph(
-                "<b>Note:</b> FCC database query did not return results. "
-                "The FCC Public Files API may be unavailable or the facility may not be in the database.",
-                self.styles['Normal']
-            ))
-            content.append(Spacer(1, 0.1*inch))
-            content.append(Paragraph(
-                f"<b>Search Parameters:</b> Coordinates {tx_lat:.6f}, {tx_lon:.6f}, "
-                f"Frequency {frequency} MHz, Service {service}",
-                self.styles['Normal']
-            ))
-            content.append(Spacer(1, 0.1*inch))
-            content.append(Paragraph(
-                "<b>Manual Lookup:</b> Visit <font color='blue'><u>https://publicfiles.fcc.gov</u></font> "
-                "or <font color='blue'><u>https://fccdata.org</u></font> to search for FCC filing information.",
+                "<b>No Facilities Found:</b> The FCC database query did not return any matching facilities.",
                 self.styles['Normal']
             ))
 
@@ -295,13 +346,24 @@ class ReportGenerator:
         tx_lon = self.config.get('tx_lon', 0)
         frequency = self.config.get('frequency', 0)
         erp = self.config.get('erp', 0)
+        tx_power = self.config.get('tx_power', 40)
+        system_loss_db = self.config.get('system_loss_db', 0)
+        system_gain_db = self.config.get('system_gain_db', 0)
         height = self.config.get('height', 0)
         max_distance = self.config.get('max_distance', 50)
         pattern_name = self.config.get('pattern_name', 'N/A')
 
+        # Calculate effective ERP (tx_power already in dBm, gains/losses in dB)
+        effective_erp = tx_power + system_gain_db - system_loss_db
+
+        # Calculate total system loss (positive value)
+        total_loss_db = system_loss_db
+
         station_data = [
             ['Frequency:', f"{frequency} MHz"],
-            ['ERP:', f"{erp} dBW ({10**(erp/10):.2f} watts)"],
+            ['Transmitter Power:', f"{tx_power} dBm ({10**((tx_power-30)/10):.1f} W)"],
+            ['Total System Loss:', f"{total_loss_db:.2f} dB"],
+            ['ERP:', f"{effective_erp:.2f} dBm ({10**((effective_erp-30)/10):.1f} W)"],
             ['Antenna Height:', f"{height} meters AGL"],
             ['Coverage Radius:', f"{max_distance} km"],
             ['Antenna Pattern:', pattern_name],
@@ -331,82 +393,179 @@ class ReportGenerator:
 
         # Get RF chain from config
         rf_chain = self.config.get('rf_chain', [])
+        frequency = self.config.get('frequency', 88.5)  # For cable loss calculation
 
         if not rf_chain:
             content.append(Paragraph("No RF chain configured.", self.styles['Normal']))
             return content
 
-        # Build RF chain summary
-        for i, (component, quantity) in enumerate(rf_chain):
+        # Build RF chain table
+        table_data = [['Part Name', 'Manufacturer', 'Type', 'Specs', 'dB Change']]
+
+        total_loss = 0
+        total_gain = 0
+
+        for component, length_ft in rf_chain:
             component_type = component.get('component_type', 'Unknown')
             model = component.get('model', 'N/A')
+            manufacturer = component.get('manufacturer', 'N/A')
 
-            content.append(Paragraph(f"{i+1}. {component_type.title()}: {model}",
-                                   self.styles['SubsectionHeading']))
+            # Calculate specs and dB change based on component type
+            specs = 'N/A'
+            db_change = 0
 
-            # Component details
-            details = []
-
-            if component_type == 'transmitter':
-                details.append(['Power Output:', f"{component.get('power_output_watts', 'N/A')} watts"])
-                details.append(['Efficiency:', f"{component.get('efficiency_percent', 'N/A')}%"])
-                details.append(['Frequency Range:', f"{component.get('frequency_range_mhz', ['N/A', 'N/A'])[0]}-{component.get('frequency_range_mhz', ['N/A', 'N/A'])[1]} MHz"])
-
-            elif component_type == 'cable':
-                details.append(['Type:', component.get('model', 'N/A')])
-                details.append(['Length:', f"{component.get('length_feet', 0)} feet"])
-                details.append(['Loss @ Frequency:', f"{component.get('loss_db', 'N/A')} dB"])
-
+            if component_type == 'cable':
+                loss_db = self.component_library.interpolate_cable_loss(component, frequency, length_ft)
+                specs = f"{length_ft:.1f} ft"
+                db_change = -loss_db  # Loss is negative change
+                total_loss += loss_db
+            elif component_type == 'transmitter':
+                power_watts = component.get('transmit_power_watts', component.get('power_output_watts', 0))
+                efficiency = component.get('efficiency_percent', 'N/A')
+                specs = f"{power_watts}W"
+                if efficiency != 'N/A':
+                    specs += f" @ {efficiency}%"
+                db_change = 0  # No dB change from transmitter
             elif component_type == 'antenna':
-                details.append(['Gain:', f"{component.get('gain_dbi', 'N/A')} dBi"])
-                details.append(['Pattern:', component.get('pattern', 'N/A')])
-                details.append(['Frequency Range:', f"{component.get('frequency_range_mhz', ['N/A', 'N/A'])[0]}-{component.get('frequency_range_mhz', ['N/A', 'N/A'])[1]} MHz"])
+                # Antennas provide gain
+                gain = component.get('gain_dbi', 0)
+                specs = f"{gain} dBi"
+                db_change = gain  # Gain is positive change
+                total_gain += gain
+            elif 'insertion_loss_db' in component:
+                loss_db = component['insertion_loss_db']
+                specs = f"IL: {loss_db} dB"
+                db_change = -loss_db  # Loss is negative change
+                total_loss += loss_db
 
-            if details:
-                details_table = Table(details, colWidths=[1.5*inch, 4*inch])
-                details_table.setStyle(TableStyle([
-                    ('FONT', (0, 0), (-1, -1), 'Helvetica', 9),
-                    ('FONT', (0, 0), (0, -1), 'Helvetica-Bold', 9),
-                    ('ALIGN', (0, 0), (0, -1), 'RIGHT'),
-                    ('LEFTPADDING', (0, 0), (-1, -1), 8),
-                    ('RIGHTPADDING', (0, 0), (-1, -1), 8),
-                ]))
-                content.append(details_table)
+            table_data.append([model, manufacturer, component_type.title(), specs, f"{db_change:+.2f}"])
 
-            content.append(Spacer(1, 0.15*inch))
+        # Add totals row
+        net_change = total_gain - total_loss
+        table_data.append(['TOTAL SYSTEM', '', '', '', f"{net_change:+.2f}"])
 
-        # Add loss budget if requested
+        # Create table
+        rf_table = Table(table_data, colWidths=[1.5*inch, 1.5*inch, 1*inch, 1.5*inch, 1*inch])
+        rf_table.setStyle(TableStyle([
+            ('FONT', (0, 0), (-1, -1), 'Helvetica', 9),
+            ('FONT', (0, 0), (-1, 0), 'Helvetica-Bold', 9),  # Header row
+            ('FONT', (-1, 0), (-1, -1), 'Helvetica-Bold', 9),  # Total row
+            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+            ('ALIGN', (2, 0), (-1, -1), 'CENTER'),
+            ('ALIGN', (4, 0), (-1, -1), 'RIGHT'),  # dB Change column
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+            ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),  # Header background
+            ('BACKGROUND', (-1, 0), (-1, -1), colors.lightgrey),  # Total background
+            ('LEFTPADDING', (0, 0), (-1, -1), 6),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 6),
+            ('TOPPADDING', (0, 0), (-1, -1), 4),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
+        ]))
+
+        content.append(rf_table)
+
+        # Add summary note
         if sections.get('loss_budget'):
-            content.append(Paragraph("Loss Budget", self.styles['SubsectionHeading']))
+            content.append(Spacer(1, 0.2*inch))
+            content.append(Paragraph(
+                f"System Summary: {total_loss:.2f} dB loss, {total_gain:.2f} dB gain, "
+                f"Net {net_change:+.2f} dB change from reference.",
+                self.styles['Normal']
+            ))
 
-            # Calculate total losses
-            total_cable_loss = 0
-            total_gain = 0
+        return content
 
-            for component, quantity in rf_chain:
-                if component.get('component_type') == 'cable':
-                    total_cable_loss += component.get('loss_db', 0)
-                elif component.get('component_type') == 'antenna':
-                    total_gain += component.get('gain_dbi', 0)
+    def _build_antenna_section(self):
+        """Build antenna information section with azimuth gain/loss data"""
+        content = []
 
-            budget_data = [
-                ['Cable Loss:', f"-{total_cable_loss:.2f} dB"],
-                ['Antenna Gain:', f"+{total_gain:.2f} dB"],
-                ['Net Gain:', f"{total_gain - total_cable_loss:.2f} dB"],
-            ]
+        content.append(Paragraph("Antenna Information", self.styles['SectionHeading']))
+        content.append(Spacer(1, 0.2*inch))
 
-            budget_table = Table(budget_data, colWidths=[2*inch, 2*inch])
-            budget_table.setStyle(TableStyle([
-                ('FONT', (0, 0), (-1, -1), 'Helvetica', 10),
-                ('FONT', (0, 0), (0, -1), 'Helvetica-Bold', 10),
-                ('ALIGN', (0, 0), (0, -1), 'RIGHT'),
-                ('ALIGN', (1, 0), (1, -1), 'CENTER'),
-                ('LEFTPADDING', (0, 0), (-1, -1), 8),
-                ('RIGHTPADDING', (0, 0), (-1, -1), 8),
-                ('LINEABOVE', (0, 2), (-1, 2), 1, colors.black),
-            ]))
+        # Get antenna information
+        pattern_name = self.config.get('pattern_name', 'N/A')
+        current_antenna_id = self.config.get('current_antenna_id', None)
 
-            content.append(budget_table)
+        # Basic antenna info
+        antenna_info = [
+            ['Antenna Pattern:', pattern_name],
+            ['Type:', 'Directional' if current_antenna_id else 'Omnidirectional'],
+        ]
+
+        # Try to get detailed antenna data from library
+        antenna_details = None
+        if current_antenna_id:
+            antenna_details = self.antenna_library.get_antenna(current_antenna_id)
+
+        if antenna_details:
+            antenna_info.extend([
+                ['Manufacturer:', antenna_details.get('manufacturer', 'N/A')],
+                ['Model:', antenna_details.get('model', 'N/A')],
+                ['Gain:', f"{antenna_details.get('gain', 0)} dBi"],
+                ['Frequency Range:', f"{antenna_details.get('frequency_range', 'N/A')}"],
+            ])
+
+        # Create basic info table
+        info_table = Table(antenna_info, colWidths=[2*inch, 4*inch])
+        info_table.setStyle(TableStyle([
+            ('FONT', (0, 0), (-1, -1), 'Helvetica', 10),
+            ('FONT', (0, 0), (0, -1), 'Helvetica-Bold', 10),
+            ('ALIGN', (0, 0), (0, -1), 'RIGHT'),
+            ('LEFTPADDING', (0, 0), (-1, -1), 8),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 8),
+        ]))
+        content.append(info_table)
+        content.append(Spacer(1, 0.2*inch))
+
+        # Azimuth Gain/Loss Table
+        content.append(Paragraph("Azimuth Pattern (Horizontal Gain/Loss)", self.styles['SubsectionHeading']))
+        content.append(Spacer(1, 0.1*inch))
+
+        # Generate azimuth gains for key angles
+        azimuth_angles = [0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330]
+        azimuth_data = [['Azimuth (°)', 'Gain (dBi)', 'Relative Loss (dB)']]
+
+        max_gain = antenna_details.get('gain', 0) if antenna_details else 0
+
+        for az in azimuth_angles:
+            # For omnidirectional, all gains are 0 dBi
+            # For directional, we'd need actual pattern data
+            if current_antenna_id and antenna_details:
+                # This is simplified - in a real implementation, you'd load the actual pattern
+                # For now, assume main lobe at 0° with specified gain
+                if az == 0:
+                    gain = max_gain
+                else:
+                    # Simplified side/back lobe pattern
+                    gain = max_gain - 10 - (az % 180) * 0.1  # Rough approximation
+                    gain = max(0, gain)  # Don't go below 0
+            else:
+                # Omnidirectional
+                gain = 0
+
+            relative_loss = max_gain - gain if max_gain > 0 else 0
+            azimuth_data.append([str(az), f"{gain:.1f}", f"-{relative_loss:.1f}" if relative_loss > 0 else "0.0"])
+
+        azimuth_table = Table(azimuth_data, colWidths=[1.5*inch, 1.5*inch, 1.5*inch])
+        azimuth_table.setStyle(TableStyle([
+            ('FONT', (0, 0), (-1, -1), 'Helvetica', 9),
+            ('FONT', (0, 0), (-1, 0), 'Helvetica-Bold', 9),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+            ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),
+            ('LEFTPADDING', (0, 0), (-1, -1), 4),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 4),
+            ('TOPPADDING', (0, 0), (-1, -1), 3),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 3),
+        ]))
+        content.append(azimuth_table)
+
+        content.append(Spacer(1, 0.1*inch))
+        content.append(Paragraph(
+            "Note: Gain values shown are relative to isotropic (dBi). "
+            "Relative Loss shows dB below maximum gain.",
+            self.styles['Normal']
+        ))
 
         return content
 

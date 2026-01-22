@@ -11,19 +11,17 @@ from models.map_handler import MapHandler
 class MenuBar:
     """Application menu bar"""
 
-    def __init__(self, root, callbacks, variables, main_window=None):
+    def __init__(self, root, callbacks, variables):
         """Initialize menu bar
 
         Args:
             root: Root tkinter window
             callbacks: Dictionary of callback functions
             variables: Dictionary of tkinter variables
-            main_window: Main application window instance (for direct method access)
         """
         self.root = root
         self.callbacks = callbacks
         self.vars = variables
-        self.main_window = main_window
 
         self.menubar = tk.Menu(root)
         root.config(menu=self.menubar)
@@ -128,33 +126,18 @@ class MenuBar:
 
     def setup_fcc_menu(self):
         """Create FCC Query menu"""
-        print("MENUBAR: Setting up FCC menu")
         fcc_menu = tk.Menu(self.menubar, tearoff=0)
         self.menubar.add_cascade(label="Query FCC", menu=fcc_menu)
-        print("MENUBAR: FCC menu created and added to menu bar")
 
-        # Use main window instance for direct method calls
-        if self.main_window:
-            fcc_menu.add_command(label="Pull Report for Current Station",
-                                command=self.main_window.fcc_pull_current_station)
-            fcc_menu.add_command(label="View FCC Data for This Project",
-                                command=self.main_window.fcc_view_data)
-            fcc_menu.add_command(label="Purge FCC Data from Project",
-                                command=self.main_window.fcc_purge_data)
-            fcc_menu.add_separator()
-            fcc_menu.add_command(label="Pull Report from Station ID",
-                                command=self.main_window.fcc_manual_query)
-        else:
-            # Fallback if main_window not provided
-            fcc_menu.add_command(label="Pull Report for Current Station",
-                                command=self.callbacks.get('on_fcc_pull_current', lambda: None))
-            fcc_menu.add_command(label="View FCC Data for This Project",
-                                command=self.callbacks.get('on_fcc_view', lambda: None))
-            fcc_menu.add_command(label="Purge FCC Data from Project",
-                                command=self.callbacks.get('on_fcc_purge', lambda: None))
-            fcc_menu.add_separator()
-            fcc_menu.add_command(label="Pull Report from Station ID",
-                                command=self.callbacks.get('on_fcc_manual', lambda: None))
+        fcc_menu.add_command(label="Pull Report for Current Station",
+                            command=self.callbacks.get('on_fcc_pull_current', lambda: None))
+        fcc_menu.add_command(label="View FCC Data for This Project",
+                            command=self.callbacks.get('on_fcc_view', lambda: None))
+        fcc_menu.add_command(label="Purge FCC Data from Project",
+                            command=self.callbacks.get('on_fcc_purge', lambda: None))
+        fcc_menu.add_separator()
+        fcc_menu.add_command(label="Pull Report from Station ID",
+                            command=self.callbacks.get('on_fcc_manual', lambda: None))
 
     def setup_plot_settings_menu(self):
         """Create Plot Settings menu"""
@@ -227,12 +210,6 @@ class MenuBar:
         export_menu = tk.Menu(self.menubar, tearoff=0)
         self.menubar.add_cascade(label="Export", menu=export_menu)
 
-        # Get reference to main window for direct method calls
-        main_window = self.root
-
-        export_menu.add_command(label="Generate Report",
-                               command=getattr(main_window, 'generate_report', lambda: None))
-        export_menu.add_separator()
         export_menu.add_command(label="KML Coverage",
                                command=self.callbacks.get('on_export_kml', lambda: None))
         export_menu.add_command(label="Images (All Zooms)",

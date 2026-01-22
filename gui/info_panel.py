@@ -52,7 +52,7 @@ class InfoPanel:
         return btn
     
     def update(self, callsign, frequency, tx_mode, tx_type,
-              tx_lat, tx_lon, height, rx_height, erp, pattern_name,
+              tx_lat, tx_lon, height, rx_height, erp, tx_power, system_loss_db, system_gain_db, pattern_name,
               max_distance, signal_threshold, use_terrain, terrain_quality,
               antenna_details=None):
         """Update the information display
@@ -65,7 +65,10 @@ class InfoPanel:
             tx_lat: Transmitter latitude
             tx_lon: Transmitter longitude
             height: Antenna height AGL (m)
-            erp: ERP (dBm)
+            erp: ERP (dBm) - legacy, calculated from tx_power
+            tx_power: Transmitter output power (dBm)
+            system_loss_db: System loss (dB)
+            system_gain_db: System gain (dB)
             pattern_name: Antenna pattern name
             max_distance: Maximum coverage distance (km)
             signal_threshold: Signal threshold (dBm)
@@ -76,11 +79,12 @@ class InfoPanel:
         self.info_text.config(state='normal')
         self.info_text.delete('1.0', tk.END)
 
-        # Calculate EIRP using antenna gain if available
-        antenna_gain = 0.0
+        # Calculate ERP from transmitter power + system gain/loss (antenna gain already included in system_gain_db)
+        calculated_erp = tx_power + system_gain_db - system_loss_db
         if antenna_details:
             antenna_gain = antenna_details.get('gain', 0.0)
-        eirp = PropagationModel.erp_to_eirp(erp, antenna_gain)
+        calculated_erp = tx_power + system_gain_db - system_loss_db
+        eirp = calculated_erp  # EIRP equals ERP when antenna gain is properly accounted for
         
         # Build antenna section with details if available
         antenna_section = f"Antenna:      {pattern_name}\n"
@@ -119,8 +123,9 @@ Rx Height:    {rx_height} m
 ║      POWER & ANTENNA          ║
 ╚═══════════════════════════════╝
 
-ERP:          {erp} dBm
-EIRP:         {eirp:.2f} dBm
+Tx Power:     {tx_power} dBm ({10**((tx_power-30)/10):.1f} W)
+ERP:          {calculated_erp:.2f} dBm ({10**((calculated_erp-30)/10):.1f} W)
+
 {antenna_section}
 
 ╔═══════════════════════════════╗

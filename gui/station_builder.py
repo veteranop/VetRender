@@ -248,6 +248,61 @@ class StationBuilderDialog:
                 messagebox.showerror("Invalid Length", "Please enter a valid length in feet")
                 return
 
+        # For transmitters, get actual transmit power from user
+        if component.get('component_type') == 'transmitter':
+            max_power = component.get('power_output_watts', 1000)
+            power_dialog = tk.Toplevel(self.dialog)
+            power_dialog.title("Set Transmitter Power")
+            power_dialog.geometry("350x150")
+            power_dialog.transient(self.dialog)
+            power_dialog.grab_set()
+
+            ttk.Label(power_dialog, text=f"Transmitter: {component.get('model', 'Unknown')}",
+                     font=('TkDefaultFont', 10, 'bold')).pack(pady=10)
+
+            ttk.Label(power_dialog, text=f"Max Rated Power: {max_power} W").pack(pady=5)
+
+            # Power input
+            power_frame = ttk.Frame(power_dialog)
+            power_frame.pack(pady=10)
+
+            ttk.Label(power_frame, text="Transmit Power (W):").pack(side=tk.LEFT, padx=5)
+            power_var = tk.StringVar(value=str(max_power))
+            power_entry = ttk.Entry(power_frame, textvariable=power_var, width=10)
+            power_entry.pack(side=tk.LEFT, padx=5)
+
+            def on_ok():
+                try:
+                    transmit_power = float(power_var.get())
+                    if transmit_power <= 0:
+                        raise ValueError("Must be positive")
+                    if transmit_power > max_power * 1.1:  # Allow 10% over max for flexibility
+                        if not messagebox.askyesno("Power Warning",
+                                                 f"Transmit power ({transmit_power}W) exceeds rated maximum ({max_power}W).\nContinue anyway?"):
+                            return
+                    # Store the user-set power in the component
+                    component_copy = component.copy()
+                    component_copy['transmit_power_watts'] = transmit_power
+                    self.rf_chain.append((component_copy, length_ft))
+                    power_dialog.destroy()
+                    self._update_chain_display()
+                    self._calculate_totals()
+                except ValueError:
+                    messagebox.showerror("Invalid Power", "Please enter a valid positive number for transmit power")
+
+            def on_cancel():
+                power_dialog.destroy()
+
+            button_frame = ttk.Frame(power_dialog)
+            button_frame.pack(pady=10)
+            ttk.Button(button_frame, text="OK", command=on_ok).pack(side=tk.LEFT, padx=5)
+            ttk.Button(button_frame, text="Cancel", command=on_cancel).pack(side=tk.LEFT, padx=5)
+
+            power_entry.focus()
+            power_dialog.bind('<Return>', lambda e: on_ok())
+            power_dialog.bind('<Escape>', lambda e: on_cancel())
+            return
+
         self.rf_chain.append((component, length_ft))
         self._update_chain_display()
         self._calculate_totals()
@@ -320,8 +375,9 @@ class StationBuilderDialog:
         ttk.Label(edit_dialog, text=f"Component: {component.get('model', 'Unknown')}",
                  font=('TkDefaultFont', 10, 'bold')).pack(pady=10)
 
-        # Only allow editing length for cables
-        if component.get('component_type') == 'cable':
+        # Allow editing length for cables or power for transmitters
+        comp_type = component.get('component_type')
+        if comp_type == 'cable':
             ttk.Label(edit_dialog, text="Length (ft):").pack(pady=5)
             length_var = tk.StringVar(value=str(current_length))
             length_entry = ttk.Entry(edit_dialog, textvariable=length_var, width=20)
@@ -339,6 +395,40 @@ class StationBuilderDialog:
 
             ttk.Button(edit_dialog, text="Save", command=save_changes).pack(pady=10)
             ttk.Button(edit_dialog, text="Cancel", command=edit_dialog.destroy).pack()
+
+        elif comp_type == 'transmitter':
+            max_power = component.get('power_output_watts', 1000)
+            current_power = component.get('transmit_power_watts', max_power)
+
+            ttk.Label(edit_dialog, text=f"Max Rated Power: {max_power} W").pack(pady=5)
+            ttk.Label(edit_dialog, text="Transmit Power (W):").pack(pady=5)
+
+            power_var = tk.StringVar(value=str(current_power))
+            power_entry = ttk.Entry(edit_dialog, textvariable=power_var, width=20)
+            power_entry.pack(pady=5)
+
+            def save_changes():
+                try:
+                    new_power = float(power_var.get())
+                    if new_power <= 0:
+                        raise ValueError("Must be positive")
+                    if new_power > max_power * 1.1:  # Allow 10% over max
+                        if not messagebox.askyesno("Power Warning",
+                                                 f"Transmit power ({new_power}W) exceeds rated maximum ({max_power}W).\nContinue anyway?"):
+                            return
+                    # Update the component with new power
+                    component_copy = component.copy()
+                    component_copy['transmit_power_watts'] = new_power
+                    self.rf_chain[index] = (component_copy, current_length)
+                    self._update_chain_display()
+                    self._calculate_totals()
+                    edit_dialog.destroy()
+                except ValueError:
+                    messagebox.showerror("Invalid Power", "Please enter a valid positive number for transmit power")
+
+            ttk.Button(edit_dialog, text="Save", command=save_changes).pack(pady=10)
+            ttk.Button(edit_dialog, text="Cancel", command=edit_dialog.destroy).pack()
+
         else:
             ttk.Label(edit_dialog, text="This component type cannot be modified.\nYou can remove and re-add it if needed.").pack(pady=20)
             ttk.Button(edit_dialog, text="Close", command=edit_dialog.destroy).pack(pady=10)
@@ -386,7 +476,8 @@ class StationBuilderDialog:
                 component = self.component_library.ollama_search_component(query, self.frequency_mhz)
                 progress_dialog.after(0, lambda: on_search_complete(component))
             except Exception as e:
-                progress_dialog.after(0, lambda: on_search_error(str(e)))
+                error_msg = str(e)
+                progress_dialog.after(0, lambda: on_search_error(error_msg))
 
         def on_search_complete(component):
             progress_bar.stop()

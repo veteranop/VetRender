@@ -160,66 +160,33 @@ class FCCScraper:
 
             logging.info(f"Converted to DMS: {lat_d}°{lat_m}'{lat_s:.1f}\"{lat_dir}, {lon_d}°{lon_m}'{lon_s:.1f}\"{lon_dir}")
 
-            # Navigate to the form page first
-            self.driver.get(self.FCC_FM_QUERY_URL)
-            logging.info(f"Loaded FCC form: {self.FCC_FM_QUERY_URL}")
+            # Build URL parameters (FCC accepts direct URL params)
+            params = {
+                'dlat2': lat_d,
+                'mlat2': lat_m,
+                'slat2': f'{lat_s:.0f}',
+                'NS': lat_dir,
+                'dlon2': lon_d,
+                'mlon2': lon_m,
+                'slon2': f'{lon_s:.0f}',
+                'EW': lon_dir,
+                'dist': radius_km,
+                'list': '0'  # Results to page
+            }
 
-            # Wait for form to load
-            WebDriverWait(self.driver, 10).until(
-                EC.presence_of_element_located((By.NAME, 'latd'))
-            )
-
-            # Fill in latitude fields
-            self.driver.find_element(By.NAME, 'latd').clear()
-            self.driver.find_element(By.NAME, 'latd').send_keys(str(lat_d))
-
-            self.driver.find_element(By.NAME, 'latm').clear()
-            self.driver.find_element(By.NAME, 'latm').send_keys(str(lat_m))
-
-            self.driver.find_element(By.NAME, 'lats').clear()
-            self.driver.find_element(By.NAME, 'lats').send_keys(f'{lat_s:.2f}')
-
-            # Select latitude direction (N/S)
-            from selenium.webdriver.support.ui import Select
-            lat_dir_select = Select(self.driver.find_element(By.NAME, 'latdir'))
-            lat_dir_select.select_by_value(lat_dir)
-
-            # Fill in longitude fields
-            self.driver.find_element(By.NAME, 'lond').clear()
-            self.driver.find_element(By.NAME, 'lond').send_keys(str(lon_d))
-
-            self.driver.find_element(By.NAME, 'lonm').clear()
-            self.driver.find_element(By.NAME, 'lonm').send_keys(str(lon_m))
-
-            self.driver.find_element(By.NAME, 'lons').clear()
-            self.driver.find_element(By.NAME, 'lons').send_keys(f'{lon_s:.2f}')
-
-            # Select longitude direction (E/W)
-            lon_dir_select = Select(self.driver.find_element(By.NAME, 'londir'))
-            lon_dir_select.select_by_value(lon_dir)
-
-            # Fill in distance
-            self.driver.find_element(By.NAME, 'dist').clear()
-            self.driver.find_element(By.NAME, 'dist').send_keys(str(radius_km))
-
-            # Fill in state if provided
             if state:
-                self.driver.find_element(By.NAME, 'state').clear()
-                self.driver.find_element(By.NAME, 'state').send_keys(state)
+                params['state'] = state
 
-            # Select text output
-            list_select = Select(self.driver.find_element(By.NAME, 'list'))
-            list_select.select_by_value('text')
+            # Build search URL
+            search_url = f"{self.FCC_FM_QUERY_URL}?{urllib.parse.urlencode(params)}"
+            logging.info(f"Search URL: {search_url}")
 
-            logging.info("Form filled, submitting...")
-
-            # Submit the form
-            submit_button = self.driver.find_element(By.CSS_SELECTOR, 'input[type="submit"]')
-            submit_button.click()
+            # Navigate to URL
+            self.driver.get(search_url)
 
             # Wait for results page to load
             WebDriverWait(self.driver, 30).until(
-                EC.text_to_be_present_in_element((By.TAG_NAME, 'body'), 'Call')
+                EC.text_to_be_present_in_element((By.TAG_NAME, 'body'), 'Frequency')
             )
 
             # Get full page text

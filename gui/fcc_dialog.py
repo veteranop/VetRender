@@ -87,6 +87,9 @@ class FCCDialog:
         ttk.Button(button_frame, text="Manual Query",
                   command=lambda: self.notebook.select(self.manual_tab)).pack(side=tk.LEFT, padx=(0, 5))
 
+        ttk.Button(button_frame, text="Query by Call Sign",
+                  command=self.query_by_call_sign).pack(side=tk.LEFT, padx=(0, 5))
+
         ttk.Button(button_frame, text="Manual Entry",
                   command=self.manual_entry).pack(side=tk.LEFT, padx=(0, 5))
 
@@ -333,6 +336,89 @@ class FCCDialog:
 
         except ValueError:
             messagebox.showerror("Invalid Input", "Please enter valid numeric values")
+
+    def query_by_call_sign(self):
+        """Query FCC by call sign using scraper"""
+        # Ask for call sign
+        call_sign_dialog = tk.Toplevel(self.dialog)
+        call_sign_dialog.title("Query by Call Sign")
+        call_sign_dialog.geometry("400x150")
+        call_sign_dialog.transient(self.dialog)
+
+        # Center dialog
+        call_sign_dialog.update_idletasks()
+        x = self.dialog.winfo_x() + (self.dialog.winfo_width() // 2) - (call_sign_dialog.winfo_width() // 2)
+        y = self.dialog.winfo_y() + (self.dialog.winfo_height() // 2) - (call_sign_dialog.winfo_height() // 2)
+        call_sign_dialog.geometry(f"+{x}+{y}")
+
+        main_frame = ttk.Frame(call_sign_dialog, padding=20)
+        main_frame.pack(fill=tk.BOTH, expand=True)
+
+        ttk.Label(main_frame, text="Enter Call Sign:", font=('TkDefaultFont', 12)).pack(pady=(0, 10))
+
+        call_sign_var = tk.StringVar(value="KDPI")
+        entry = ttk.Entry(main_frame, textvariable=call_sign_var, width=20, font=('TkDefaultFont', 12))
+        entry.pack(pady=(0, 20))
+        entry.select_range(0, tk.END)
+        entry.focus()
+
+        def do_query():
+            call_sign = call_sign_var.get().strip().upper()
+            if not call_sign:
+                messagebox.showerror("Error", "Please enter a call sign")
+                return
+
+            call_sign_dialog.destroy()
+
+            # Run query in background thread
+            def query_thread():
+                try:
+                    self.status_var.set(f"Querying FCC for {call_sign}...")
+                    self.progress_var.set("Using web scraper (this may take 10-15 seconds)")
+
+                    # Use scraper
+                    results = self.fcc_api.search_by_call_sign_scraper(call_sign)
+
+                    if results and len(results) > 0:
+                        # Store the data
+                        self.fcc_data = {
+                            'query_time': datetime.datetime.now().isoformat(),
+                            'query_params': {
+                                'call_sign': call_sign,
+                                'method': 'scraper'
+                            },
+                            'facilities': results
+                        }
+
+                        self.status_var.set(f"Success - Retrieved data for {call_sign}")
+                        self.progress_var.set("")
+                        self.dialog.after(0, self.update_display)
+                        self.dialog.after(0, lambda: self.notebook.select(self.current_tab))
+                        self.dialog.after(0, lambda: messagebox.showinfo("Success",
+                            f"Retrieved FCC data for {call_sign}"))
+                    else:
+                        self.status_var.set("No results found")
+                        self.progress_var.set("")
+                        self.dialog.after(0, lambda: messagebox.showwarning("No Results",
+                            f"No FCC data found for {call_sign}"))
+
+                except Exception as e:
+                    self.status_var.set("Query failed")
+                    self.progress_var.set("")
+                    self.dialog.after(0, lambda: messagebox.showerror("Error",
+                        f"Failed to query FCC:\n{str(e)}"))
+
+            thread = threading.Thread(target=query_thread, daemon=True)
+            thread.start()
+
+        button_frame = ttk.Frame(main_frame)
+        button_frame.pack()
+
+        ttk.Button(button_frame, text="Query", command=do_query).pack(side=tk.LEFT, padx=5)
+        ttk.Button(button_frame, text="Cancel", command=call_sign_dialog.destroy).pack(side=tk.LEFT, padx=5)
+
+        # Bind Enter key
+        entry.bind('<Return>', lambda e: do_query())
 
     def manual_entry(self):
         """Manual FCC facility data entry"""

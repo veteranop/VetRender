@@ -160,37 +160,81 @@ class FCCScraper:
 
             logging.info(f"Converted to DMS: {lat_d}°{lat_m}'{lat_s:.1f}\"{lat_dir}, {lon_d}°{lon_m}'{lon_s:.1f}\"{lon_dir}")
 
-            # Build query parameters
-            params = {
-                'latd': lat_d,
-                'latm': lat_m,
-                'lats': f'{lat_s:.2f}',
-                'latdir': lat_dir,
-                'lond': lon_d,
-                'lonm': lon_m,
-                'lons': f'{lon_s:.2f}',
-                'londir': lon_dir,
-                'dist': radius_km,
-                'list': 'text'  # Get text output
-            }
+            # Navigate to the form page first
+            self.driver.get(self.FCC_FM_QUERY_URL)
+            logging.info(f"Loaded FCC form: {self.FCC_FM_QUERY_URL}")
 
+            # Wait for form to load
+            WebDriverWait(self.driver, 10).until(
+                EC.presence_of_element_located((By.NAME, 'latd'))
+            )
+
+            # Fill in latitude fields
+            self.driver.find_element(By.NAME, 'latd').clear()
+            self.driver.find_element(By.NAME, 'latd').send_keys(str(lat_d))
+
+            self.driver.find_element(By.NAME, 'latm').clear()
+            self.driver.find_element(By.NAME, 'latm').send_keys(str(lat_m))
+
+            self.driver.find_element(By.NAME, 'lats').clear()
+            self.driver.find_element(By.NAME, 'lats').send_keys(f'{lat_s:.2f}')
+
+            # Select latitude direction (N/S)
+            from selenium.webdriver.support.ui import Select
+            lat_dir_select = Select(self.driver.find_element(By.NAME, 'latdir'))
+            lat_dir_select.select_by_value(lat_dir)
+
+            # Fill in longitude fields
+            self.driver.find_element(By.NAME, 'lond').clear()
+            self.driver.find_element(By.NAME, 'lond').send_keys(str(lon_d))
+
+            self.driver.find_element(By.NAME, 'lonm').clear()
+            self.driver.find_element(By.NAME, 'lonm').send_keys(str(lon_m))
+
+            self.driver.find_element(By.NAME, 'lons').clear()
+            self.driver.find_element(By.NAME, 'lons').send_keys(f'{lon_s:.2f}')
+
+            # Select longitude direction (E/W)
+            lon_dir_select = Select(self.driver.find_element(By.NAME, 'londir'))
+            lon_dir_select.select_by_value(lon_dir)
+
+            # Fill in distance
+            self.driver.find_element(By.NAME, 'dist').clear()
+            self.driver.find_element(By.NAME, 'dist').send_keys(str(radius_km))
+
+            # Fill in state if provided
             if state:
-                params['state'] = state
+                self.driver.find_element(By.NAME, 'state').clear()
+                self.driver.find_element(By.NAME, 'state').send_keys(state)
 
-            # Build search URL
-            search_url = f"{self.FCC_FM_QUERY_URL}?{urllib.parse.urlencode(params)}"
-            logging.info(f"Search URL: {search_url}")
+            # Select text output
+            list_select = Select(self.driver.find_element(By.NAME, 'list'))
+            list_select.select_by_value('text')
 
-            # Navigate to URL
-            self.driver.get(search_url)
+            logging.info("Form filled, submitting...")
 
-            # Wait for page to load
+            # Submit the form
+            submit_button = self.driver.find_element(By.CSS_SELECTOR, 'input[type="submit"]')
+            submit_button.click()
+
+            # Wait for results page to load
             WebDriverWait(self.driver, 30).until(
                 EC.text_to_be_present_in_element((By.TAG_NAME, 'body'), 'Call')
             )
 
             # Get full page text
             full_text = self.driver.find_element(By.TAG_NAME, 'body').text
+
+            # Debug: Save the raw text to see what we got
+            debug_file = os.path.join(self.results_dir, f'debug_coords_{datetime.now().strftime("%Y%m%d_%H%M%S")}.txt')
+            with open(debug_file, 'w', encoding='utf-8') as f:
+                f.write(f"Form submission method\n")
+                f.write(f"Coordinates: {lat}, {lon}\n")
+                f.write(f"DMS: {lat_d}°{lat_m}'{lat_s:.2f}\"{lat_dir}, {lon_d}°{lon_m}'{lon_s:.2f}\"{lon_dir}\n")
+                f.write(f"Radius: {radius_km} km, State: {state}\n")
+                f.write("="*80 + "\n")
+                f.write(full_text)
+            logging.info(f"Debug: Saved page text to {debug_file}")
 
             # Parse multiple results
             results = self._parse_multi_station_text(full_text)

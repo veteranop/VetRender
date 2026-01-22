@@ -174,33 +174,34 @@ class ExportHandler:
             cs = ax.contour(x_grid, y_grid, rx_power_grid, levels=[signal_level])
             plt.close(fig)
 
-            print(f"    Matplotlib found {len(cs.collections)} collection(s)")
+            # Get paths directly from QuadContourSet (matplotlib 3.8+)
+            all_paths = []
+            for path_collection in cs.get_paths():
+                all_paths.append(path_collection)
 
-            # Extract contour paths
-            for collection in cs.collections:
-                paths = collection.get_paths()
-                print(f"    Collection has {len(paths)} path(s)")
+            print(f"    Matplotlib found {len(all_paths)} path(s)")
 
-                for path in paths:
-                    vertices = path.vertices
-                    print(f"      Path has {len(vertices)} vertices")
+            # Extract contour coordinates from paths
+            for path in all_paths:
+                vertices = path.vertices
+                print(f"      Path has {len(vertices)} vertices")
 
-                    if len(vertices) > 3:  # Need at least 3 points for a polygon
-                        # Convert from km offset to lat/lon
-                        coords = []
-                        for x_km, y_km in vertices:
-                            lat, lon = self._km_to_latlon(x_km, y_km, tx_lat, tx_lon)
-                            coords.append((lon, lat))
+                if len(vertices) > 3:  # Need at least 3 points for a polygon
+                    # Convert from km offset to lat/lon
+                    coords = []
+                    for x_km, y_km in vertices:
+                        lat, lon = self._km_to_latlon(x_km, y_km, tx_lat, tx_lon)
+                        coords.append((lon, lat))
 
-                        # Close the polygon if not already closed
-                        if len(coords) > 0 and coords[0] != coords[-1]:
-                            coords.append(coords[0])
+                    # Close the polygon if not already closed
+                    if len(coords) > 0 and coords[0] != coords[-1]:
+                        coords.append(coords[0])
 
-                        if len(coords) > 3:
-                            contours.append(coords)
-                            print(f"      Added contour with {len(coords)} points")
-                    else:
-                        print(f"      Skipped path (too few vertices)")
+                    if len(coords) > 3:
+                        contours.append(coords)
+                        print(f"      Added contour with {len(coords)} points")
+                else:
+                    print(f"      Skipped path (too few vertices)")
 
         except Exception as e:
             print(f"    Contour generation error: {e}")

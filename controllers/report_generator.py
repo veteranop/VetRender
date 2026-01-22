@@ -218,9 +218,15 @@ class ReportGenerator:
         else:
             service = 'FM'  # Default
 
-        facilities = self.fcc_api.search_by_coordinates_and_frequency(
-            tx_lat, tx_lon, frequency, service=service, radius_km=5
-        )
+        # Try to query FCC API - handle gracefully if it fails
+        facilities = None
+        try:
+            facilities = self.fcc_api.search_by_coordinates_and_frequency(
+                tx_lat, tx_lon, frequency, service=service, radius_km=5
+            )
+        except Exception as e:
+            print(f"FCC API query failed: {e}")
+            # Continue - we'll show the manual lookup message instead
 
         if facilities and len(facilities) > 0:
             # Found matching facilities
@@ -254,10 +260,22 @@ class ReportGenerator:
                 content.append(facility_table)
 
         else:
-            # No facilities found
+            # No facilities found or API unavailable
             content.append(Paragraph(
-                f"No FCC facilities found within 5km of coordinates {tx_lat:.6f}, {tx_lon:.6f} "
-                f"at frequency {frequency} MHz.",
+                "<b>Note:</b> FCC database query did not return results. "
+                "The FCC Public Files API may be unavailable or the facility may not be in the database.",
+                self.styles['Normal']
+            ))
+            content.append(Spacer(1, 0.1*inch))
+            content.append(Paragraph(
+                f"<b>Search Parameters:</b> Coordinates {tx_lat:.6f}, {tx_lon:.6f}, "
+                f"Frequency {frequency} MHz, Service {service}",
+                self.styles['Normal']
+            ))
+            content.append(Spacer(1, 0.1*inch))
+            content.append(Paragraph(
+                "<b>Manual Lookup:</b> Visit <font color='blue'><u>https://publicfiles.fcc.gov</u></font> "
+                "or <font color='blue'><u>https://fccdata.org</u></font> to search for FCC filing information.",
                 self.styles['Normal']
             ))
 

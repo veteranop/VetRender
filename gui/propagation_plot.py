@@ -166,42 +166,63 @@ class PropagationPlot:
         pass
     
     def get_signal_at_pixel(self, pixel_x, pixel_y, tx_pixel_x, tx_pixel_y,
-                           az_grid, dist_grid, rx_power_grid, pixel_scale):
+                           x_grid, y_grid, rx_power_grid, pixel_scale):
         """Interpolate signal strength at a specific pixel location
-        
+
         Args:
             pixel_x: Query pixel X coordinate
             pixel_y: Query pixel Y coordinate
             tx_pixel_x: Transmitter pixel X
             tx_pixel_y: Transmitter pixel Y
-            az_grid: Azimuth grid
-            dist_grid: Distance grid
-            rx_power_grid: Power grid
+            x_grid: X coordinate grid (km from transmitter)
+            y_grid: Y coordinate grid (km from transmitter)
+            rx_power_grid: Power grid (dBm)
             pixel_scale: Pixels per km
-            
+
         Returns:
             Tuple of (signal_strength_dbm, distance_km, azimuth_deg) or (None, None, None)
         """
         try:
-            # Calculate distance and azimuth from transmitter
-            dx = pixel_x - tx_pixel_x
-            dy = tx_pixel_y - pixel_y  # Flip y axis
-            
-            distance_pixels = np.sqrt(dx**2 + dy**2)
+            # Calculate distance and azimuth from transmitter in pixels
+            dx_pixels = pixel_x - tx_pixel_x
+            dy_pixels = tx_pixel_y - pixel_y  # Flip y axis (screen coords go down)
+
+            distance_pixels = np.sqrt(dx_pixels**2 + dy_pixels**2)
             distance_km = distance_pixels / pixel_scale
-            
-            azimuth = np.degrees(np.arctan2(dx, dy)) % 360
-            
-            # Find nearest point in grid
-            az_idx = np.argmin(np.abs(az_grid[0, :] - azimuth))
-            dist_idx = np.argmin(np.abs(dist_grid[:, 0] - distance_km))
-            
-            if dist_idx < rx_power_grid.shape[0] and az_idx < rx_power_grid.shape[1]:
-                signal_strength = rx_power_grid[dist_idx, az_idx]
-                return signal_strength, distance_km, azimuth
-            else:
+
+            azimuth = np.degrees(np.arctan2(dx_pixels, dy_pixels)) % 360
+
+            # Convert pixel offset to km offset
+            x_km = dx_pixels / pixel_scale
+            y_km = dy_pixels / pixel_scale
+
+            # Find nearest point in Cartesian grid using 2D interpolation
+            from scipy.interpolate import RegularGridInterpolator
+
+            # x_grid and y_grid are 2D meshgrids, extract 1D arrays
+            x_vals = x_grid[0, :]  # First row contains all x values
+            y_vals = y_grid[:, 0]  # First column contains all y values
+
+            # Create interpolator
+            interpolator = RegularGridInterpolator(
+                (y_vals, x_vals),  # Note: (rows, cols) = (y, x)
+                rx_power_grid,
+                method='linear',
+                bounds_error=False,
+                fill_value=None
+            )
+
+            # Query the interpolator
+            signal_strength = interpolator([y_km, x_km])[0]
+
+            # Check if result is valid
+            if signal_strength is None or np.isnan(signal_strength):
                 return None, None, None
-                
+
+            return signal_strength, distance_km, azimuth
+
         except Exception as e:
             print(f"Error interpolating signal: {e}")
+            import traceback
+            traceback.print_exc()
             return None, None, None

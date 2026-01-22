@@ -404,6 +404,15 @@ class FCCScraper:
                 station['latitude'] = station_data['alat83']
                 station['longitude'] = station_data['alon83']
 
+            # Technical parameters
+            if 'p_erp_max' in station_data:
+                station['erp'] = station_data['p_erp_max']  # in kW
+                station['erpUnit'] = 'kW'
+
+            if 'p_haat_max' in station_data:
+                station['haat'] = station_data['p_haat_max']  # in meters
+                station['haatUnit'] = 'm'
+
             results.append(station)
 
         return results

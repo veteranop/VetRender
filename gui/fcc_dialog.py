@@ -838,9 +838,13 @@ class FCCDialog:
                 ]
 
                 if 'erp' in facility:
-                    data.append(["ERP:", f"{facility.get('erp', 'N/A')} W"])
+                    erp_val = facility.get('erp', 'N/A')
+                    erp_unit = facility.get('erpUnit', 'W')
+                    data.append(["ERP:", f"{erp_val} {erp_unit}"])
                 if 'haat' in facility:
-                    data.append(["HAAT:", f"{facility.get('haat', 'N/A')} m"])
+                    haat_val = facility.get('haat', 'N/A')
+                    haat_unit = facility.get('haatUnit', 'm')
+                    data.append(["HAAT:", f"{haat_val} {haat_unit}"])
                 if 'latitude' in facility and 'longitude' in facility:
                     data.append(["Location:", f"{facility.get('latitude', 0):.6f}°, {facility.get('longitude', 0):.6f}°"])
 
@@ -951,8 +955,12 @@ class FCCDialog:
                         self.data_text.insert(tk.END, f"  Frequency: {facility.get('frequency', 'N/A')} MHz\n")
                         self.data_text.insert(tk.END, f"  City: {facility.get('city', 'N/A')}\n")
                         self.data_text.insert(tk.END, f"  State: {facility.get('state', 'N/A')}\n")
-                        self.data_text.insert(tk.END, f"  ERP: {facility.get('erp', 'N/A')} W\n")
-                        self.data_text.insert(tk.END, f"  HAAT: {facility.get('haat', 'N/A')} m\n")
+                        erp_val = facility.get('erp', 'N/A')
+                        erp_unit = facility.get('erpUnit', 'W')
+                        self.data_text.insert(tk.END, f"  ERP: {erp_val} {erp_unit}\n")
+                        haat_val = facility.get('haat', 'N/A')
+                        haat_unit = facility.get('haatUnit', 'm')
+                        self.data_text.insert(tk.END, f"  HAAT: {haat_val} {haat_unit}\n")
                         self.data_text.insert(tk.END, f"  Location: {facility.get('latitude', 0):.6f}°, {facility.get('longitude', 0):.6f}°\n")
                         self.data_text.insert(tk.END, "\n")
                 else:

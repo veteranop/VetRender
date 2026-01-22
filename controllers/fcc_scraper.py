@@ -39,6 +39,34 @@ class FCCScraper:
             format='%(asctime)s - %(levelname)s - %(message)s'
         )
 
+    @staticmethod
+    def decimal_to_dms(decimal_degrees, is_latitude=True):
+        """Convert decimal degrees to degrees, minutes, seconds
+
+        Args:
+            decimal_degrees: Decimal degree value
+            is_latitude: True for latitude (N/S), False for longitude (E/W)
+
+        Returns:
+            Tuple of (degrees, minutes, seconds, direction)
+        """
+        # Determine direction
+        if is_latitude:
+            direction = 'N' if decimal_degrees >= 0 else 'S'
+        else:
+            direction = 'E' if decimal_degrees >= 0 else 'W'
+
+        # Work with absolute value
+        abs_degrees = abs(decimal_degrees)
+
+        # Extract degrees, minutes, seconds
+        degrees = int(abs_degrees)
+        minutes_decimal = (abs_degrees - degrees) * 60
+        minutes = int(minutes_decimal)
+        seconds = (minutes_decimal - minutes) * 60
+
+        return degrees, minutes, seconds, direction
+
     def start_browser(self):
         """Start headless Chrome browser"""
         if self.driver:
@@ -106,6 +134,72 @@ class FCCScraper:
 
         except Exception as e:
             logging.error(f"Error scraping {call_sign}: {e}")
+            return None
+
+    def search_by_coordinates(self, lat, lon, radius_km=10, state=None):
+        """Search FCC database by coordinates
+
+        Args:
+            lat: Latitude in decimal degrees
+            lon: Longitude in decimal degrees
+            radius_km: Search radius in kilometers (default 10)
+            state: Optional state code (e.g., 'CO')
+
+        Returns:
+            List of dictionaries with parsed FCC data or None if failed
+        """
+        try:
+            if not self.driver:
+                self.start_browser()
+
+            logging.info(f"Searching by coordinates: {lat}, {lon}, radius={radius_km}km, state={state}")
+
+            # Convert decimal degrees to DMS
+            lat_d, lat_m, lat_s, lat_dir = self.decimal_to_dms(lat, is_latitude=True)
+            lon_d, lon_m, lon_s, lon_dir = self.decimal_to_dms(lon, is_latitude=False)
+
+            logging.info(f"Converted to DMS: {lat_d}°{lat_m}'{lat_s:.1f}\"{lat_dir}, {lon_d}°{lon_m}'{lon_s:.1f}\"{lon_dir}")
+
+            # Build query parameters
+            params = {
+                'latd': lat_d,
+                'latm': lat_m,
+                'lats': f'{lat_s:.2f}',
+                'latdir': lat_dir,
+                'lond': lon_d,
+                'lonm': lon_m,
+                'lons': f'{lon_s:.2f}',
+                'londir': lon_dir,
+                'dist': radius_km,
+                'list': 'text'  # Get text output
+            }
+
+            if state:
+                params['state'] = state
+
+            # Build search URL
+            search_url = f"{self.FCC_FM_QUERY_URL}?{urllib.parse.urlencode(params)}"
+            logging.info(f"Search URL: {search_url}")
+
+            # Navigate to URL
+            self.driver.get(search_url)
+
+            # Wait for page to load
+            WebDriverWait(self.driver, 30).until(
+                EC.text_to_be_present_in_element((By.TAG_NAME, 'body'), 'Call')
+            )
+
+            # Get full page text
+            full_text = self.driver.find_element(By.TAG_NAME, 'body').text
+
+            # Parse multiple results
+            results = self._parse_multi_station_text(full_text)
+
+            logging.info(f"Successfully scraped {len(results)} stations")
+            return results
+
+        except Exception as e:
+            logging.error(f"Error scraping by coordinates: {e}")
             return None
 
     def _parse_fcc_text(self, text, call_sign):
@@ -196,6 +290,78 @@ class FCCScraper:
                     pass
 
         return data
+
+    def _parse_multi_station_text(self, text):
+        """Parse FCC query result text with multiple stations
+
+        Args:
+            text: Full page text from FCC query
+
+        Returns:
+            List of dictionaries with parsed station data
+        """
+        results = []
+
+        # Split by station records (look for Call Sign patterns)
+        lines = text.split('\n')
+        current_station = None
+
+        for line in lines:
+            line = line.strip()
+
+            # Check if this is a new station (usually starts with call sign pattern)
+            if 'Call Sign:' in line or 'Callsign:' in line:
+                # Save previous station if exists
+                if current_station and 'callSign' in current_station:
+                    results.append(current_station)
+
+                # Start new station
+                current_station = {
+                    'query_time': datetime.now().isoformat(),
+                    'source': 'FCC FM Query (Scraped - Coordinates)'
+                }
+
+                try:
+                    call_sign = line.split(':')[1].strip().split()[0]
+                    current_station['callSign'] = call_sign
+                except:
+                    pass
+
+            # Parse other fields for current station
+            if current_station:
+                if 'Frequency:' in line:
+                    try:
+                        freq = line.split('Frequency:')[1].strip().split()[0]
+                        current_station['frequency'] = freq
+                    except:
+                        pass
+
+                elif 'City:' in line:
+                    try:
+                        city = line.split('City:')[1].strip()
+                        current_station['city'] = city
+                    except:
+                        pass
+
+                elif 'State:' in line:
+                    try:
+                        state = line.split('State:')[1].strip().split()[0]
+                        current_station['state'] = state
+                    except:
+                        pass
+
+                elif 'Facility ID:' in line or 'FacilityID:' in line:
+                    try:
+                        fac_id = line.split(':')[1].strip().split()[0]
+                        current_station['facilityId'] = fac_id
+                    except:
+                        pass
+
+        # Don't forget last station
+        if current_station and 'callSign' in current_station:
+            results.append(current_station)
+
+        return results
 
     def save_results(self, results, call_sign):
         """Save scraping results to JSON file

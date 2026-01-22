@@ -90,6 +90,9 @@ class FCCDialog:
         ttk.Button(button_frame, text="Query by Call Sign",
                   command=self.query_by_call_sign).pack(side=tk.LEFT, padx=(0, 5))
 
+        ttk.Button(button_frame, text="Query by Coordinates",
+                  command=self.query_by_coordinates).pack(side=tk.LEFT, padx=(0, 5))
+
         ttk.Button(button_frame, text="Manual Entry",
                   command=self.manual_entry).pack(side=tk.LEFT, padx=(0, 5))
 
@@ -419,6 +422,120 @@ class FCCDialog:
 
         # Bind Enter key
         entry.bind('<Return>', lambda e: do_query())
+
+    def query_by_coordinates(self):
+        """Query FCC by coordinates using scraper"""
+        # Create dialog
+        coord_dialog = tk.Toplevel(self.dialog)
+        coord_dialog.title("Query by Coordinates")
+        coord_dialog.geometry("400x300")
+        coord_dialog.transient(self.dialog)
+        coord_dialog.grab_set()
+
+        # Center on parent
+        coord_dialog.update_idletasks()
+        x = self.dialog.winfo_x() + (self.dialog.winfo_width() // 2) - (coord_dialog.winfo_width() // 2)
+        y = self.dialog.winfo_y() + (self.dialog.winfo_height() // 2) - (coord_dialog.winfo_height() // 2)
+        coord_dialog.geometry(f"+{x}+{y}")
+
+        main_frame = ttk.Frame(coord_dialog, padding=20)
+        main_frame.pack(fill=tk.BOTH, expand=True)
+
+        ttk.Label(main_frame, text="Search by Location", font=('TkDefaultFont', 12, 'bold')).pack(pady=(0, 15))
+
+        # Input fields
+        input_frame = ttk.Frame(main_frame)
+        input_frame.pack(fill=tk.X, pady=(0, 15))
+
+        ttk.Label(input_frame, text="Latitude:").grid(row=0, column=0, sticky=tk.W, pady=5)
+        lat_var = tk.StringVar(value=str(self.current_lat))
+        ttk.Entry(input_frame, textvariable=lat_var, width=15).grid(row=0, column=1, sticky=(tk.W, tk.E), pady=5, padx=(5, 0))
+
+        ttk.Label(input_frame, text="Longitude:").grid(row=1, column=0, sticky=tk.W, pady=5)
+        lon_var = tk.StringVar(value=str(self.current_lon))
+        ttk.Entry(input_frame, textvariable=lon_var, width=15).grid(row=1, column=1, sticky=(tk.W, tk.E), pady=5, padx=(5, 0))
+
+        ttk.Label(input_frame, text="Radius (km):").grid(row=2, column=0, sticky=tk.W, pady=5)
+        radius_var = tk.StringVar(value="10")
+        ttk.Entry(input_frame, textvariable=radius_var, width=15).grid(row=2, column=1, sticky=(tk.W, tk.E), pady=5, padx=(5, 0))
+
+        ttk.Label(input_frame, text="State (optional):").grid(row=3, column=0, sticky=tk.W, pady=5)
+        state_var = tk.StringVar(value="")
+        ttk.Entry(input_frame, textvariable=state_var, width=15).grid(row=3, column=1, sticky=(tk.W, tk.E), pady=5, padx=(5, 0))
+
+        input_frame.columnconfigure(1, weight=1)
+
+        def do_query():
+            try:
+                lat = float(lat_var.get())
+                lon = float(lon_var.get())
+                radius = float(radius_var.get())
+                state = state_var.get().strip().upper() if state_var.get().strip() else None
+
+                if not (-90 <= lat <= 90):
+                    messagebox.showerror("Error", "Latitude must be between -90 and 90")
+                    return
+                if not (-180 <= lon <= 180):
+                    messagebox.showerror("Error", "Longitude must be between -180 and 180")
+                    return
+                if radius <= 0:
+                    messagebox.showerror("Error", "Radius must be positive")
+                    return
+
+                coord_dialog.destroy()
+
+                # Run query in background thread
+                def query_thread():
+                    try:
+                        self.status_var.set(f"Querying FCC by coordinates...")
+                        self.progress_var.set("Using web scraper (this may take 15-30 seconds)")
+
+                        # Use scraper
+                        results = self.fcc_api.search_by_coordinates_scraper(lat, lon, radius, state)
+
+                        if results and len(results) > 0:
+                            # Store the data
+                            self.fcc_data = {
+                                'query_time': datetime.datetime.now().isoformat(),
+                                'query_params': {
+                                    'lat': lat,
+                                    'lon': lon,
+                                    'radius_km': radius,
+                                    'state': state,
+                                    'method': 'scraper_coordinates'
+                                },
+                                'facilities': results
+                            }
+
+                            self.status_var.set(f"Success - Found {len(results)} stations")
+                            self.progress_var.set("")
+                            self.dialog.after(0, self.update_display)
+                            self.dialog.after(0, lambda: self.notebook.select(self.current_tab))
+                            self.dialog.after(0, lambda: messagebox.showinfo("Success",
+                                f"Found {len(results)} stations within {radius} km"))
+                        else:
+                            self.status_var.set("No results found")
+                            self.progress_var.set("")
+                            self.dialog.after(0, lambda: messagebox.showwarning("No Results",
+                                f"No stations found within {radius} km of the specified location"))
+
+                    except Exception as e:
+                        self.status_var.set("Query failed")
+                        self.progress_var.set("")
+                        self.dialog.after(0, lambda: messagebox.showerror("Error",
+                            f"Failed to query FCC:\n{str(e)}"))
+
+                thread = threading.Thread(target=query_thread, daemon=True)
+                thread.start()
+
+            except ValueError:
+                messagebox.showerror("Error", "Please enter valid numeric values")
+
+        button_frame = ttk.Frame(main_frame)
+        button_frame.pack()
+
+        ttk.Button(button_frame, text="Query", command=do_query).pack(side=tk.LEFT, padx=5)
+        ttk.Button(button_frame, text="Cancel", command=coord_dialog.destroy).pack(side=tk.LEFT, padx=5)
 
     def manual_entry(self):
         """Manual FCC facility data entry"""

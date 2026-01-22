@@ -210,6 +210,41 @@ class FCCAPIHandler:
                                "Make sure Chrome is installed.")
             return None
 
+    def search_by_coordinates_scraper(self, lat, lon, radius_km=10, state=None):
+        """Search FCC database by coordinates using web scraper
+
+        Args:
+            lat: Latitude in decimal degrees
+            lon: Longitude in decimal degrees
+            radius_km: Search radius in kilometers
+            state: Optional state code (e.g., 'CO')
+
+        Returns:
+            List of dictionaries with scraped FCC data or None
+        """
+        try:
+            # Lazy-load scraper
+            if not self.scraper:
+                from controllers.fcc_scraper import FCCScraper
+                self.scraper = FCCScraper()
+
+            print(f"FCC Scraper: Searching by coordinates {lat}, {lon}, radius={radius_km}km, state={state}")
+            results = self.scraper.search_by_coordinates(lat, lon, radius_km, state)
+
+            if results:
+                print(f"FCC Scraper: Successfully retrieved {len(results)} stations")
+                return results
+            else:
+                print("FCC Scraper: No results for coordinates")
+                return []
+
+        except Exception as e:
+            print(f"FCC Scraper: Error - {e}")
+            messagebox.showerror("FCC Scraper Error",
+                               f"Failed to scrape FCC data:\\n{str(e)}\\n\\n"
+                               "Make sure Chrome is installed.")
+            return None
+
     def cleanup_scraper(self):
         """Cleanup scraper resources"""
         if self.scraper:

@@ -195,16 +195,23 @@ class FCCScraper:
             search_url = f"{self.FCC_FM_QUERY_URL}?{urllib.parse.urlencode(params)}"
             logging.info(f"Search URL: {search_url}")
 
-            # Navigate to URL
-            self.driver.get(search_url)
+            # For coordinate searches, the FCC returns JavaScript variables, not HTML
+            # We can use requests directly instead of Selenium for better performance
+            import requests
 
-            # Wait for page to load - look for JSON structure or results
-            WebDriverWait(self.driver, 60).until(
-                lambda driver: len(driver.find_element(By.TAG_NAME, 'body').text) > 10
-            )
-
-            # Get page content
-            page_text = self.driver.find_element(By.TAG_NAME, 'body').text
+            try:
+                response = requests.get(search_url, timeout=30)
+                response.raise_for_status()
+                page_text = response.text
+                logging.info(f"Fetched page successfully ({len(page_text)} bytes)")
+            except Exception as e:
+                logging.error(f"Direct request failed: {e}, falling back to Selenium")
+                # Fallback to Selenium if direct request fails
+                self.driver.get(search_url)
+                WebDriverWait(self.driver, 60).until(
+                    lambda driver: len(driver.find_element(By.TAG_NAME, 'body').text) > 10
+                )
+                page_text = self.driver.find_element(By.TAG_NAME, 'body').text
 
             # Debug: Save the raw response
             debug_file = os.path.join(self.results_dir, f'debug_coords_{datetime.now().strftime("%Y%m%d_%H%M%S")}.txt')

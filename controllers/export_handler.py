@@ -80,10 +80,12 @@ class ExportHandler:
 
                 # Generate contours for each level
                 for signal_level, level_name, color in contour_levels:
+                    print(f"Generating contours for {level_name} ({signal_level} dBm)...")
                     contours = self._generate_contours(x_grid, y_grid, rx_power_grid,
                                                       tx_lat, tx_lon, signal_level)
 
                     if contours:
+                        print(f"  Found {len(contours)} contour(s) for {level_name}")
                         for i, contour_coords in enumerate(contours):
                             pol = contour_folder.newpolygon(name=f"{level_name} ({signal_level} dBm)")
                             pol.outerboundaryis = contour_coords
@@ -98,6 +100,8 @@ class ExportHandler:
                             <b>Quality:</b> {level_name}
                             ]]>
                             """
+                    else:
+                        print(f"  No contours found for {level_name}")
             else:
                 # Fallback: Add simple coverage circle if no coverage data
                 messagebox.showwarning("No Coverage Data",
@@ -150,32 +154,37 @@ class ExportHandler:
             List of contour polygons (each is a list of (lon, lat) tuples)
         """
         import numpy as np
-        from scipy import ndimage
-
-        # Create binary mask where signal is above threshold
-        mask = rx_power_grid >= signal_level
-
-        # Find contours using edge detection
-        # Dilate slightly to smooth edges
-        mask_smoothed = ndimage.binary_dilation(mask, iterations=1)
 
         contours = []
 
-        # Simple contour tracing - find boundary pixels
-        # This is a simplified approach; for production you might use matplotlib's contour
         try:
-            from matplotlib import _contour
             import matplotlib.pyplot as plt
 
+            # Check if any signal exceeds this level
+            max_signal = np.max(rx_power_grid)
+            min_signal = np.min(rx_power_grid)
+            print(f"    Signal range: {min_signal:.1f} to {max_signal:.1f} dBm")
+
+            if max_signal < signal_level:
+                print(f"    Max signal ({max_signal:.1f} dBm) < threshold ({signal_level} dBm), no contours")
+                return []
+
             # Use matplotlib's contour finding
-            fig, ax = plt.subplots()
+            fig, ax = plt.subplots(figsize=(10, 10))
             cs = ax.contour(x_grid, y_grid, rx_power_grid, levels=[signal_level])
             plt.close(fig)
 
+            print(f"    Matplotlib found {len(cs.collections)} collection(s)")
+
             # Extract contour paths
             for collection in cs.collections:
-                for path in collection.get_paths():
+                paths = collection.get_paths()
+                print(f"    Collection has {len(paths)} path(s)")
+
+                for path in paths:
                     vertices = path.vertices
+                    print(f"      Path has {len(vertices)} vertices")
+
                     if len(vertices) > 3:  # Need at least 3 points for a polygon
                         # Convert from km offset to lat/lon
                         coords = []
@@ -183,16 +192,20 @@ class ExportHandler:
                             lat, lon = self._km_to_latlon(x_km, y_km, tx_lat, tx_lon)
                             coords.append((lon, lat))
 
-                        # Close the polygon
-                        if coords[0] != coords[-1]:
+                        # Close the polygon if not already closed
+                        if len(coords) > 0 and coords[0] != coords[-1]:
                             coords.append(coords[0])
 
-                        contours.append(coords)
+                        if len(coords) > 3:
+                            contours.append(coords)
+                            print(f"      Added contour with {len(coords)} points")
+                    else:
+                        print(f"      Skipped path (too few vertices)")
 
         except Exception as e:
-            print(f"Contour generation warning: {e}")
-            # Fallback: just return empty if contour generation fails
-            pass
+            print(f"    Contour generation error: {e}")
+            import traceback
+            traceback.print_exc()
 
         return contours
 

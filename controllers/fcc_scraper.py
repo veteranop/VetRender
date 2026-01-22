@@ -198,27 +198,32 @@ class FCCScraper:
             # Navigate to URL
             self.driver.get(search_url)
 
-            # Wait for results page to load (FCC site can be slow, allow up to 60 seconds)
+            # Wait for page to load - look for JSON structure or results
             WebDriverWait(self.driver, 60).until(
-                EC.text_to_be_present_in_element((By.TAG_NAME, 'body'), 'Frequency')
+                lambda driver: len(driver.find_element(By.TAG_NAME, 'body').text) > 10
             )
 
-            # Get full page text
-            full_text = self.driver.find_element(By.TAG_NAME, 'body').text
+            # Get page content
+            page_text = self.driver.find_element(By.TAG_NAME, 'body').text
 
-            # Debug: Save the raw text to see what we got
+            # Debug: Save the raw response
             debug_file = os.path.join(self.results_dir, f'debug_coords_{datetime.now().strftime("%Y%m%d_%H%M%S")}.txt')
             with open(debug_file, 'w', encoding='utf-8') as f:
-                f.write(f"Form submission method\n")
                 f.write(f"Coordinates: {lat}, {lon}\n")
                 f.write(f"DMS: {lat_d}°{lat_m}'{lat_s:.2f}\"{lat_dir}, {lon_d}°{lon_m}'{lon_s:.2f}\"{lon_dir}\n")
                 f.write(f"Radius: {radius_km} km, State: {state}\n")
                 f.write("="*80 + "\n")
-                f.write(full_text)
-            logging.info(f"Debug: Saved page text to {debug_file}")
+                f.write(page_text)
+            logging.info(f"Debug: Saved page response to {debug_file}")
 
-            # Parse multiple results
-            results = self._parse_multi_station_text(full_text)
+            # Try to parse JavaScript variable format first (FCC returns this for coordinate searches)
+            if '=' in page_text and ';' in page_text:
+                logging.info("Detected JavaScript variable format, parsing...")
+                results = self._parse_javascript_vars(page_text)
+            else:
+                # Fall back to text parsing
+                logging.info("Using text parsing")
+                results = self._parse_multi_station_text(page_text)
 
             logging.info(f"Successfully scraped {len(results)} stations")
             return results
@@ -315,6 +320,74 @@ class FCCScraper:
                     pass
 
         return data
+
+    def _parse_javascript_vars(self, text):
+        """Parse FCC JavaScript variable format response
+
+        The FCC returns data as JavaScript variable assignments like:
+        c_callsign = 'KDPI';
+        freq = '88.5';
+        etc.
+
+        Args:
+            text: Page text containing JavaScript variables
+
+        Returns:
+            List of dictionaries with parsed station data
+        """
+        import re
+
+        results = []
+
+        # Extract all variable assignments
+        station_data = {}
+
+        # Match patterns like: var_name = 'value'; or var_name = value;
+        pattern = r"(\w+)\s*=\s*['\"]?([^;'\"]+)['\"]?\s*;"
+        matches = re.findall(pattern, text)
+
+        for var_name, value in matches:
+            value = value.strip()
+            if value and value != '-':
+                station_data[var_name] = value
+
+        # Convert to our standard format if we found data
+        if station_data:
+            station = {
+                'query_time': datetime.now().isoformat(),
+                'source': 'FCC FM Query (Scraped - Coordinates)'
+            }
+
+            # Map FCC variable names to our field names
+            if 'c_callsign' in station_data or 'c_facility_callsign' in station_data:
+                station['callSign'] = station_data.get('c_callsign') or station_data.get('c_facility_callsign')
+
+            if 'freq' in station_data:
+                station['frequency'] = station_data['freq']
+
+            if 'c_comm_city_app' in station_data:
+                station['city'] = station_data['c_comm_city_app']
+
+            if 'c_comm_state_app' in station_data:
+                station['state'] = station_data['c_comm_state_app']
+
+            if 'facility_id' in station_data:
+                station['facilityId'] = station_data['facility_id']
+
+            if 'c_service' in station_data:
+                station['service'] = station_data['c_service']
+
+            if 'c_station_class' in station_data:
+                station['stationClass'] = station_data['c_station_class']
+
+            # Coordinates
+            if 'alat83' in station_data and 'alon83' in station_data:
+                station['latitude'] = station_data['alat83']
+                station['longitude'] = station_data['alon83']
+
+            results.append(station)
+
+        return results
 
     def _parse_multi_station_text(self, text):
         """Parse FCC query result text with multiple stations

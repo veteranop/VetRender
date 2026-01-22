@@ -214,6 +214,35 @@ class ReportGenerator:
         content.append(Paragraph("FCC Filing Information", self.styles['SectionHeading']))
         content.append(Spacer(1, 0.2*inch))
 
+        # Check for FCC Downloads folder
+        fcc_downloads_dir = os.path.join(os.getcwd(), 'FCC_Downloads')
+        fcc_pdfs = []
+        if os.path.exists(fcc_downloads_dir):
+            fcc_pdfs = [f for f in os.listdir(fcc_downloads_dir) if f.endswith('.pdf')]
+            fcc_pdfs.sort(reverse=True)  # Most recent first
+
+        if fcc_pdfs:
+            content.append(Paragraph(
+                f"<b>FCC Documentation:</b> {len(fcc_pdfs)} FCC query report(s) available in FCC_Downloads folder",
+                self.styles['Normal']
+            ))
+            content.append(Spacer(1, 0.1*inch))
+
+            # List recent FCC PDFs
+            for pdf in fcc_pdfs[:3]:  # Show up to 3 most recent
+                content.append(Paragraph(
+                    f"• {pdf}",
+                    self.styles['Normal']
+                ))
+
+            if len(fcc_pdfs) > 3:
+                content.append(Paragraph(
+                    f"• ... and {len(fcc_pdfs) - 3} more",
+                    self.styles['Normal']
+                ))
+
+            content.append(Spacer(1, 0.2*inch))
+
         # Get stored FCC data from project
         fcc_data = self.config.get('fcc_data')
 

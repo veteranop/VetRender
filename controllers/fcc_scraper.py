@@ -84,6 +84,8 @@ class FCCScraper:
                 service=Service(ChromeDriverManager().install()),
                 options=options
             )
+            # Set page load timeout to 3 minutes (FCC site can be slow)
+            self.driver.set_page_load_timeout(180)
             logging.info("Browser started successfully")
         except Exception as e:
             logging.error(f"Failed to start browser: {e}")
@@ -161,7 +163,23 @@ class FCCScraper:
             logging.info(f"Converted to DMS: {lat_d}°{lat_m}'{lat_s:.1f}\"{lat_dir}, {lon_d}°{lon_m}'{lon_s:.1f}\"{lon_dir}")
 
             # Build URL parameters (FCC accepts direct URL params)
+            # Based on working FCC form, include all standard fields
             params = {
+                'call': '',          # Empty for coordinate search
+                'filenumber': '',
+                'state': state if state else '',
+                'city': '',
+                'freq': '',          # Empty for all frequencies
+                'fre2': '',
+                'single': '0',       # 0 = show all, 1 = single frequency
+                'serv': '',
+                'status': '',
+                'facid': '',
+                'asrn': '',
+                'class': '',
+                'list': '0',         # 0 = results to page
+                'ThisTab': 'Results to This Page/Tab',
+                'dist': radius_km,
                 'dlat2': lat_d,
                 'mlat2': lat_m,
                 'slat2': f'{lat_s:.0f}',
@@ -170,12 +188,8 @@ class FCCScraper:
                 'mlon2': lon_m,
                 'slon2': f'{lon_s:.0f}',
                 'EW': lon_dir,
-                'dist': radius_km,
-                'list': '0'  # Results to page
+                'size': '9'
             }
-
-            if state:
-                params['state'] = state
 
             # Build search URL
             search_url = f"{self.FCC_FM_QUERY_URL}?{urllib.parse.urlencode(params)}"
@@ -184,8 +198,8 @@ class FCCScraper:
             # Navigate to URL
             self.driver.get(search_url)
 
-            # Wait for results page to load
-            WebDriverWait(self.driver, 30).until(
+            # Wait for results page to load (FCC site can be slow, allow up to 60 seconds)
+            WebDriverWait(self.driver, 60).until(
                 EC.text_to_be_present_in_element((By.TAG_NAME, 'body'), 'Frequency')
             )
 

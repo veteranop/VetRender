@@ -97,6 +97,10 @@ class ComponentLibrary:
 
         # Search cache
         for cached_id, component in self.cache.items():
+            # Skip invalid cache entries
+            if not isinstance(component, dict):
+                continue
+
             if component_type and component.get('component_type') != component_type:
                 continue
 
@@ -158,6 +162,9 @@ class ComponentLibrary:
                     types.add(comp_type)
 
         for component in self.cache.values():
+            # Skip invalid cache entries
+            if not isinstance(component, dict):
+                continue
             comp_type = component.get('component_type')
             if comp_type:
                 types.add(comp_type)
@@ -180,24 +187,29 @@ class ComponentLibrary:
         if not loss_data:
             return 0.0
 
-        # Get frequency points
-        freqs = sorted([float(f) for f in loss_data.keys()])
+        # Get frequency points and keep original keys for lookup
+        freq_map = {float(f): f for f in loss_data.keys()}  # Maps numeric freq to original key
+        freqs = sorted(freq_map.keys())
 
         if not freqs:
             return 0.0
 
+        # Helper function to get loss value by numeric frequency
+        def get_loss(freq):
+            return loss_data[freq_map[freq]]
+
         # If frequency is outside range, use nearest
         if frequency_mhz <= freqs[0]:
-            loss_per_100ft = loss_data[str(freqs[0])]
+            loss_per_100ft = get_loss(freqs[0])
         elif frequency_mhz >= freqs[-1]:
-            loss_per_100ft = loss_data[str(freqs[-1])]
+            loss_per_100ft = get_loss(freqs[-1])
         else:
             # Linear interpolation
             for i in range(len(freqs) - 1):
                 if freqs[i] <= frequency_mhz <= freqs[i + 1]:
                     f1, f2 = freqs[i], freqs[i + 1]
-                    loss1 = loss_data[str(f1)]
-                    loss2 = loss_data[str(f2)]
+                    loss1 = get_loss(f1)
+                    loss2 = get_loss(f2)
 
                     # Linear interpolation
                     ratio = (frequency_mhz - f1) / (f2 - f1)

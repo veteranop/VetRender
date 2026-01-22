@@ -7,28 +7,32 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 from typing import Callable, Optional, List, Dict
 from models.component_library import ComponentLibrary
+from models.antenna_library import AntennaLibrary
 
 
 class StationBuilderDialog:
     """Dialog for building station RF chain"""
 
     def __init__(self, parent, frequency_mhz: float, callback: Optional[Callable] = None,
-                 initial_chain: Optional[List] = None):
+                 initial_chain: Optional[List] = None, initial_antenna: Optional[str] = None):
         """Initialize station builder
 
         Args:
             parent: Parent window
             frequency_mhz: Operating frequency
-            callback: Callback function(total_loss_db, total_gain_db, erp_change_db, rf_chain)
+            callback: Callback function(total_loss_db, total_gain_db, erp_change_db, rf_chain, antenna_id)
             initial_chain: Optional initial RF chain to load
+            initial_antenna: Optional initial antenna ID
         """
         self.parent = parent
         self.frequency_mhz = frequency_mhz
         self.callback = callback
         self.component_library = ComponentLibrary()
+        self.antenna_library = AntennaLibrary()
 
-        # RF chain components
+        # RF chain components and antenna
         self.rf_chain = initial_chain if initial_chain else []  # List of (component, length_ft) tuples
+        self.selected_antenna_id = initial_antenna
         self.search_results = []  # Initialize search results list
 
         self._create_dialog()
@@ -90,6 +94,48 @@ class StationBuilderDialog:
         add_btn = ttk.Button(add_frame, text="Add to Chain", command=self._add_to_chain)
         add_btn.grid(row=2, column=2, sticky=tk.W, padx=5, pady=5)
 
+        # AI Search section
+        ttk.Label(add_frame, text="AI Search:").grid(row=3, column=0, sticky=tk.W, padx=5, pady=5)
+        self.ai_search_var = tk.StringVar()
+        ai_search_entry = ttk.Entry(add_frame, textvariable=self.ai_search_var, width=30)
+        ai_search_entry.grid(row=3, column=1, columnspan=2, sticky=(tk.W, tk.E), padx=5, pady=5)
+
+        ai_btn = ttk.Button(add_frame, text="Search with Ollama", command=self._ai_search_component)
+        ai_btn.grid(row=3, column=3, sticky=tk.W, padx=5, pady=5)
+
+        upload_btn = ttk.Button(add_frame, text="Upload Datasheet", command=self._upload_datasheet)
+        upload_btn.grid(row=3, column=4, sticky=tk.W, padx=5, pady=5)
+
+        # Antenna selection section
+        antenna_frame = ttk.LabelFrame(main_frame, text="Antenna Selection", padding=10)
+        antenna_frame.pack(fill=tk.X, pady=(0, 10))
+
+        ttk.Label(antenna_frame, text="Select Antenna:").grid(row=0, column=0, sticky=tk.W, padx=5)
+
+        # Build antenna list
+        antenna_list = ["None (Use ERP directly)"]
+        self.antenna_ids = [None]
+        for antenna_id, antenna_data in self.antenna_library.antennas.items():
+            name = antenna_data.get('name', antenna_id)
+            gain = antenna_data.get('gain', 0)
+            antenna_list.append(f"{name} ({gain:+.1f} dBi)")
+            self.antenna_ids.append(antenna_id)
+
+        self.antenna_var = tk.StringVar()
+        # Set initial selection
+        if self.selected_antenna_id and self.selected_antenna_id in self.antenna_ids:
+            idx = self.antenna_ids.index(self.selected_antenna_id)
+            self.antenna_var.set(antenna_list[idx])
+        else:
+            self.antenna_var.set(antenna_list[0])
+
+        antenna_combo = ttk.Combobox(antenna_frame, textvariable=self.antenna_var,
+                                     values=antenna_list, width=50, state='readonly')
+        antenna_combo.grid(row=0, column=1, sticky=(tk.W, tk.E), padx=5)
+        antenna_combo.bind('<<ComboboxSelected>>', self._on_antenna_selected)
+
+        antenna_frame.columnconfigure(1, weight=1)
+
         # Middle section: RF Chain display
         chain_frame = ttk.LabelFrame(main_frame, text="RF Chain (TX → Antenna)", padding=10)
         chain_frame.pack(fill=tk.BOTH, expand=True, pady=(0, 10))
@@ -125,6 +171,7 @@ class StationBuilderDialog:
 
         ttk.Button(chain_controls, text="Move Up", command=self._move_up).pack(side=tk.LEFT, padx=5)
         ttk.Button(chain_controls, text="Move Down", command=self._move_down).pack(side=tk.LEFT, padx=5)
+        ttk.Button(chain_controls, text="Edit", command=self._edit_component).pack(side=tk.LEFT, padx=5)
         ttk.Button(chain_controls, text="Remove", command=self._remove_component).pack(side=tk.LEFT, padx=5)
         ttk.Button(chain_controls, text="Clear All", command=self._clear_chain).pack(side=tk.LEFT, padx=5)
 
@@ -244,6 +291,349 @@ class StationBuilderDialog:
             self._update_chain_display()
             self._calculate_totals()
 
+    def _edit_component(self):
+        """Edit selected component in chain"""
+        selection = self.chain_tree.selection()
+        if not selection:
+            messagebox.showwarning("No Selection", "Please select a component to edit")
+            return
+
+        item_id = selection[0]
+        index = int(item_id.replace('item_', ''))
+        component, current_length = self.rf_chain[index]
+
+        # Create edit dialog
+        edit_dialog = tk.Toplevel(self.dialog)
+        edit_dialog.title("Edit Component")
+        edit_dialog.geometry("400x200")
+
+        ttk.Label(edit_dialog, text=f"Component: {component.get('model', 'Unknown')}",
+                 font=('TkDefaultFont', 10, 'bold')).pack(pady=10)
+
+        # Only allow editing length for cables
+        if component.get('component_type') == 'cable':
+            ttk.Label(edit_dialog, text="Length (ft):").pack(pady=5)
+            length_var = tk.StringVar(value=str(current_length))
+            length_entry = ttk.Entry(edit_dialog, textvariable=length_var, width=20)
+            length_entry.pack(pady=5)
+
+            def save_changes():
+                try:
+                    new_length = float(length_var.get())
+                    self.rf_chain[index] = (component, new_length)
+                    self._update_chain_display()
+                    self._calculate_totals()
+                    edit_dialog.destroy()
+                except ValueError:
+                    messagebox.showerror("Invalid Length", "Please enter a valid length in feet")
+
+            ttk.Button(edit_dialog, text="Save", command=save_changes).pack(pady=10)
+            ttk.Button(edit_dialog, text="Cancel", command=edit_dialog.destroy).pack()
+        else:
+            ttk.Label(edit_dialog, text="This component type cannot be modified.\nYou can remove and re-add it if needed.").pack(pady=20)
+            ttk.Button(edit_dialog, text="Close", command=edit_dialog.destroy).pack(pady=10)
+
+    def _on_antenna_selected(self, event=None):
+        """Handle antenna selection change"""
+        selected_text = self.antenna_var.get()
+        selected_index = 0
+
+        # Find the index of selected antenna
+        for i, antenna_id in enumerate(self.antenna_ids):
+            if self.antenna_var.get().startswith(self.antenna_library.antennas.get(antenna_id, {}).get('name', '')) if antenna_id else selected_text.startswith("None"):
+                selected_index = i
+                break
+
+        self.selected_antenna_id = self.antenna_ids[selected_index]
+
+    def _ai_search_component(self):
+        """Search for component using Ollama AI"""
+        query = self.ai_search_var.get().strip()
+        if not query:
+            messagebox.showwarning("No Query", "Please enter a component name or model number")
+            return
+
+        # Show progress dialog
+        progress_dialog = tk.Toplevel(self.dialog)
+        progress_dialog.title("AI Search")
+        progress_dialog.geometry("400x150")
+        progress_dialog.transient(self.dialog)
+        progress_dialog.grab_set()
+
+        ttk.Label(progress_dialog, text="Searching with Ollama AI...",
+                 font=('TkDefaultFont', 10, 'bold')).pack(pady=20)
+        ttk.Label(progress_dialog, text=f"Query: {query}").pack(pady=5)
+
+        progress_bar = ttk.Progressbar(progress_dialog, mode='indeterminate')
+        progress_bar.pack(pady=10, padx=20, fill=tk.X)
+        progress_bar.start()
+
+        status_label = ttk.Label(progress_dialog, text="Please wait...")
+        status_label.pack(pady=5)
+
+        def search_thread():
+            try:
+                component = self.component_library.ollama_search_component(query, self.frequency_mhz)
+                progress_dialog.after(0, lambda: on_search_complete(component))
+            except Exception as e:
+                progress_dialog.after(0, lambda: on_search_error(str(e)))
+
+        def on_search_complete(component):
+            progress_bar.stop()
+            progress_dialog.destroy()
+
+            if component:
+                # Add to search results
+                self.search_results.append(component)
+                model = component.get('model', 'Unknown')
+                desc = component.get('description', '')
+                source = 'Ollama AI'
+                display = f"{model} - {desc} ({source})"
+                self.results_listbox.insert(tk.END, display)
+                self.results_listbox.selection_clear(0, tk.END)
+                self.results_listbox.selection_set(tk.END)
+                self.results_listbox.see(tk.END)
+                messagebox.showinfo("Success", f"Found component: {model}")
+            else:
+                messagebox.showwarning("Not Found", f"Could not find component: {query}")
+
+        def on_search_error(error_msg):
+            progress_bar.stop()
+            progress_dialog.destroy()
+            messagebox.showerror("AI Search Error", f"Error: {error_msg}")
+
+        import threading
+        thread = threading.Thread(target=search_thread, daemon=True)
+        thread.start()
+
+    def _upload_datasheet(self):
+        """Upload and process datasheet with Ollama AI"""
+        from tkinter import filedialog
+
+        # Select PDF file
+        file_path = filedialog.askopenfilename(
+            parent=self.dialog,
+            title="Select Component Datasheet",
+            filetypes=[
+                ("PDF files", "*.pdf"),
+                ("All files", "*.*")
+            ]
+        )
+
+        if not file_path:
+            return
+
+        # Show progress dialog
+        progress_dialog = tk.Toplevel(self.dialog)
+        progress_dialog.title("Processing Datasheet")
+        progress_dialog.geometry("500x200")
+        progress_dialog.transient(self.dialog)
+        progress_dialog.grab_set()
+
+        ttk.Label(progress_dialog, text="Processing datasheet with Ollama AI...",
+                 font=('TkDefaultFont', 10, 'bold')).pack(pady=20)
+        ttk.Label(progress_dialog, text=f"File: {file_path.split('/')[-1]}").pack(pady=5)
+
+        progress_bar = ttk.Progressbar(progress_dialog, mode='indeterminate')
+        progress_bar.pack(pady=10, padx=20, fill=tk.X)
+        progress_bar.start()
+
+        status_label = ttk.Label(progress_dialog, text="Extracting specifications...")
+        status_label.pack(pady=5)
+
+        def process_thread():
+            try:
+                # Extract text from PDF
+                import fitz  # PyMuPDF
+                doc = fitz.open(file_path)
+                text = ""
+                for page in doc:
+                    text += page.get_text()
+                doc.close()
+
+                # Use Ollama to extract component specs
+                component = self._extract_specs_with_ollama(text)
+                progress_dialog.after(0, lambda: on_process_complete(component))
+            except ImportError:
+                progress_dialog.after(0, lambda: on_process_error(
+                    "PyMuPDF (fitz) not installed. Install with: pip install PyMuPDF"))
+            except Exception as e:
+                progress_dialog.after(0, lambda: on_process_error(str(e)))
+
+        def on_process_complete(component):
+            progress_bar.stop()
+            progress_dialog.destroy()
+
+            if component:
+                # Show review dialog
+                self._show_component_review_dialog(component)
+            else:
+                messagebox.showwarning("Extraction Failed", "Could not extract component specifications from datasheet")
+
+        def on_process_error(error_msg):
+            progress_bar.stop()
+            progress_dialog.destroy()
+            messagebox.showerror("Datasheet Processing Error", f"Error: {error_msg}")
+
+        import threading
+        thread = threading.Thread(target=process_thread, daemon=True)
+        thread.start()
+
+    def _extract_specs_with_ollama(self, datasheet_text: str) -> dict:
+        """Extract component specifications from datasheet text using Ollama"""
+        import requests
+        import json
+
+        prompt = f"""You are an RF component specification extraction expert. Extract detailed specifications from this datasheet.
+
+Datasheet content:
+{datasheet_text[:8000]}  # Limit text to avoid token limits
+
+Please provide the component specifications in VALID JSON format with the following structure:
+{{
+  "model": "exact model number",
+  "manufacturer": "manufacturer name",
+  "component_type": "cable|connector|isolator|combiner|amplifier|attenuator|filter|duplexer|transmitter",
+  "description": "brief description",
+  "part_number": "manufacturer part number",
+
+  // For cables only:
+  "loss_db_per_100ft": {{
+    "50": 1.0,
+    "150": 1.8,
+    "220": 2.2,
+    "450": 3.0,
+    "900": 4.5,
+    "1800": 7.0
+  }},
+  "impedance_ohms": 50,
+  "velocity_factor": 0.84,
+
+  // For components with loss:
+  "insertion_loss_db": 0.5,
+
+  // For amplifiers/transmitters:
+  "gain_dbi": 10.0,
+  "power_output_watts": 1000,
+
+  // General:
+  "frequency_range_mhz": [50, 1000],
+  "power_rating_watts": 100,
+  "connector_type": "N-type"
+}}
+
+IMPORTANT:
+1. Return ONLY valid JSON - no markdown, no code blocks, no explanations
+2. Use real specifications from the datasheet
+3. For cables, include loss_db_per_100ft with multiple frequency points
+4. If you cannot extract enough info, return: {{"error": "Insufficient data in datasheet"}}
+"""
+
+        try:
+            response = requests.post(
+                'http://localhost:11434/api/generate',
+                json={
+                    'model': 'llama3.2',
+                    'prompt': prompt,
+                    'stream': False,
+                    'format': 'json'
+                },
+                timeout=60
+            )
+
+            if response.status_code == 200:
+                result = response.json()
+                response_text = result.get('response', '')
+                component_data = json.loads(response_text)
+
+                if 'error' in component_data:
+                    return None
+
+                return component_data
+            else:
+                return None
+
+        except Exception as e:
+            raise Exception(f"Ollama extraction failed: {str(e)}")
+
+    def _show_component_review_dialog(self, component: dict):
+        """Show dialog to review and edit extracted component data"""
+        review_dialog = tk.Toplevel(self.dialog)
+        review_dialog.title("Review Extracted Component")
+        review_dialog.geometry("600x500")
+        review_dialog.transient(self.dialog)
+
+        # Header
+        ttk.Label(review_dialog, text="Review Component Specifications",
+                 font=('TkDefaultFont', 12, 'bold')).pack(pady=10)
+        ttk.Label(review_dialog, text="Verify the extracted data and edit if needed",
+                 font=('TkDefaultFont', 9)).pack(pady=5)
+
+        # Scrollable frame for specs
+        canvas = tk.Canvas(review_dialog)
+        scrollbar = ttk.Scrollbar(review_dialog, orient="vertical", command=canvas.yview)
+        scrollable_frame = ttk.Frame(canvas)
+
+        scrollable_frame.bind(
+            "<Configure>",
+            lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
+        )
+
+        canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
+        canvas.configure(yscrollcommand=scrollbar.set)
+
+        # Display editable fields
+        fields = {}
+        row = 0
+        for key, value in component.items():
+            if isinstance(value, (str, int, float)):
+                ttk.Label(scrollable_frame, text=f"{key}:").grid(row=row, column=0, sticky=tk.W, padx=5, pady=2)
+                var = tk.StringVar(value=str(value))
+                entry = ttk.Entry(scrollable_frame, textvariable=var, width=40)
+                entry.grid(row=row, column=1, sticky=(tk.W, tk.E), padx=5, pady=2)
+                fields[key] = var
+                row += 1
+
+        canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=10, pady=10)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+        # Buttons
+        button_frame = ttk.Frame(review_dialog)
+        button_frame.pack(fill=tk.X, pady=10)
+
+        def save_component():
+            # Update component with edited values
+            for key, var in fields.items():
+                try:
+                    # Try to convert to appropriate type
+                    value = var.get()
+                    if key in ['gain_dbi', 'insertion_loss_db', 'velocity_factor']:
+                        component[key] = float(value)
+                    elif key in ['impedance_ohms', 'power_rating_watts']:
+                        component[key] = int(value)
+                    else:
+                        component[key] = value
+                except:
+                    component[key] = var.get()
+
+            # Add to cache
+            self.component_library.add_to_cache(component)
+
+            # Add to search results
+            self.search_results.append(component)
+            model = component.get('model', 'Unknown')
+            desc = component.get('description', '')
+            display = f"{model} - {desc} (Imported)"
+            self.results_listbox.insert(tk.END, display)
+            self.results_listbox.selection_clear(0, tk.END)
+            self.results_listbox.selection_set(tk.END)
+
+            review_dialog.destroy()
+            messagebox.showinfo("Success", f"Component saved: {model}")
+
+        ttk.Button(button_frame, text="Save to Library", command=save_component).pack(side=tk.RIGHT, padx=5)
+        ttk.Button(button_frame, text="Cancel", command=review_dialog.destroy).pack(side=tk.RIGHT, padx=5)
+
     def _update_chain_display(self):
         """Update chain tree view"""
         # Clear existing
@@ -321,8 +711,8 @@ class StationBuilderDialog:
                 total_gain += component['gain_dbi']
 
         if self.callback:
-            # Pass RF chain for saving to project
-            self.callback(total_loss, total_gain, total_gain - total_loss, self.rf_chain)
+            # Pass RF chain and antenna for saving to project
+            self.callback(total_loss, total_gain, total_gain - total_loss, self.rf_chain, self.selected_antenna_id)
 
         messagebox.showinfo("Applied", f"Station updated with {total_gain - total_loss:+.2f} dB system change")
         self.dialog.destroy()

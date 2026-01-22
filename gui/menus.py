@@ -33,6 +33,7 @@ class MenuBar:
         self.setup_file_menu()
         self.setup_view_menu()
         self.setup_antenna_menu()
+        self.setup_station_menu()
         self.setup_plot_settings_menu()
         self.setup_help_menu()
     
@@ -106,6 +107,19 @@ class MenuBar:
                                 command=self.callbacks.get('on_view_antennas', lambda: None))
         antenna_menu.add_command(label="Export Current Antenna",
                                 command=self.callbacks.get('on_export_antenna', lambda: None))
+
+    def setup_station_menu(self):
+        """Create Station menu"""
+        station_menu = tk.Menu(self.menubar, tearoff=0)
+        self.menubar.add_cascade(label="Station", menu=station_menu)
+
+        station_menu.add_command(label="Station Builder",
+                                command=self.callbacks.get('on_station_builder', lambda: None),
+                                accelerator="Ctrl+B")
+        station_menu.add_separator()
+        station_menu.add_command(label="Configure Transmitter",
+                                command=self.callbacks.get('on_configure_transmitter', lambda: None),
+                                accelerator="Ctrl+T")
 
     def setup_plot_settings_menu(self):
         """Create Plot Settings menu"""

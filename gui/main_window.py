@@ -224,6 +224,8 @@ class VetRender:
         self.root.bind('<Control-s>', lambda e: self.save_project())
         self.root.bind('<Control-o>', lambda e: self.load_project())
         self.root.bind('<Control-q>', lambda e: self.on_closing())
+        self.root.bind('<Control-b>', lambda e: self.open_station_builder())
+        self.root.bind('<Control-t>', lambda e: self.edit_tx_config())
         self.root.bind('<F1>', lambda e: self.show_help())
 
     def setup_station_tab(self):
@@ -375,6 +377,8 @@ class VetRender:
             'on_create_manual_antenna': self.create_manual_antenna,
             'on_view_antennas': self.view_antennas,
             'on_export_antenna': self.export_antenna,
+            'on_station_builder': self.open_station_builder,
+            'on_configure_transmitter': self.edit_tx_config,
             # 'on_toggle_live_probe': self.toggle_live_probe,  # Temporarily disabled
             'on_exit': self.on_closing,
             'on_basemap_change': self.on_basemap_change,
@@ -808,11 +812,26 @@ class VetRender:
         """Open Station Builder dialog"""
         from gui.station_builder import StationBuilderDialog
 
-        def update_system(total_loss, total_gain, net_change, rf_chain):
-            """Callback to update system loss/gain and save RF chain"""
+        def update_system(total_loss, total_gain, net_change, rf_chain, antenna_id):
+            """Callback to update system loss/gain, RF chain, and antenna"""
             self.system_loss_db = total_loss
             self.system_gain_db = total_gain
             self.rf_chain = rf_chain
+
+            # Update antenna if selected
+            if antenna_id:
+                self.current_antenna_id = antenna_id
+                antenna_data = self.antenna_library.antennas.get(antenna_id)
+                if antenna_data:
+                    # Load antenna pattern from library
+                    xml_path = self.antenna_library.get_antenna_xml_path(antenna_id)
+                    if xml_path:
+                        self.antenna_pattern.load_from_xml(xml_path)
+                        self.pattern_name = antenna_data.get('name', 'Unknown')
+                        print(f"Loaded antenna: {self.pattern_name}")
+            else:
+                # No antenna selected - use default omni
+                self.current_antenna_id = None
 
             # Save to project config
             self.save_auto_config()
@@ -822,7 +841,7 @@ class VetRender:
             self.update_info_panel()
 
         StationBuilderDialog(self.root, self.frequency, callback=update_system,
-                            initial_chain=self.rf_chain)
+                            initial_chain=self.rf_chain, initial_antenna=self.current_antenna_id)
 
     def _search_components(self):
         """Search for components based on filters"""

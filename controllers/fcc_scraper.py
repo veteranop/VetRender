@@ -349,11 +349,23 @@ class FCCScraper:
         # Extract all variable assignments
         station_data = {}
 
-        # Match patterns like: var_name = 'value'; or var_name = value;
-        pattern = r"(\w+)\s*=\s*['\"]?([^;'\"]+)['\"]?\s*;"
-        matches = re.findall(pattern, text)
+        # Match patterns like: var_name = 'value'; or var_name = "value"; or var_name = value;
+        # Use two separate patterns to avoid matching function declarations
 
-        for var_name, value in matches:
+        # Pattern 1: Quoted strings - var_name = 'value' or "value"
+        quoted_pattern = r"(\w+)\s*=\s*['\"]([^'\"]*)['\"]"
+        quoted_matches = re.findall(quoted_pattern, text)
+
+        for var_name, value in quoted_matches:
+            value = value.strip()
+            if value and value != '-':
+                station_data[var_name] = value
+
+        # Pattern 2: Numeric values - var_name = 123.45;
+        numeric_pattern = r"(\w+)\s*=\s*([0-9.\-]+)\s*;"
+        numeric_matches = re.findall(numeric_pattern, text)
+
+        for var_name, value in numeric_matches:
             value = value.strip()
             if value and value != '-':
                 station_data[var_name] = value

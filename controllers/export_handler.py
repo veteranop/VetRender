@@ -67,12 +67,13 @@ class ExportHandler:
                 x_grid, y_grid, rx_power_grid = coverage_data
 
                 # Create signal strength contours at different levels
+                # Order from weakest to strongest for proper layering in Google Earth
                 contour_levels = [
-                    (-60, "Excellent", simplekml.Color.rgb(0, 255, 0, 180)),      # Green
-                    (-70, "Good", simplekml.Color.rgb(100, 255, 0, 160)),         # Yellow-Green
-                    (-80, "Fair", simplekml.Color.rgb(255, 255, 0, 140)),         # Yellow
-                    (-90, "Marginal", simplekml.Color.rgb(255, 165, 0, 120)),     # Orange
-                    (signal_threshold, "Weak", simplekml.Color.rgb(255, 0, 0, 100))  # Red
+                    (signal_threshold, "Weak", simplekml.Color.rgb(255, 0, 0, 70)),     # Red, very transparent
+                    (-90, "Marginal", simplekml.Color.rgb(255, 100, 0, 85)),            # Orange
+                    (-80, "Fair", simplekml.Color.rgb(255, 200, 0, 100)),               # Yellow
+                    (-70, "Good", simplekml.Color.rgb(150, 255, 0, 115)),               # Yellow-Green
+                    (-60, "Excellent", simplekml.Color.rgb(0, 255, 0, 130)),            # Green
                 ]
 
                 # Create folder for contours

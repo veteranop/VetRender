@@ -187,14 +187,26 @@ class ExportHandler:
                 print(f"      Path has {len(vertices)} vertices")
 
                 if len(vertices) > 3:  # Need at least 3 points for a polygon
-                    # Simplify vertices to reduce file size (Douglas-Peucker algorithm)
-                    # Keep every Nth point to stay under Google Earth's 250k vertex limit
-                    simplification_factor = max(1, len(vertices) // 1000)  # Max 1000 points per contour
+                    # Apply aggressive simplification for smooth contours
+                    # Use Ramer-Douglas-Peucker-style decimation
+                    from matplotlib.path import Path
+
+                    # Start with aggressive decimation - keep every 50th point for very detailed contours
+                    if len(vertices) > 5000:
+                        simplification_factor = len(vertices) // 100  # Max ~100 points
+                    elif len(vertices) > 1000:
+                        simplification_factor = len(vertices) // 200  # Max ~200 points
+                    else:
+                        simplification_factor = max(1, len(vertices) // 500)  # Max ~500 points
+
                     simplified_vertices = vertices[::simplification_factor]
 
-                    # Always include first and last point
-                    if len(simplified_vertices) > 0 and not np.array_equal(simplified_vertices[-1], vertices[-1]):
-                        simplified_vertices = np.vstack([simplified_vertices, vertices[-1]])
+                    # Ensure we have first and last points
+                    if len(simplified_vertices) > 0:
+                        if not np.array_equal(simplified_vertices[0], vertices[0]):
+                            simplified_vertices = np.vstack([vertices[0], simplified_vertices])
+                        if not np.array_equal(simplified_vertices[-1], vertices[-1]):
+                            simplified_vertices = np.vstack([simplified_vertices, vertices[-1]])
 
                     # Convert from km offset to lat/lon
                     coords = []
@@ -203,7 +215,7 @@ class ExportHandler:
                         coords.append((lon, lat))
 
                     # Close the polygon if not already closed
-                    if len(coords) > 0 and coords[0] != coords[-1]:
+                    if len(coords) > 1 and coords[0] != coords[-1]:
                         coords.append(coords[0])
 
                     if len(coords) > 3:

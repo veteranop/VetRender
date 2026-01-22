@@ -2103,9 +2103,14 @@ class VetRender:
                 # Redraw with existing propagation data if available
                 if self.last_propagation:
                     x_grid, y_grid, rx_power_grid = self.last_propagation
+                    tx_pixel_x, tx_pixel_y = self.map_display.get_tx_pixel_position(
+                        self.tx_lat, self.tx_lon
+                    )
                     self.propagation_plot.plot_coverage(
-                        self.tx_lat, self.tx_lon, x_grid, y_grid, rx_power_grid,
-                        self.signal_threshold, show_marker=True
+                        self.map_display.map_image, tx_pixel_x, tx_pixel_y,
+                        x_grid, y_grid, rx_power_grid, self.signal_threshold,
+                        self.map_display.get_pixel_scale(),
+                        self.last_terrain_loss, self.show_shadow.get()
                     )
 
                 # Save figure
@@ -2123,9 +2128,14 @@ class VetRender:
                                          self.basemap, self.cache)
                 if self.last_propagation:
                     x_grid, y_grid, rx_power_grid = self.last_propagation
+                    tx_pixel_x, tx_pixel_y = self.map_display.get_tx_pixel_position(
+                        self.tx_lat, self.tx_lon
+                    )
                     self.propagation_plot.plot_coverage(
-                        self.tx_lat, self.tx_lon, x_grid, y_grid, rx_power_grid,
-                        self.signal_threshold, show_marker=True
+                        self.map_display.map_image, tx_pixel_x, tx_pixel_y,
+                        x_grid, y_grid, rx_power_grid, self.signal_threshold,
+                        self.map_display.get_pixel_scale(),
+                        self.last_terrain_loss, self.show_shadow.get()
                     )
 
         except Exception as e:
@@ -2160,9 +2170,14 @@ class VetRender:
 
                     if self.last_propagation:
                         x_grid, y_grid, rx_power_grid = self.last_propagation
+                        tx_pixel_x, tx_pixel_y = self.map_display.get_tx_pixel_position(
+                            self.tx_lat, self.tx_lon
+                        )
                         self.propagation_plot.plot_coverage(
-                            self.tx_lat, self.tx_lon, x_grid, y_grid, rx_power_grid,
-                            self.signal_threshold, show_marker=True
+                            self.map_display.map_image, tx_pixel_x, tx_pixel_y,
+                            x_grid, y_grid, rx_power_grid, self.signal_threshold,
+                            self.map_display.get_pixel_scale(),
+                            self.last_terrain_loss, self.show_shadow.get()
                         )
 
                     # Save image
@@ -2178,9 +2193,14 @@ class VetRender:
                                          self.basemap, self.cache)
                 if self.last_propagation:
                     x_grid, y_grid, rx_power_grid = self.last_propagation
+                    tx_pixel_x, tx_pixel_y = self.map_display.get_tx_pixel_position(
+                        self.tx_lat, self.tx_lon
+                    )
                     self.propagation_plot.plot_coverage(
-                        self.tx_lat, self.tx_lon, x_grid, y_grid, rx_power_grid,
-                        self.signal_threshold, show_marker=True
+                        self.map_display.map_image, tx_pixel_x, tx_pixel_y,
+                        x_grid, y_grid, rx_power_grid, self.signal_threshold,
+                        self.map_display.get_pixel_scale(),
+                        self.last_terrain_loss, self.show_shadow.get()
                     )
 
             # Generate report

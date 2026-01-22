@@ -103,7 +103,8 @@ class VetRender:
         self.use_terrain = tk.BooleanVar(value=False)
         self.show_coverage = tk.BooleanVar(value=True)
         self.show_shadow = tk.BooleanVar(value=False)
-        
+        self.live_probe_enabled = False
+
         # Propagation results
         self.last_propagation = None
         self.last_terrain_loss = None
@@ -198,6 +199,9 @@ class VetRender:
 
         self.canvas = FigureCanvasTkAgg(self.fig, master=map_frame)
         self.canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
+
+        # Bind mouse motion for live probe
+        self.canvas.mpl_connect('motion_notify_event', self.on_mouse_motion)
 
         # ======= STATION TAB =======
         self.station_tab = ttk.Frame(self.notebook)
@@ -389,7 +393,7 @@ class VetRender:
             'on_export_antenna': self.export_antenna,
             'on_station_builder': self.open_station_builder,
             'on_configure_transmitter': self.edit_tx_config,
-            # 'on_toggle_live_probe': self.toggle_live_probe,  # Temporarily disabled
+            'on_toggle_live_probe': self.toggle_live_probe,
             'on_exit': self.on_closing,
             'on_basemap_change': self.on_basemap_change,
             'on_toggle_coverage': self.toggle_coverage_overlay,
@@ -542,6 +546,57 @@ class VetRender:
             self.reload_map()
             self.save_auto_config()
     
+    def toggle_live_probe(self):
+        """Toggle live probe mode"""
+        self.live_probe_enabled = not self.live_probe_enabled
+
+        if self.live_probe_enabled:
+            if self.last_propagation is None:
+                messagebox.showinfo("No Coverage Data",
+                                  "Calculate coverage first to enable live probe.")
+                self.live_probe_enabled = False
+                self.toolbar.live_probe_var.set(False)
+                return
+            self.toolbar.set_status("Live Probe: Move cursor to see signal strength")
+        else:
+            self.toolbar.set_status("")
+            self.toolbar.signal_var.set("")
+
+    def on_mouse_motion(self, event):
+        """Handle mouse motion for live probe"""
+        if not self.live_probe_enabled or self.last_propagation is None:
+            return
+
+        # Check if mouse is inside the plot area
+        if event.xdata is None or event.ydata is None:
+            return
+
+        try:
+            # Get pixel coordinates
+            pixel_x = event.x
+            pixel_y = event.y
+
+            x_grid, y_grid, rx_power_grid = self.last_propagation
+            tx_pixel_x, tx_pixel_y = self.map_display.get_tx_pixel_position(
+                self.tx_lat, self.tx_lon
+            )
+
+            signal, distance, azimuth = self.propagation_plot.get_signal_at_pixel(
+                pixel_x, pixel_y, tx_pixel_x, tx_pixel_y,
+                x_grid, y_grid, rx_power_grid,
+                self.map_display.get_pixel_scale()
+            )
+
+            if signal is not None:
+                # Update toolbar display
+                self.toolbar.signal_var.set(f"{signal:.1f} dBm @ {distance:.2f} km")
+            else:
+                self.toolbar.signal_var.set("Out of range")
+
+        except Exception as e:
+            # Silently ignore errors during mouse motion
+            pass
+
     def probe_signal(self):
         """Probe signal strength at clicked location"""
         if self.last_propagation is None:

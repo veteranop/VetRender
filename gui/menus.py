@@ -30,29 +30,30 @@ class MenuBar:
     
     def setup_menus(self):
         """Create all menus"""
-        self.setup_file_menu()
+        self.setup_project_menu()
         self.setup_view_menu()
         self.setup_antenna_menu()
         self.setup_station_menu()
         self.setup_plot_settings_menu()
+        self.setup_export_menu()
         self.setup_help_menu()
     
-    def setup_file_menu(self):
-        """Create File menu"""
-        file_menu = tk.Menu(self.menubar, tearoff=0)
-        self.menubar.add_cascade(label="File", menu=file_menu)
-        
-        file_menu.add_command(label="New Project", 
+    def setup_project_menu(self):
+        """Create Project menu"""
+        project_menu = tk.Menu(self.menubar, tearoff=0)
+        self.menubar.add_cascade(label="Project", menu=project_menu)
+
+        project_menu.add_command(label="New Project",
                             command=self.callbacks['on_new_project'],
                             accelerator="Ctrl+N")
-        file_menu.add_command(label="Save Project",
-                            command=self.callbacks['on_save_project'],
-                            accelerator="Ctrl+S")
-        file_menu.add_command(label="Load Project",
+        project_menu.add_command(label="Load Project",
                             command=self.callbacks['on_load_project'],
                             accelerator="Ctrl+O")
-        file_menu.add_separator()
-        file_menu.add_command(label="Exit",
+        project_menu.add_command(label="Save Project",
+                            command=self.callbacks['on_save_project'],
+                            accelerator="Ctrl+S")
+        project_menu.add_separator()
+        project_menu.add_command(label="Exit",
                             command=self.callbacks['on_exit'],
                             accelerator="Ctrl+Q")
     
@@ -203,7 +204,30 @@ class MenuBar:
 
         antenna_plot_menu.add_command(label="Set Antenna",
                                      command=self.callbacks.get('on_set_antenna', lambda: None))
-    
+
+    def setup_export_menu(self):
+        """Create Export menu"""
+        export_menu = tk.Menu(self.menubar, tearoff=0)
+        self.menubar.add_cascade(label="Export", menu=export_menu)
+
+        export_menu.add_command(
+            label="Export Plot as KML",
+            command=self.callbacks.get('on_export_kml', lambda: None),
+            accelerator="Ctrl+K"
+        )
+        export_menu.add_separator()
+        export_menu.add_command(
+            label="Export Images (All Zoom Levels)",
+            command=self.callbacks.get('on_export_images', lambda: None),
+            accelerator="Ctrl+E"
+        )
+        export_menu.add_separator()
+        export_menu.add_command(
+            label="Generate Report...",
+            command=self.callbacks.get('on_generate_report', lambda: None),
+            accelerator="Ctrl+R"
+        )
+
     def setup_help_menu(self):
         """Create Help menu"""
         help_menu = tk.Menu(self.menubar, tearoff=0)

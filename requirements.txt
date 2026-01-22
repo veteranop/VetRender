@@ -24,6 +24,10 @@ packaging>=21.0
 # Build tools (for creating MSI installer)
 pyinstaller>=5.0.0
 
+# Export and Reporting
+simplekml>=1.3.6
+reportlab>=4.0.0
+
 # Propagation models (for Longley-Rice)
 # Using built-in simplified implementation - no external library needed
 

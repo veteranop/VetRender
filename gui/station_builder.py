@@ -106,6 +106,16 @@ class StationBuilderDialog:
         upload_btn = ttk.Button(add_frame, text="Upload Datasheet", command=self._upload_datasheet)
         upload_btn.grid(row=3, column=4, sticky=tk.W, padx=5, pady=5)
 
+        # Quick Add Component section
+        ttk.Separator(add_frame, orient='horizontal').grid(row=4, column=0, columnspan=5, sticky=(tk.W, tk.E), pady=10)
+
+        quick_add_btn = ttk.Button(add_frame, text="⚡ Quick Add Component", command=self._quick_add_component,
+                                   style='Accent.TButton')
+        quick_add_btn.grid(row=5, column=0, columnspan=2, sticky=tk.W, padx=5, pady=5)
+
+        ttk.Label(add_frame, text="Manually create a new component", font=('TkDefaultFont', 8, 'italic')).grid(
+            row=5, column=2, columnspan=3, sticky=tk.W, padx=5)
+
         # Antenna selection section
         antenna_frame = ttk.LabelFrame(main_frame, text="Antenna Selection", padding=10)
         antenna_frame.pack(fill=tk.X, pady=(0, 10))
@@ -693,6 +703,29 @@ IMPORTANT:
             self.net_label.config(foreground='red')
         else:
             self.net_label.config(foreground='black')
+
+    def _quick_add_component(self):
+        """Quick add component dialog - easy manual entry"""
+        from gui.quick_add_component_dialog import QuickAddComponentDialog
+
+        def on_component_created(component_data):
+            """Callback when component is created"""
+            # Add to component library
+            self.component_library.add_custom_component(component_data)
+
+            # Refresh search results
+            self._search_components()
+
+            # Auto-select the new component
+            comp_name = component_data.get('model', 'New Component')
+            for i in range(self.results_listbox.size()):
+                if comp_name in self.results_listbox.get(i):
+                    self.results_listbox.selection_clear(0, tk.END)
+                    self.results_listbox.selection_set(i)
+                    self.results_listbox.see(i)
+                    break
+
+        dialog = QuickAddComponentDialog(self.dialog, self.frequency_mhz, on_component_created)
 
     def _apply_changes(self):
         """Apply changes to station"""

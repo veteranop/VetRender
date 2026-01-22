@@ -326,3 +326,18 @@ IMPORTANT:
             raise Exception("Ollama request timed out. The model may be loading or too slow.")
         except Exception as e:
             raise Exception(f"Ollama search failed: {str(e)}")
+
+    def add_custom_component(self, component_data: Dict) -> None:
+        """Add a custom component to the cache
+
+        Args:
+            component_data: Component data dictionary
+        """
+        # Mark as custom
+        component_data['custom'] = True
+        component_data['source'] = 'Custom'
+
+        # Add to cache
+        self.add_to_cache(component_data)
+
+        print(f"Added custom component: {component_data.get('model', 'Unknown')}")

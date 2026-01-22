@@ -30,8 +30,12 @@ from gui.dialogs import (TransmitterConfigDialog, AntennaInfoDialog,
                         CacheManagerDialog, ProjectSetupDialog, SetLocationDialog,
                         PlotsManagerDialog, AntennaImportDialog, AntennaMetadataDialog,
                         ManualAntennaDialog)
+from gui.report_dialog import ReportConfigDialog
 
 from controllers.propagation_controller import PropagationController
+from controllers.export_handler import ExportHandler
+from controllers.fcc_api import FCCAPIHandler
+from controllers.report_generator import ReportGenerator
 
 from models.antenna_models.antenna import AntennaPattern
 from models.antenna_library import AntennaLibrary
@@ -62,6 +66,12 @@ class VetRender:
         self.pattern_name = "Default Omni (0 dBi)"
         self.cache = MapCache()
         self.logger = get_logger()
+
+        # Initialize export and reporting handlers
+        self.config_manager = self  # Use self as config manager (has get/set methods)
+        self.export_handler = ExportHandler(self.config_manager)
+        self.fcc_api = FCCAPIHandler()
+        self.report_generator = ReportGenerator(self.config_manager, self.fcc_api)
         
         # Station parameters
         self.callsign = "KDPI"
@@ -391,6 +401,9 @@ class VetRender:
             'on_terrain_detail_change': self.on_terrain_detail_change,
             'on_custom_terrain_detail': self.set_custom_terrain_detail,
             'on_set_antenna': self.manual_import_antenna,
+            'on_export_kml': self.export_kml,
+            'on_export_images': self.export_images_all_zoom,
+            'on_generate_report': self.generate_report,
         }
 
 
@@ -1995,7 +2008,137 @@ class VetRender:
                 json.dump(config, f, indent=2)
         except Exception as e:
             print(f"Error saving auto-config: {e}")
-    
+
+    def get(self, key, default=None):
+        """Get configuration value (for export/report handlers)
+
+        Args:
+            key: Configuration key
+            default: Default value if key not found
+
+        Returns:
+            Configuration value or default
+        """
+        return getattr(self, key, default)
+
+    # ===== EXPORT AND REPORTING METHODS =====
+
+    def export_kml(self):
+        """Export coverage plot as KML"""
+        try:
+            self.export_handler.export_kml(self.last_propagation)
+        except Exception as e:
+            messagebox.showerror("Export Error", f"Failed to export KML:\n{str(e)}")
+
+    def export_images_all_zoom(self):
+        """Export images at all zoom levels"""
+        try:
+            def render_at_zoom(zoom_level, output_path):
+                """Render coverage at specific zoom level"""
+                # Save current zoom
+                original_zoom = self.zoom
+
+                # Set new zoom
+                self.zoom = zoom_level
+
+                # Reload map and recalculate
+                self.map_display.load_map(self.tx_lat, self.tx_lon, self.zoom,
+                                         self.basemap, self.cache)
+
+                # Redraw with existing propagation data if available
+                if self.last_propagation:
+                    x_grid, y_grid, rx_power_grid = self.last_propagation
+                    self.propagation_plot.plot_coverage(
+                        self.tx_lat, self.tx_lon, x_grid, y_grid, rx_power_grid,
+                        self.signal_threshold, show_marker=True
+                    )
+
+                # Save figure
+                self.fig.savefig(output_path, dpi=150, bbox_inches='tight')
+
+                # Restore original zoom
+                self.zoom = original_zoom
+
+            # Export images
+            exported = self.export_handler.export_images_all_zoom(render_at_zoom)
+
+            if exported:
+                # Restore original display
+                self.map_display.load_map(self.tx_lat, self.tx_lon, self.zoom,
+                                         self.basemap, self.cache)
+                if self.last_propagation:
+                    x_grid, y_grid, rx_power_grid = self.last_propagation
+                    self.propagation_plot.plot_coverage(
+                        self.tx_lat, self.tx_lon, x_grid, y_grid, rx_power_grid,
+                        self.signal_threshold, show_marker=True
+                    )
+
+        except Exception as e:
+            messagebox.showerror("Export Error", f"Failed to export images:\n{str(e)}")
+
+    def generate_report(self):
+        """Generate comprehensive PDF report"""
+        try:
+            # Show report configuration dialog
+            dialog = ReportConfigDialog(self.root, self.config_manager)
+            config = dialog.show()
+
+            if not config:
+                return  # User cancelled
+
+            # Generate coverage images if requested
+            coverage_images = None
+            if config['sections'].get('coverage_maps'):
+                # Create temporary directory for images
+                import tempfile
+                temp_dir = tempfile.mkdtemp()
+
+                coverage_images = []
+                for zoom in config.get('zoom_levels', [11, 12]):
+                    # Save current state
+                    original_zoom = self.zoom
+
+                    # Render at zoom level
+                    self.zoom = zoom
+                    self.map_display.load_map(self.tx_lat, self.tx_lon, self.zoom,
+                                             self.basemap, self.cache)
+
+                    if self.last_propagation:
+                        x_grid, y_grid, rx_power_grid = self.last_propagation
+                        self.propagation_plot.plot_coverage(
+                            self.tx_lat, self.tx_lon, x_grid, y_grid, rx_power_grid,
+                            self.signal_threshold, show_marker=True
+                        )
+
+                    # Save image
+                    img_path = os.path.join(temp_dir, f"coverage_zoom{zoom}.jpg")
+                    self.fig.savefig(img_path, dpi=150, bbox_inches='tight')
+                    coverage_images.append(img_path)
+
+                    # Restore zoom
+                    self.zoom = original_zoom
+
+                # Restore display
+                self.map_display.load_map(self.tx_lat, self.tx_lon, self.zoom,
+                                         self.basemap, self.cache)
+                if self.last_propagation:
+                    x_grid, y_grid, rx_power_grid = self.last_propagation
+                    self.propagation_plot.plot_coverage(
+                        self.tx_lat, self.tx_lon, x_grid, y_grid, rx_power_grid,
+                        self.signal_threshold, show_marker=True
+                    )
+
+            # Generate report
+            report_path = self.report_generator.generate_report(config, coverage_images)
+
+            if report_path:
+                self.logger.log(f"Report generated: {report_path}")
+
+        except Exception as e:
+            messagebox.showerror("Report Error", f"Failed to generate report:\n{str(e)}")
+            import traceback
+            traceback.print_exc()
+
     def on_closing(self):
         """Handle window close"""
         print("Closing application...")

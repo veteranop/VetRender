@@ -214,24 +214,22 @@ class FCCDialog:
         self.dialog.destroy()
 
     def query_current_station(self):
-        """Query FCC for current station location"""
+        """Query FCC for current station location using scraper"""
         print("FCC DIALOG: query_current_station() button clicked")
         def query_thread():
             try:
                 print("FCC DIALOG: Starting query thread")
                 self.status_var.set("Working...")
-                self.progress_var.set("Querying FCC database...")
+                self.progress_var.set("Using web scraper (this may take 15-30 seconds)")
 
-                # Determine service
-                service = 'FM' if self.current_freq >= 88 and self.current_freq <= 108 else 'AM'
-                print(f"FCC DIALOG: Using service={service}, freq={self.current_freq}, lat={self.current_lat}, lon={self.current_lon}")
+                # Use scraper for coordinate search - API is unreliable
+                print(f"FCC DIALOG: Querying by coordinates: lat={self.current_lat}, lon={self.current_lon}")
 
-                # Execute query
-                facilities = self.fcc_api.search_by_coordinates_and_frequency(
-                    self.current_lat, self.current_lon, self.current_freq,
-                    service=service, radius_km=10
+                # Execute scraper query
+                facilities = self.fcc_api.search_by_coordinates_scraper(
+                    self.current_lat, self.current_lon, radius_km=10
                 )
-                print(f"FCC DIALOG: API returned {len(facilities) if facilities else 0} facilities")
+                print(f"FCC DIALOG: Scraper returned {len(facilities) if facilities else 0} facilities")
 
                 # Store results
                 if facilities:
@@ -242,56 +240,32 @@ class FCCDialog:
                             'lat': self.current_lat,
                             'lon': self.current_lon,
                             'frequency': self.current_freq,
-                            'service': service,
-                            'radius_km': 10
+                            'radius_km': 10,
+                            'method': 'scraper_coordinates'
                         },
                         'facilities': facilities
                     }
                     self.status_var.set("Success")
                     self.progress_var.set(f"Found {len(facilities)} facilities")
+                    self.dialog.after(0, self.update_display)
+                    self.dialog.after(0, lambda: messagebox.showinfo("Success",
+                        f"Found {len(facilities)} stations within 10 km"))
                 else:
                     print("FCC DIALOG: Query returned no facilities")
-                    self.fcc_data = {
-                        'query_time': datetime.datetime.now().isoformat(),
-                        'query_params': {
-                            'lat': self.current_lat,
-                            'lon': self.current_lon,
-                            'frequency': self.current_freq,
-                            'service': service,
-                            'radius_km': 10
-                        },
-                        'facilities': [],
-                        'error': 'No facilities found'
-                    }
                     self.status_var.set("No Results")
                     self.progress_var.set("Query completed - no facilities found")
-
-                print("FCC DIALOG: Updating display")
-                self.update_display()
+                    self.dialog.after(0, lambda: messagebox.showwarning("No Results",
+                        "No stations found within 10 km of the current location"))
 
             except Exception as e:
                 print(f"FCC DIALOG: Query failed with exception: {e}")
                 import traceback
                 traceback.print_exc()
 
-                # Check if it's an API availability issue
-                if "404" in str(e) or "Not Found" in str(e):
-                    error_msg = "FCC APIs currently unavailable (404 errors)"
-                    self.fcc_data = {
-                        'query_time': datetime.datetime.now().isoformat(),
-                        'error': error_msg,
-                        'api_status': 'unavailable'
-                    }
-                else:
-                    error_msg = str(e)
-                    self.fcc_data = {
-                        'query_time': datetime.datetime.now().isoformat(),
-                        'error': error_msg
-                    }
-
-                self.status_var.set("API Unavailable")
-                self.progress_var.set("FCC APIs are currently not accessible")
-                self.update_display()
+                self.status_var.set("Query failed")
+                self.progress_var.set("")
+                self.dialog.after(0, lambda: messagebox.showerror("Error",
+                    f"Failed to query FCC:\n{str(e)}\n\nMake sure Chrome is installed."))
 
         # Run query in background thread
         thread = threading.Thread(target=query_thread, daemon=True)

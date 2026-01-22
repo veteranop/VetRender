@@ -187,9 +187,18 @@ class ExportHandler:
                 print(f"      Path has {len(vertices)} vertices")
 
                 if len(vertices) > 3:  # Need at least 3 points for a polygon
+                    # Simplify vertices to reduce file size (Douglas-Peucker algorithm)
+                    # Keep every Nth point to stay under Google Earth's 250k vertex limit
+                    simplification_factor = max(1, len(vertices) // 1000)  # Max 1000 points per contour
+                    simplified_vertices = vertices[::simplification_factor]
+
+                    # Always include first and last point
+                    if len(simplified_vertices) > 0 and not np.array_equal(simplified_vertices[-1], vertices[-1]):
+                        simplified_vertices = np.vstack([simplified_vertices, vertices[-1]])
+
                     # Convert from km offset to lat/lon
                     coords = []
-                    for x_km, y_km in vertices:
+                    for x_km, y_km in simplified_vertices:
                         lat, lon = self._km_to_latlon(x_km, y_km, tx_lat, tx_lon)
                         coords.append((lon, lat))
 
@@ -199,7 +208,7 @@ class ExportHandler:
 
                     if len(coords) > 3:
                         contours.append(coords)
-                        print(f"      Added contour with {len(coords)} points")
+                        print(f"      Added contour with {len(coords)} points (simplified from {len(vertices)})")
                 else:
                     print(f"      Skipped path (too few vertices)")
 

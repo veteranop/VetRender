@@ -18,9 +18,12 @@ class AntennaLibrary:
         """Initialize antenna library"""
         # Create library directory if it doesn't exist
         os.makedirs(self.LIBRARY_DIR, exist_ok=True)
-        
+
         # Load or create index
         self.antennas = self.load_index()
+
+        # Add default antennas from 'antenna' folder if not already in library
+        self._import_default_antennas()
     
     def load_index(self):
         """Load antenna index from file"""
@@ -139,25 +142,86 @@ class AntennaLibrary:
     
     def get_antenna_info_text(self, antenna_id):
         """Get formatted antenna information for display
-        
+
         Args:
             antenna_id: ID of antenna
-            
+
         Returns:
             str: Formatted info text
         """
         antenna = self.get_antenna(antenna_id)
         if not antenna:
             return "No antenna selected"
-        
+
         info = f"Manufacturer: {antenna['manufacturer']}\n"
         info += f"Part Number: {antenna['part_number']}\n"
         info += f"Gain: {antenna['gain']} dBi\n"
         info += f"Band: {antenna['band']}\n"
         info += f"Frequency: {antenna['frequency_range']}\n"
         info += f"Type: {antenna['type']}"
-        
+
         if antenna['notes']:
             info += f"\nNotes: {antenna['notes']}"
-        
+
         return info
+
+    def _import_default_antennas(self):
+        """Import default antennas from 'antenna' folder if not already in library"""
+        default_antenna_dir = "antenna"
+
+        if not os.path.exists(default_antenna_dir):
+            return
+
+        # Define default antenna metadata
+        default_antennas = {
+            'omni.xml': {
+                'name': 'Default Omni (0 dBi)',
+                'manufacturer': 'Generic',
+                'part_number': 'N/A',
+                'gain': 0.0,
+                'band': 'FM',
+                'frequency_range': '88-108 MHz',
+                'type': 'Omni',
+                'notes': 'Default omnidirectional antenna pattern'
+            },
+            'directional.xml': {
+                'name': 'Default Directional',
+                'manufacturer': 'Generic',
+                'part_number': 'N/A',
+                'gain': 0.0,
+                'band': 'FM',
+                'frequency_range': '88-108 MHz',
+                'type': 'Directional',
+                'notes': 'Default directional antenna pattern'
+            }
+        }
+
+        # Check each default antenna
+        for xml_file, metadata in default_antennas.items():
+            xml_path = os.path.join(default_antenna_dir, xml_file)
+
+            if not os.path.exists(xml_path):
+                continue
+
+            # Check if antenna with this name already exists in library
+            antenna_exists = any(
+                ant_data.get('name') == metadata['name']
+                for ant_data in self.antennas.values()
+            )
+
+            if antenna_exists:
+                continue
+
+            # Import the antenna
+            try:
+                with open(xml_path, 'r') as f:
+                    xml_content = f.read()
+
+                self.add_antenna(
+                    name=metadata['name'],
+                    xml_content=xml_content,
+                    metadata=metadata
+                )
+                print(f"Imported default antenna: {metadata['name']}")
+            except Exception as e:
+                print(f"Error importing default antenna {xml_file}: {e}")

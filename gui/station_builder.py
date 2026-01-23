@@ -446,6 +446,10 @@ class StationBuilderDialog:
 
         self.selected_antenna_id = self.antenna_ids[selected_index]
 
+        # Update display to show antenna in chain
+        self._update_chain_display()
+        self._calculate_totals()
+
     def _ai_search_component(self):
         """Search for component using Ollama AI"""
         query = self.ai_search_var.get().strip()
@@ -765,6 +769,23 @@ IMPORTANT:
                                    text=f"{idx + 1}",
                                    values=(model, comp_type, length_str, loss_str, gain_str))
 
+        # Add antenna at the end if selected
+        if self.selected_antenna_id:
+            antenna_data = self.antenna_library.antennas.get(self.selected_antenna_id)
+            if antenna_data:
+                antenna_name = antenna_data.get('name', 'Unknown')
+                antenna_gain = antenna_data.get('gain', 0)
+
+                # Insert antenna as the last item
+                antenna_idx = len(self.rf_chain)
+                self.chain_tree.insert('', tk.END, iid=f'antenna_item',
+                                       text=f"{antenna_idx + 1}",
+                                       values=(antenna_name, 'antenna', '-', '-', f"{antenna_gain:.2f}"),
+                                       tags=('antenna',))
+
+                # Make antenna item visually distinct
+                self.chain_tree.tag_configure('antenna', background='#e8f4f8')
+
     def _calculate_totals(self):
         """Calculate total loss and gain"""
         total_loss = 0
@@ -780,6 +801,13 @@ IMPORTANT:
                 total_loss += component['insertion_loss_db']
             elif 'gain_dbi' in component:
                 total_gain += component['gain_dbi']
+
+        # Add antenna gain if selected
+        if self.selected_antenna_id:
+            antenna_data = self.antenna_library.antennas.get(self.selected_antenna_id)
+            if antenna_data:
+                antenna_gain = antenna_data.get('gain', 0)
+                total_gain += antenna_gain
 
         net_change = total_gain - total_loss
 

@@ -242,8 +242,8 @@ Operating Frequency: {frequency_mhz} MHz
 Please provide the component specifications in VALID JSON format with the following structure:
 {{
   "model": "exact model number",
-  "manufacturer": "manufacturer name",
-  "component_type": "cable|connector|isolator|combiner|amplifier|attenuator|filter|duplexer|antenna",
+  "manufacturer": "manufacturer name (REQUIRED - examples: Times Microwave, Jampro, Nautel, Broadcast Electronics, etc.)",
+  "component_type": "cable|transmitter|isolator|circulator|combiner|filter|amplifier|attenuator|passive|connector|duplexer",
   "description": "brief description",
   "part_number": "manufacturer part number",
 
@@ -257,10 +257,20 @@ Please provide the component specifications in VALID JSON format with the follow
   "impedance_ohms": 50,
   "velocity_factor": 0.84,
 
-  // For components with loss:
-  "insertion_loss_db": 0.5,
+  // For isolators/circulators:
+  "isolation_db": 30.0,
+  "insertion_loss_db": 0.2,
+  "port_configuration": "3-port",
 
-  // For amplifiers/antennas:
+  // For combiners/filters:
+  "insertion_loss_db": 0.5,
+  "rejection_db": 40.0,
+
+  // For transmitters:
+  "transmit_power_watts": 5000,
+  "efficiency_percent": 75,
+
+  // For amplifiers:
   "gain_dbi": 10.0,
 
   // General:
@@ -272,8 +282,11 @@ Please provide the component specifications in VALID JSON format with the follow
 IMPORTANT:
 1. Return ONLY valid JSON - no markdown, no code blocks, no explanations
 2. Use real specifications from manufacturer datasheets
-3. If the component is a cable, include loss_db_per_100ft with multiple frequency points
-4. If you cannot find this component, return: {{"error": "Component not found"}}
+3. ALWAYS include manufacturer name - this is REQUIRED
+4. If the component is a cable, include loss_db_per_100ft with multiple frequency points
+5. For isolators/circulators: include isolation_db, insertion_loss_db, port_configuration
+6. For transmitters: include transmit_power_watts, efficiency_percent
+7. If you cannot find this component, return: {{"error": "Component not found"}}
 """
 
         try:

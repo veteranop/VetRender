@@ -22,15 +22,17 @@ from models.antenna_library import AntennaLibrary
 class ReportGenerator:
     """Generates PDF reports for RF coverage analysis"""
 
-    def __init__(self, config_manager, fcc_api_handler):
+    def __init__(self, config_manager, fcc_api_handler, antenna_pattern=None):
         """Initialize report generator
 
         Args:
             config_manager: Configuration manager instance
             fcc_api_handler: FCC API handler instance
+            antenna_pattern: AntennaPattern instance (optional)
         """
         self.config = config_manager
         self.fcc_api = fcc_api_handler
+        self.antenna_pattern = antenna_pattern
         self.component_library = ComponentLibrary()
         self.antenna_library = AntennaLibrary()
         self.styles = getSampleStyleSheet()
@@ -333,13 +335,56 @@ class ReportGenerator:
                 facility_data = [
                     ['Call Sign:', facility.get('callSign', 'N/A')],
                     ['Facility ID:', str(facility.get('facilityId', 'N/A'))],
+                ]
+
+                # License status fields
+                if 'lmsFileNumber' in facility:
+                    facility_data.append(['LMS File No:', facility.get('lmsFileNumber', 'N/A')])
+                if 'licensedDate' in facility:
+                    facility_data.append(['Licensed Date:', facility.get('licensedDate', 'N/A')])
+                if 'lmsApplicationId' in facility:
+                    facility_data.append(['LMS Application ID:', facility.get('lmsApplicationId', 'N/A')])
+                if 'licenseStatus' in facility:
+                    facility_data.append(['License Status:', facility.get('licenseStatus', 'N/A')])
+
+                facility_data.extend([
                     ['Frequency:', f"{facility.get('frequency', 'N/A')} MHz"],
                     ['City:', facility.get('city', 'N/A')],
                     ['State:', facility.get('state', 'N/A')],
-                    ['ERP:', f"{facility.get('erp', 'N/A')} W"],
-                    ['HAAT:', f"{facility.get('haat', 'N/A')} m"],
-                    ['Coordinates:', f"{facility.get('latitude', 0):.6f}°, {facility.get('longitude', 0):.6f}°"],
-                ]
+                ])
+
+                # ERP with multiple units
+                if 'erp' in facility:
+                    erp_val = facility.get('erp', 'N/A')
+                    erp_unit = facility.get('erpUnit', 'W')
+                    erp_display = f"{erp_val} {erp_unit}"
+
+                    if 'erpWatts' in facility:
+                        erp_w = facility['erpWatts']
+                        erp_dbm = facility.get('erpDbm', 'N/A')
+                        erp_display += f" ({erp_w:.0f} W, {erp_dbm:.1f} dBm)"
+
+                    facility_data.append(['ERP:', erp_display])
+
+                # HAAT
+                if 'haat' in facility:
+                    haat_val = facility.get('haat', 'N/A')
+                    haat_unit = facility.get('haatUnit', 'm')
+                    facility_data.append(['HAAT:', f"{haat_val} {haat_unit}"])
+
+                # AGL (if available)
+                if 'agl' in facility:
+                    agl_m = facility.get('agl', 0)
+                    agl_ft = facility.get('aglFeet', 0)
+                    facility_data.append(['AGL:', f"{agl_m} m ({agl_ft:.1f} ft)"])
+
+                # Coordinates
+                if 'latitude' in facility and 'longitude' in facility:
+                    facility_data.append(['Coordinates:', f"{facility.get('latitude', 0):.6f}°, {facility.get('longitude', 0):.6f}°"])
+
+                # FCC URL
+                if 'fccUrl' in facility:
+                    facility_data.append(['FCC Record:', facility['fccUrl']])
 
                 facility_table = Table(facility_data, colWidths=[1.5*inch, 4*inch])
                 facility_table.setStyle(TableStyle([
@@ -381,6 +426,7 @@ class ReportGenerator:
         height = self.config.get('height', 0)
         max_distance = self.config.get('max_distance', 50)
         pattern_name = self.config.get('pattern_name', 'N/A')
+        current_antenna_id = self.config.get('current_antenna_id', None)
 
         # Calculate effective ERP (tx_power already in dBm, gains/losses in dB)
         effective_erp = tx_power + system_gain_db - system_loss_db
@@ -388,6 +434,7 @@ class ReportGenerator:
         # Calculate total system loss (positive value)
         total_loss_db = system_loss_db
 
+        # Build station data
         station_data = [
             ['Frequency:', f"{frequency} MHz"],
             ['Transmitter Power:', f"{tx_power} dBm ({10**((tx_power-30)/10):.1f} W)"],
@@ -395,9 +442,32 @@ class ReportGenerator:
             ['ERP:', f"{effective_erp:.2f} dBm ({10**((effective_erp-30)/10):.1f} W)"],
             ['Antenna Height:', f"{height} meters AGL"],
             ['Coverage Radius:', f"{max_distance} km"],
-            ['Antenna Pattern:', pattern_name],
-            ['Transmitter Location:', f"{tx_lat:.6f}°, {tx_lon:.6f}°"],
         ]
+
+        # Add antenna information if available
+        if current_antenna_id:
+            from models.antenna_library import AntennaLibrary
+            antenna_library = AntennaLibrary()
+            antenna_data = antenna_library.get_antenna(current_antenna_id)
+
+            if antenna_data:
+                antenna_name = antenna_data.get('name', 'N/A')
+                antenna_manufacturer = antenna_data.get('manufacturer', 'N/A')
+                antenna_part_number = antenna_data.get('part_number', 'N/A')
+                antenna_gain = antenna_data.get('gain', 0)
+                antenna_type = antenna_data.get('type', 'N/A')
+
+                station_data.extend([
+                    ['Antenna:', f"{antenna_name}"],
+                    ['Antenna Manufacturer:', f"{antenna_manufacturer}"],
+                    ['Antenna Part Number:', f"{antenna_part_number}"],
+                    ['Antenna Gain:', f"{antenna_gain:+.1f} dBi"],
+                    ['Antenna Type:', f"{antenna_type}"],
+                ])
+        else:
+            station_data.append(['Antenna Pattern:', pattern_name])
+
+        station_data.append(['Transmitter Location:', f"{tx_lat:.6f}°, {tx_lon:.6f}°"])
 
         station_table = Table(station_data, colWidths=[2*inch, 4*inch])
         station_table.setStyle(TableStyle([
@@ -461,13 +531,65 @@ class ReportGenerator:
                 specs = f"{gain} dBi"
                 db_change = gain  # Gain is positive change
                 total_gain += gain
+            elif component_type in ['isolator', 'circulator']:
+                # Isolators and circulators
+                isolation = component.get('isolation_db', 'N/A')
+                insertion_loss = component.get('insertion_loss_db', 0)
+                port_config = component.get('port_configuration', '')
+                specs = f"ISO: {isolation} dB, IL: {insertion_loss} dB"
+                if port_config:
+                    specs += f" ({port_config})"
+                db_change = -insertion_loss  # Loss is negative change
+                total_loss += insertion_loss
+            elif component_type in ['combiner', 'filter', 'passive']:
+                # Combiners, filters, and other passive components
+                if 'insertion_loss_db' in component:
+                    loss_db = component['insertion_loss_db']
+                    rejection = component.get('rejection_db', '')
+                    specs = f"IL: {loss_db} dB"
+                    if rejection:
+                        specs += f", REJ: {rejection} dB"
+                    db_change = -loss_db  # Loss is negative change
+                    total_loss += loss_db
+                else:
+                    specs = "N/A"
+                    db_change = 0
+            elif component_type == 'amplifier':
+                # Amplifiers provide gain
+                gain = component.get('gain_dbi', 0)
+                specs = f"{gain} dBi"
+                db_change = gain  # Gain is positive change
+                total_gain += gain
             elif 'insertion_loss_db' in component:
+                # Generic fallback for any component with insertion loss
                 loss_db = component['insertion_loss_db']
                 specs = f"IL: {loss_db} dB"
                 db_change = -loss_db  # Loss is negative change
                 total_loss += loss_db
 
             table_data.append([model, manufacturer, component_type.title(), specs, f"{db_change:+.2f}"])
+
+        # Add antenna at the end if selected
+        current_antenna_id = self.config.get('current_antenna_id', None)
+        if current_antenna_id:
+            from models.antenna_library import AntennaLibrary
+            antenna_library = AntennaLibrary()
+            antenna_data = antenna_library.get_antenna(current_antenna_id)
+
+            if antenna_data:
+                antenna_name = antenna_data.get('name', 'N/A')
+                antenna_manufacturer = antenna_data.get('manufacturer', 'N/A')
+                antenna_gain = antenna_data.get('gain', 0)
+                antenna_type = antenna_data.get('type', 'N/A')
+
+                table_data.append([
+                    antenna_name,
+                    antenna_manufacturer,
+                    'Antenna',
+                    f"{antenna_type}, {antenna_gain:+.1f} dBi",
+                    f"{antenna_gain:+.2f}"
+                ])
+                total_gain += antenna_gain
 
         # Add totals row
         net_change = total_gain - total_loss
@@ -546,55 +668,105 @@ class ReportGenerator:
         content.append(info_table)
         content.append(Spacer(1, 0.2*inch))
 
-        # Azimuth Gain/Loss Table
-        content.append(Paragraph("Azimuth Pattern (Horizontal Gain/Loss)", self.styles['SubsectionHeading']))
-        content.append(Spacer(1, 0.1*inch))
+        # Check if we have actual imported antenna pattern data
+        has_pattern_data = (self.antenna_pattern and
+                           hasattr(self.antenna_pattern, 'azimuth_pattern') and
+                           self.antenna_pattern.azimuth_pattern)
 
-        # Generate azimuth gains for key angles
-        azimuth_angles = [0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330]
-        azimuth_data = [['Azimuth (°)', 'Gain (dBi)', 'Relative Loss (dB)']]
+        if has_pattern_data:
+            # Use actual imported radial loss breakdown
+            content.append(Paragraph("Azimuth Pattern - Imported Radial Loss Breakdown", self.styles['SubsectionHeading']))
+            content.append(Spacer(1, 0.1*inch))
 
-        max_gain = antenna_details.get('gain', 0) if antenna_details else 0
+            # Get all angles from the imported pattern, sorted
+            all_angles = sorted(self.antenna_pattern.azimuth_pattern.keys())
+            max_gain = max(self.antenna_pattern.azimuth_pattern.values()) if all_angles else 0
 
-        for az in azimuth_angles:
-            # For omnidirectional, all gains are 0 dBi
-            # For directional, we'd need actual pattern data
-            if current_antenna_id and antenna_details:
-                # This is simplified - in a real implementation, you'd load the actual pattern
-                # For now, assume main lobe at 0° with specified gain
-                if az == 0:
-                    gain = max_gain
+            # Sample every 10 degrees for the table (to keep it manageable)
+            azimuth_angles = [angle for angle in range(0, 360, 10)]
+            azimuth_data = [['Azimuth (°)', 'Gain (dBi)', 'Relative Loss (dB)']]
+
+            for az in azimuth_angles:
+                # Get interpolated gain from actual pattern
+                gain = self.antenna_pattern.get_gain(az)
+                relative_loss = max_gain - gain if max_gain > 0 else 0
+                azimuth_data.append([str(az), f"{gain:.1f}", f"-{relative_loss:.1f}" if relative_loss > 0 else "0.0"])
+
+            azimuth_table = Table(azimuth_data, colWidths=[1.5*inch, 1.5*inch, 1.5*inch])
+            azimuth_table.setStyle(TableStyle([
+                ('FONT', (0, 0), (-1, -1), 'Helvetica', 9),
+                ('FONT', (0, 0), (-1, 0), 'Helvetica-Bold', 9),
+                ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+                ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),
+                ('LEFTPADDING', (0, 0), (-1, -1), 4),
+                ('RIGHTPADDING', (0, 0), (-1, -1), 4),
+                ('TOPPADDING', (0, 0), (-1, -1), 3),
+                ('BOTTOMPADDING', (0, 0), (-1, -1), 3),
+            ]))
+            content.append(azimuth_table)
+
+            content.append(Spacer(1, 0.1*inch))
+            content.append(Paragraph(
+                f"<b>Pattern Data:</b> Imported antenna pattern with {len(all_angles)} data points. "
+                f"Maximum gain: {max_gain:.1f} dBi. "
+                "Gain values shown are relative to isotropic (dBi). "
+                "Relative Loss shows dB below maximum gain.",
+                self.styles['Normal']
+            ))
+        else:
+            # No imported pattern data available
+            content.append(Paragraph("Azimuth Pattern (Horizontal Gain/Loss)", self.styles['SubsectionHeading']))
+            content.append(Spacer(1, 0.1*inch))
+
+            content.append(Paragraph(
+                "<b>Note:</b> No imported antenna pattern data available for this project. "
+                "To include detailed radial loss breakdown, import an antenna pattern using "
+                "Antenna → Import Antenna Pattern.",
+                self.styles['Normal']
+            ))
+            content.append(Spacer(1, 0.1*inch))
+
+            # Show simplified pattern for basic antennas
+            azimuth_angles = [0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330]
+            azimuth_data = [['Azimuth (°)', 'Gain (dBi)', 'Relative Loss (dB)']]
+
+            max_gain = antenna_details.get('gain', 0) if antenna_details else 0
+
+            for az in azimuth_angles:
+                # Simplified pattern
+                if current_antenna_id and antenna_details:
+                    if az == 0:
+                        gain = max_gain
+                    else:
+                        gain = max_gain - 10 - (az % 180) * 0.1
+                        gain = max(0, gain)
                 else:
-                    # Simplified side/back lobe pattern
-                    gain = max_gain - 10 - (az % 180) * 0.1  # Rough approximation
-                    gain = max(0, gain)  # Don't go below 0
-            else:
-                # Omnidirectional
-                gain = 0
+                    # Omnidirectional
+                    gain = 0
 
-            relative_loss = max_gain - gain if max_gain > 0 else 0
-            azimuth_data.append([str(az), f"{gain:.1f}", f"-{relative_loss:.1f}" if relative_loss > 0 else "0.0"])
+                relative_loss = max_gain - gain if max_gain > 0 else 0
+                azimuth_data.append([str(az), f"{gain:.1f}", f"-{relative_loss:.1f}" if relative_loss > 0 else "0.0"])
 
-        azimuth_table = Table(azimuth_data, colWidths=[1.5*inch, 1.5*inch, 1.5*inch])
-        azimuth_table.setStyle(TableStyle([
-            ('FONT', (0, 0), (-1, -1), 'Helvetica', 9),
-            ('FONT', (0, 0), (-1, 0), 'Helvetica-Bold', 9),
-            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-            ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
-            ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),
-            ('LEFTPADDING', (0, 0), (-1, -1), 4),
-            ('RIGHTPADDING', (0, 0), (-1, -1), 4),
-            ('TOPPADDING', (0, 0), (-1, -1), 3),
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 3),
-        ]))
-        content.append(azimuth_table)
+            azimuth_table = Table(azimuth_data, colWidths=[1.5*inch, 1.5*inch, 1.5*inch])
+            azimuth_table.setStyle(TableStyle([
+                ('FONT', (0, 0), (-1, -1), 'Helvetica', 9),
+                ('FONT', (0, 0), (-1, 0), 'Helvetica-Bold', 9),
+                ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+                ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),
+                ('LEFTPADDING', (0, 0), (-1, -1), 4),
+                ('RIGHTPADDING', (0, 0), (-1, -1), 4),
+                ('TOPPADDING', (0, 0), (-1, -1), 3),
+                ('BOTTOMPADDING', (0, 0), (-1, -1), 3),
+            ]))
+            content.append(azimuth_table)
 
-        content.append(Spacer(1, 0.1*inch))
-        content.append(Paragraph(
-            "Note: Gain values shown are relative to isotropic (dBi). "
-            "Relative Loss shows dB below maximum gain.",
-            self.styles['Normal']
-        ))
+            content.append(Spacer(1, 0.1*inch))
+            content.append(Paragraph(
+                "Note: Values shown are approximations. Import actual antenna pattern for precise data.",
+                self.styles['Normal']
+            ))
 
         return content
 

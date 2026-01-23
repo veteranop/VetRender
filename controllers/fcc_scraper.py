@@ -406,12 +406,21 @@ class FCCScraper:
 
             # Technical parameters
             if 'p_erp_max' in station_data:
+                erp_kw = float(station_data['p_erp_max'])
                 station['erp'] = station_data['p_erp_max']  # in kW
                 station['erpUnit'] = 'kW'
+                station['erpWatts'] = erp_kw * 1000  # Convert to Watts
+                # Convert to dBm: dBm = 10 * log10(P_watts * 1000)
+                station['erpDbm'] = 10 * __import__('math').log10(erp_kw * 1000 * 1000)
 
             if 'p_haat_max' in station_data:
                 station['haat'] = station_data['p_haat_max']  # in meters
                 station['haatUnit'] = 'm'
+
+            # Add link to FCC public files
+            if 'c_callsign' in station_data or 'c_facility_callsign' in station_data:
+                callsign = station_data.get('c_callsign') or station_data.get('c_facility_callsign')
+                station['fccUrl'] = f"https://publicfiles.fcc.gov/fm-profile/{callsign}"
 
             results.append(station)
 

@@ -840,13 +840,23 @@ class FCCDialog:
                 if 'erp' in facility:
                     erp_val = facility.get('erp', 'N/A')
                     erp_unit = facility.get('erpUnit', 'W')
-                    data.append(["ERP:", f"{erp_val} {erp_unit}"])
+                    erp_display = f"{erp_val} {erp_unit}"
+
+                    if 'erpWatts' in facility:
+                        erp_w = facility['erpWatts']
+                        erp_dbm = facility.get('erpDbm', 'N/A')
+                        erp_display += f" ({erp_w:.0f} W, {erp_dbm:.1f} dBm)"
+
+                    data.append(["ERP:", erp_display])
+
                 if 'haat' in facility:
                     haat_val = facility.get('haat', 'N/A')
                     haat_unit = facility.get('haatUnit', 'm')
                     data.append(["HAAT:", f"{haat_val} {haat_unit}"])
                 if 'latitude' in facility and 'longitude' in facility:
                     data.append(["Location:", f"{facility.get('latitude', 0):.6f}°, {facility.get('longitude', 0):.6f}°"])
+                if 'fccUrl' in facility:
+                    data.append(["FCC Record:", facility['fccUrl']])
 
                 # Create table
                 table = Table(data, colWidths=[1.5*inch, 4.5*inch])
@@ -955,13 +965,27 @@ class FCCDialog:
                         self.data_text.insert(tk.END, f"  Frequency: {facility.get('frequency', 'N/A')} MHz\n")
                         self.data_text.insert(tk.END, f"  City: {facility.get('city', 'N/A')}\n")
                         self.data_text.insert(tk.END, f"  State: {facility.get('state', 'N/A')}\n")
-                        erp_val = facility.get('erp', 'N/A')
-                        erp_unit = facility.get('erpUnit', 'W')
-                        self.data_text.insert(tk.END, f"  ERP: {erp_val} {erp_unit}\n")
+                        # ERP with multiple units
+                        if 'erp' in facility:
+                            erp_val = facility.get('erp', 'N/A')
+                            erp_unit = facility.get('erpUnit', 'W')
+                            self.data_text.insert(tk.END, f"  ERP: {erp_val} {erp_unit}")
+
+                            if 'erpWatts' in facility:
+                                erp_w = facility['erpWatts']
+                                erp_dbm = facility.get('erpDbm', 'N/A')
+                                self.data_text.insert(tk.END, f" ({erp_w:.0f} W, {erp_dbm:.1f} dBm)")
+                            self.data_text.insert(tk.END, "\n")
+
                         haat_val = facility.get('haat', 'N/A')
                         haat_unit = facility.get('haatUnit', 'm')
                         self.data_text.insert(tk.END, f"  HAAT: {haat_val} {haat_unit}\n")
                         self.data_text.insert(tk.END, f"  Location: {facility.get('latitude', 0):.6f}°, {facility.get('longitude', 0):.6f}°\n")
+
+                        # Add clickable FCC link
+                        if 'fccUrl' in facility:
+                            self.data_text.insert(tk.END, f"  FCC Record: {facility['fccUrl']}\n")
+
                         self.data_text.insert(tk.END, "\n")
                 else:
                     self.data_text.insert(tk.END, "NO FACILITIES FOUND\n")

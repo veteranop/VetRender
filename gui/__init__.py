@@ -1,8 +1,8 @@
 """
-VetRender GUI Package
+Cellfire RF Studio GUI Package
 Contains all GUI components and dialogs
 """
-from .main_window import VetRender
+from .main_window import CellfireRFStudio
 from .dialogs import TransmitterConfigDialog, AntennaInfoDialog, CacheManagerDialog, ProjectSetupDialog
 
-__all__ = ['VetRender', 'TransmitterConfigDialog', 'AntennaInfoDialog', 'CacheManagerDialog', 'ProjectSetupDialog']
+__all__ = ['CellfireRFStudio', 'TransmitterConfigDialog', 'AntennaInfoDialog', 'CacheManagerDialog', 'ProjectSetupDialog']

@@ -1,5 +1,5 @@
 """
-VetRender Models Package
+Cellfire RF Studio Models Package
 Contains all data models and calculation engines
 """
 from .antenna_models.antenna import AntennaPattern

@@ -227,11 +227,11 @@ class MenuBar:
         export_menu = tk.Menu(self.menubar, tearoff=0)
         self.menubar.add_cascade(label="Export", menu=export_menu)
 
-        # Get reference to main window for direct method calls
-        main_window = self.root
+        # Get reference to main window instance for direct method calls
+        main_window = self.main_window if self.main_window else self.root
 
         export_menu.add_command(label="Generate Report",
-                               command=getattr(main_window, 'generate_report', lambda: None))
+                               command=getattr(main_window, 'generate_report', lambda: print("WARNING: generate_report not found on main_window")))
         export_menu.add_separator()
         export_menu.add_command(label="KML Coverage",
                                command=self.callbacks.get('on_export_kml', lambda: None))

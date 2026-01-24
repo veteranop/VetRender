@@ -71,7 +71,7 @@ class VetRender:
         self.config_manager = self  # Use self as config manager (has get/set methods)
         self.export_handler = ExportHandler(self.config_manager)
         self.fcc_api = FCCAPIHandler()
-        self.report_generator = ReportGenerator(self.config_manager, self.fcc_api)
+        self.report_generator = ReportGenerator(self.config_manager, self.fcc_api, self.antenna_pattern)
 
         # FCC data storage
         self.fcc_data = None  # Will store FCC query results
@@ -413,6 +413,10 @@ class VetRender:
             'on_export_kml': self.export_kml,
             'on_export_images': self.export_images_all_zoom,
             'on_generate_report': self.generate_report,
+            'on_quick_start': self.show_quick_start,
+            'on_user_manual': self.show_user_manual,
+            'on_about': self.show_about,
+            'on_report_bug': self.report_bug,
         }
 
 
@@ -2301,7 +2305,8 @@ class VetRender:
                             self.map_display.map_image, tx_pixel_x, tx_pixel_y,
                             x_grid, y_grid, rx_power_grid, self.signal_threshold,
                             self.map_display.get_pixel_scale(),
-                            self.last_terrain_loss, self.show_shadow.get()
+                            self.last_terrain_loss, self.show_shadow.get(),
+                            alpha=0.3  # 30% transparency for reports
                         )
 
                     # Save image
@@ -2337,6 +2342,58 @@ class VetRender:
             messagebox.showerror("Report Error", f"Failed to generate report:\n{str(e)}")
             import traceback
             traceback.print_exc()
+
+    def show_quick_start(self):
+        """Show Quick Start Guide in browser"""
+        help_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'help', 'quick_start.html')
+        if os.path.exists(help_path):
+            webbrowser.open(f'file:///{os.path.abspath(help_path)}')
+        else:
+            messagebox.showerror("Error", "Quick Start Guide not found")
+
+    def show_user_manual(self):
+        """Show User Manual in browser"""
+        help_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'help.html')
+        if os.path.exists(help_path):
+            webbrowser.open(f'file:///{os.path.abspath(help_path)}')
+        else:
+            messagebox.showerror("Error", "User Manual not found")
+
+    def show_about(self):
+        """Show About VetRender page in browser"""
+        help_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'help', 'about.html')
+        if os.path.exists(help_path):
+            webbrowser.open(f'file:///{os.path.abspath(help_path)}')
+        else:
+            messagebox.showerror("Error", "About page not found")
+
+    def report_bug(self):
+        """Open email client to report a bug"""
+        subject = "VetRender Bug Report"
+        body = """Please describe the bug you encountered:
+
+Bug Description:
+
+
+Steps to Reproduce:
+1.
+2.
+3.
+
+Expected Behavior:
+
+
+Actual Behavior:
+
+
+VetRender Version: 3.0.1
+Operating System:
+
+Additional Information:
+"""
+        # URL encode the subject and body
+        mailto_url = f"mailto:mark@veteranop.com?subject={urllib.parse.quote(subject)}&body={urllib.parse.quote(body)}"
+        webbrowser.open(mailto_url)
 
     def on_closing(self):
         """Handle window close"""

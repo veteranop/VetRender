@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VetRender Quick Start Guide</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f5f5f5;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        h2 {
+            color: #667eea;
+            font-size: 1.8em;
+            margin: 30px 0 20px 0;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+        }
+
+        h3 {
+            color: #764ba2;
+            font-size: 1.3em;
+            margin: 25px 0 15px 0;
+        }
+
+        p {
+            margin-bottom: 15px;
+        }
+
+        ol, ul {
+            margin-left: 30px;
+            margin-bottom: 20px;
+        }
+
+        li {
+            margin-bottom: 12px;
+        }
+
+        .step-box {
+            background: #f8f9fa;
+            border-left: 5px solid #667eea;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 5px;
+        }
+
+        .step-box h3 {
+            color: #667eea;
+            margin-top: 0;
+        }
+
+        .tip-box {
+            background: #d1ecf1;
+            border-left: 5px solid #17a2b8;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 5px;
+        }
+
+        .shortcut {
+            display: inline-block;
+            background: #2c3e50;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+
+        footer {
+            background: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🚀 VetRender Quick Start Guide</h1>
+            <p>Get started with RF propagation analysis in 5 minutes</p>
+        </header>
+
+        <div class="content">
+            <h2>Welcome to VetRender!</h2>
+            <p>VetRender is your professional RF propagation analysis tool. This guide will get you analyzing coverage patterns in just a few steps.</p>
+
+            <div class="step-box">
+                <h3>Step 1: Set Your Transmitter Location</h3>
+                <ol>
+                    <li><strong>Right-click</strong> anywhere on the map</li>
+                    <li>Select <strong>"Set Transmitter Location"</strong> from the context menu</li>
+                    <li>The transmitter marker (red) will appear at that location</li>
+                </ol>
+                <p><em>Alternative:</em> Use the toolbar location display to enter exact coordinates</p>
+            </div>
+
+            <div class="step-box">
+                <h3>Step 2: Configure Your Transmitter</h3>
+                <ol>
+                    <li><strong>Right-click</strong> on the map again</li>
+                    <li>Select <strong>"Edit Transmitter Configuration"</strong></li>
+                    <li>Set your parameters:
+                        <ul>
+                            <li><strong>ERP:</strong> Effective Radiated Power (in dBm, e.g., 40 dBm = 10W)</li>
+                            <li><strong>Frequency:</strong> Operating frequency in MHz (e.g., 88.5 for FM)</li>
+                            <li><strong>Antenna Height:</strong> Height above ground in meters</li>
+                        </ul>
+                    </li>
+                    <li>Click <strong>OK</strong> to save</li>
+                </ol>
+            </div>
+
+            <div class="step-box">
+                <h3>Step 3: Calculate Coverage</h3>
+                <ol>
+                    <li>Click the <strong>"Calculate"</strong> button on the toolbar</li>
+                    <li>Watch the progress bar as VetRender computes your coverage</li>
+                    <li>The coverage overlay will appear on the map showing signal strength</li>
+                </ol>
+                <p><strong>Color Guide:</strong></p>
+                <ul>
+                    <li>🟢 Green = Strong signal</li>
+                    <li>🟡 Yellow = Medium signal</li>
+                    <li>🟠 Orange = Weak signal</li>
+                    <li>🔴 Red = Very weak signal</li>
+                </ul>
+            </div>
+
+            <div class="step-box">
+                <h3>Step 4: Analyze Your Results</h3>
+                <ol>
+                    <li><strong>Right-click</strong> anywhere on the map</li>
+                    <li>Select <strong>"Probe Signal Strength Here"</strong></li>
+                    <li>View detailed information:
+                        <ul>
+                            <li>Signal strength in dBm</li>
+                            <li>Distance from transmitter</li>
+                            <li>Azimuth (bearing)</li>
+                            <li>Signal quality assessment</li>
+                        </ul>
+                    </li>
+                </ol>
+            </div>
+
+            <div class="step-box">
+                <h3>Step 5: Save Your Project</h3>
+                <ol>
+                    <li>Press <span class="shortcut">Ctrl+S</span> or use <strong>Project > Save Project</strong></li>
+                    <li>Choose a filename (e.g., "MyStation.vtr")</li>
+                    <li>Your entire configuration is saved for later use</li>
+                </ol>
+            </div>
+
+            <h2>Quick Tips</h2>
+
+            <div class="tip-box">
+                <h3>💡 Power Conversion</h3>
+                <p>VetRender uses dBm for power. Quick conversions:</p>
+                <ul>
+                    <li>1 Watt = 30 dBm</li>
+                    <li>10 Watts = 40 dBm</li>
+                    <li>100 Watts = 50 dBm</li>
+                    <li>1 kW = 60 dBm</li>
+                </ul>
+                <p><em>Formula: dBm = 10 × log₁₀(Watts × 1000)</em></p>
+            </div>
+
+            <div class="tip-box">
+                <h3>💡 Faster Calculations</h3>
+                <p>For quick previews:</p>
+                <ul>
+                    <li>Use <strong>Medium</strong> quality (not Ultra)</li>
+                    <li>Start with 50 km coverage radius (not 200 km)</li>
+                    <li>Disable terrain analysis for speed</li>
+                    <li>Enable terrain only for final analysis</li>
+                </ul>
+            </div>
+
+            <div class="tip-box">
+                <h3>💡 Keyboard Shortcuts</h3>
+                <ul>
+                    <li><span class="shortcut">Ctrl+N</span> - New Project</li>
+                    <li><span class="shortcut">Ctrl+S</span> - Save Project</li>
+                    <li><span class="shortcut">Ctrl+O</span> - Load Project</li>
+                    <li><span class="shortcut">Ctrl+B</span> - Station Builder</li>
+                    <li><span class="shortcut">Ctrl+T</span> - Configure Transmitter</li>
+                </ul>
+            </div>
+
+            <h2>Common Tasks</h2>
+
+            <h3>Change the Map Style</h3>
+            <ol>
+                <li>Go to <strong>View > Basemap</strong></li>
+                <li>Choose from Satellite, Street Map, or Topographic</li>
+            </ol>
+
+            <h3>Enable Terrain Analysis</h3>
+            <ol>
+                <li>Go to <strong>Plot Settings > Enable Terrain</strong></li>
+                <li>Check the box to enable</li>
+                <li>Recalculate your coverage</li>
+            </ol>
+
+            <h3>Import a Custom Antenna</h3>
+            <ol>
+                <li>Right-click on map > <strong>Edit Antenna Information</strong></li>
+                <li>Click <strong>Load Pattern from XML</strong></li>
+                <li>Select your antenna pattern file</li>
+            </ol>
+
+            <h3>Generate a Report</h3>
+            <ol>
+                <li>Calculate your coverage first</li>
+                <li>Go to <strong>Export > Generate Report</strong></li>
+                <li>Configure report options</li>
+                <li>Click <strong>Generate</strong></li>
+            </ol>
+
+            <h2>Next Steps</h2>
+            <p>Now that you've completed your first propagation analysis:</p>
+            <ul>
+                <li>📖 Read the <strong>User Manual</strong> (Help > User Manual) for detailed information</li>
+                <li>🎯 Try the <strong>Station Builder</strong> (Station > Station Builder) for advanced configurations</li>
+                <li>📡 Import FCC data (Query FCC menu) if analyzing licensed stations</li>
+                <li>🗺️ Experiment with different terrain quality settings</li>
+                <li>📊 Generate professional reports (Export > Generate Report)</li>
+            </ul>
+
+            <h2>Need Help?</h2>
+            <p>If you run into any issues:</p>
+            <ul>
+                <li>Check <strong>Help > User Manual</strong> for detailed documentation</li>
+                <li>Visit the Troubleshooting section in the manual</li>
+                <li>Report bugs via <strong>Help > Report a Bug</strong></li>
+            </ul>
+        </div>
+
+        <footer>
+            <p>VetRender v3.0.1 | For support: mark@veteranop.com</p>
+        </footer>
+    </div>
+</body>
+</html>

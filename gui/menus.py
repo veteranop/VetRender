@@ -253,7 +253,7 @@ class MenuBar:
         )
         help_menu.add_separator()
         help_menu.add_command(
-            label="About VetRender",
+            label="About Cellfire RF Studio",
             command=self.callbacks.get('on_about', lambda: None)
         )
         help_menu.add_command(

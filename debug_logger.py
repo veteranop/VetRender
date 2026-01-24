@@ -1,5 +1,5 @@
 """
-Debug logger for VetRender coordinate tracking
+Debug logger for Cellfire RF Studio coordinate tracking
 """
 import os
 import datetime
@@ -17,7 +17,7 @@ class DebugLogger:
 
         # Write header
         self.log("="*80)
-        self.log("VetRender Coordinate Debug Log")
+        self.log("Cellfire RF Studio Coordinate Debug Log")
         self.log(f"Started: {datetime.datetime.now()}")
         self.log("="*80)
 

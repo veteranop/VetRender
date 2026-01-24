@@ -1,9 +1,9 @@
 """
-VetRender - RF Propagation Tool
+Cellfire RF Studio - Professional RF Propagation Analysis
 Main entry point
 """
 import tkinter as tk
-from gui.main_window import VetRender
+from gui.main_window import CellfireRFStudio
 import sys
 import os
 
@@ -20,23 +20,23 @@ def check_for_updates():
 
 if __name__ == "__main__":
     print("="*60)
-    print("VetRender - RF Propagation Tool")
-    
+    print("Cellfire RF Studio - Professional RF Propagation Analysis")
+
     # Get version if available
     try:
         import auto_updater
         print(f"Version {auto_updater.CURRENT_VERSION}")
     except:
         pass
-    
+
     print("="*60)
     print("Debug logging enabled - all operations will be printed to console")
     print("You can copy/paste this output for troubleshooting")
     print("="*60 + "\n")
-    
+
     # Check for updates
     check_for_updates()
-    
+
     root = tk.Tk()
-    app = VetRender(root)
+    app = CellfireRFStudio(root)
     root.mainloop()

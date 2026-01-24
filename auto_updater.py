@@ -1,5 +1,5 @@
 """
-VetRender Auto-Updater
+Cellfire RF Studio Auto-Updater
 =======================
 Checks GitHub for new versions and updates the application automatically.
 """
@@ -19,7 +19,7 @@ CURRENT_VERSION = "3.0.1"
 
 # GitHub repository info
 GITHUB_USER = "YOUR_USERNAME"  # Update this!
-GITHUB_REPO = "VetRender"
+GITHUB_REPO = "cellfire"
 GITHUB_API = f"https://api.github.com/repos/{GITHUB_USER}/{GITHUB_REPO}"
 
 
@@ -136,7 +136,7 @@ class AutoUpdater:
             ])
             
             print("Installer launched!")
-            print("VetRender will close now. The update will complete shortly.")
+            print("Cellfire RF Studio will close now. The update will complete shortly.")
             
             return True
             
@@ -171,7 +171,7 @@ class AutoUpdater:
                 
                 response = messagebox.askyesno(
                     "Update Available",
-                    f"VetRender {latest_version} is available!\\n\\n"
+                    f"Cellfire RF Studio {latest_version} is available!\\n\\n"
                     f"Current version: {CURRENT_VERSION}\\n"
                     f"Latest version: {latest_version}\\n\\n"
                     f"Would you like to download and install the update?"
@@ -191,7 +191,7 @@ class AutoUpdater:
         
         # Download update
         temp_dir = tempfile.gettempdir()
-        msi_filename = f"VetRender_{latest_version}.msi"
+        msi_filename = f"CellfireRFStudio_{latest_version}.msi"
         msi_path = os.path.join(temp_dir, msi_filename)
         
         if not self.download_update(download_url, msi_path):
@@ -208,7 +208,7 @@ class AutoUpdater:
 def check_for_updates_at_startup():
     """Check for updates when the application starts
     
-    This is called from vetrender.py on startup.
+    This is called from cellfire.py on startup.
     """
     try:
         updater = AutoUpdater(silent=False)

@@ -556,6 +556,9 @@ class StationBuilderDialog:
                     text += page.get_text()
                 doc.close()
 
+                print(f"Extracted {len(text)} characters from PDF")
+                print(f"First 500 chars: {text[:500]}")
+
                 # Use Ollama to extract component specs
                 component = self._extract_specs_with_ollama(text)
                 progress_dialog.after(0, lambda: on_process_complete(component))
@@ -589,10 +592,14 @@ class StationBuilderDialog:
         import requests
         import json
 
+        # Check if we have any text
+        if not datasheet_text or len(datasheet_text.strip()) < 50:
+            raise Exception("PDF appears empty or has insufficient text content")
+
         prompt = f"""You are an RF component specification extraction expert. Extract detailed specifications from this datasheet.
 
 Datasheet content:
-{datasheet_text[:8000]}  # Limit text to avoid token limits
+{datasheet_text[:8000]}
 
 Please provide the component specifications in VALID JSON format with the following structure:
 {{
@@ -646,20 +653,41 @@ IMPORTANT:
                 timeout=60
             )
 
-            if response.status_code == 200:
-                result = response.json()
-                response_text = result.get('response', '')
+            if response.status_code != 200:
+                raise Exception(f"Ollama API returned status {response.status_code}")
+
+            result = response.json()
+            response_text = result.get('response', '').strip()
+
+            if not response_text:
+                raise Exception("Ollama returned empty response")
+
+            # Parse JSON response
+            try:
                 component_data = json.loads(response_text)
+            except json.JSONDecodeError as e:
+                raise Exception(f"Failed to parse Ollama JSON response: {str(e)}\nResponse preview: {response_text[:200]}")
 
-                if 'error' in component_data:
-                    return None
+            # Check if Ollama reported an error
+            if 'error' in component_data:
+                raise Exception(f"Ollama could not extract specs: {component_data['error']}")
 
-                return component_data
-            else:
-                return None
+            # Validate required fields
+            if 'model' not in component_data or 'component_type' not in component_data:
+                raise Exception("Ollama response missing required fields (model or component_type)")
 
+            return component_data
+
+        except requests.exceptions.ConnectionError:
+            raise Exception("Cannot connect to Ollama. Is Ollama running? (ollama serve)")
+        except requests.exceptions.Timeout:
+            raise Exception("Ollama request timed out (60s). Model may still be loading.")
         except Exception as e:
-            raise Exception(f"Ollama extraction failed: {str(e)}")
+            # Re-raise with context if not already a custom exception
+            if "Ollama" in str(e) or "PDF" in str(e):
+                raise
+            else:
+                raise Exception(f"Ollama extraction failed: {str(e)}")
 
     def _show_component_review_dialog(self, component: dict):
         """Show dialog to review and edit extracted component data"""

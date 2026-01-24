@@ -1,13 +1,15 @@
 """
-VetRender Main Window - REFACTORED & FIXED
-===========================================
-Clean orchestration of all modules with ALL CRITICAL FIXES APPLIED:
+Cellfire RF Studio - Main Window
+==================================
+Professional RF Propagation Analysis with Advanced Features:
 ✅ Segment-by-segment terrain diffraction (no shadow tunneling!)
 ✅ 360° azimuth sampling (no radial artifacts!)
 ✅ Simplified zoom (preserves overlays!)
 ✅ User-configurable terrain detail
+✅ FCC database integration
+✅ Professional report generation
 
-This replaces the 2000-line monolithic main_window.py with clean module orchestration.
+Clean modular architecture for professional RF engineering workflows.
 """
 import webbrowser
 import urllib.parse
@@ -44,19 +46,19 @@ from models.terrain import TerrainHandler
 from debug_logger import get_logger
 
 
-class VetRender:
-    """Main VetRender application with refactored architecture"""
-    
-    CONFIG_FILE = ".vetrender_config.json"
-    
+class CellfireRFStudio:
+    """Main Cellfire RF Studio application with professional architecture"""
+
+    CONFIG_FILE = ".cellfire_config.json"
+
     def __init__(self, root):
-        """Initialize VetRender application
-        
+        """Initialize Cellfire RF Studio application
+
         Args:
             root: Tkinter root window
         """
         self.root = root
-        self.root.title("VetRender - RF Propagation Tool")
+        self.root.title("Cellfire RF Studio - Professional RF Propagation Analysis")
         self.root.geometry("1400x900")
         
         # Initialize core components
@@ -145,7 +147,10 @@ class VetRender:
         # Register close handler
         self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
         
-        self.logger.log("VetRender application started (REFACTORED)")
+        # Set window icon if logo exists
+        self.set_window_icon()
+
+        self.logger.log("Cellfire RF Studio application started")
     
     def setup_ui(self):
         """Setup user interface with all modules"""
@@ -246,6 +251,29 @@ class VetRender:
         self.root.bind('<Control-b>', lambda e: self.open_station_builder())
         self.root.bind('<Control-t>', lambda e: self.edit_tx_config())
         self.root.bind('<F1>', lambda e: self.show_help())
+
+    def set_window_icon(self):
+        """Set window icon using Cellfire logo"""
+        try:
+            from PIL import Image, ImageTk
+            import os
+
+            # Try to load the logo from assets/branding
+            logo_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'assets', 'branding', 'cellfire_logo.png')
+
+            if os.path.exists(logo_path):
+                # Load and resize logo for window icon
+                logo_image = Image.open(logo_path)
+                logo_image = logo_image.resize((32, 32), Image.Resampling.LANCZOS)
+                photo = ImageTk.PhotoImage(logo_image)
+                self.root.iconphoto(True, photo)
+                # Keep reference to prevent garbage collection
+                self.root._icon_image = photo
+                self.logger.log("Window icon set successfully")
+            else:
+                self.logger.log(f"Logo not found at {logo_path}")
+        except Exception as e:
+            self.logger.log(f"Could not set window icon: {e}")
 
     def setup_station_tab(self):
         """Setup the Station tab with RF chain builder"""
@@ -1227,7 +1255,7 @@ class VetRender:
         filename = filedialog.asksaveasfilename(
             title="Save Project",
             defaultextension=".vtr",
-            filetypes=[("VetRender Project", "*.vtr"), ("All Files", "*.*")],
+            filetypes=[("Cellfire Project", "*.cfr"), ("VetRender Project (legacy)", "*.vtr"), ("All Files", "*.*")],
             initialfile=f"{self.callsign}.vtr"
         )
 
@@ -1299,7 +1327,7 @@ class VetRender:
 
         filename = filedialog.askopenfilename(
             title="Load Project",
-            filetypes=[("VetRender Project", "*.vtr"), ("All Files", "*.*")]
+            filetypes=[("Cellfire Project", "*.cfr"), ("VetRender Project (legacy)", "*.vtr"), ("All Files", "*.*")]
         )
 
         if filename:
@@ -1548,7 +1576,7 @@ class VetRender:
 
         if not os.path.exists(script_path):
             self.logger.log(f"AI Assistant: Script not found at {script_path}")
-            messagebox.showerror("Error", f"Installation script not found at {script_path}. Please reinstall VetRender.")
+            messagebox.showerror("Error", f"Installation script not found at {script_path}. Please reinstall Cellfire RF Studio.")
             self.logger.log("="*80)
             self.logger.log("OLLAMA INSTALLATION ABORTED - SCRIPT NOT FOUND")
             self.logger.log("="*80)
@@ -1560,7 +1588,7 @@ class VetRender:
         messagebox.showinfo("Installing", 
             "Starting Ollama installation...\n\n"
             "This will take 5-10 minutes. The window may appear frozen.\n\n"
-            "Please be patient and do NOT close VetRender.")
+            "Please be patient and do NOT close Cellfire RF Studio.")
         self.logger.log("Starting installation...")
         
         # Update UI to show we're working
@@ -2360,7 +2388,7 @@ class VetRender:
             messagebox.showerror("Error", "User Manual not found")
 
     def show_about(self):
-        """Show About VetRender page in browser"""
+        """Show About Cellfire RF Studio page in browser"""
         help_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'help', 'about.html')
         if os.path.exists(help_path):
             webbrowser.open(f'file:///{os.path.abspath(help_path)}')
@@ -2369,7 +2397,7 @@ class VetRender:
 
     def report_bug(self):
         """Open email client to report a bug"""
-        subject = "VetRender Bug Report"
+        subject = "Cellfire RF Studio Bug Report"
         body = """Please describe the bug you encountered:
 
 Bug Description:

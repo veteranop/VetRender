@@ -1,5 +1,5 @@
 """
-Dialog windows for VetRender GUI
+Dialog windows for Cellfire RF Studio GUI
 """
 import tkinter as tk
 import numpy as np
@@ -283,7 +283,7 @@ class ProjectSetupDialog:
     def __init__(self, parent, existing_config=None):
         self.result = None
         self.dialog = tk.Toplevel(parent)
-        self.dialog.title("VetRender - Project Setup")
+        self.dialog.title("Cellfire RF Studio - Project Setup")
         self.dialog.geometry("1200x800")
         self.dialog.transient(parent)
         self.dialog.grab_set()
@@ -315,7 +315,7 @@ class ProjectSetupDialog:
         title_section = tk.Frame(header_frame, bg='#1e1e1e')
         title_section.pack(side=tk.LEFT, padx=20, pady=15)
 
-        title_label = tk.Label(title_section, text="VetRender - Select Coverage Area",
+        title_label = tk.Label(title_section, text="Cellfire RF Studio - Select Coverage Area",
                                font=('Segoe UI', 18, 'bold'), fg='#ffffff', bg='#1e1e1e')
         title_label.pack(anchor='w')
 
@@ -728,7 +728,7 @@ class ProjectSetupDialog:
     
     def cancel(self):
         """User cancelled - exit application"""
-        if messagebox.askyesno("Exit", "Exit VetRender?"):
+        if messagebox.askyesno("Exit", "Exit Cellfire RF Studio?"):
             self.result = None
             self.dialog.destroy()
 

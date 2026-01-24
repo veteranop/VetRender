@@ -213,6 +213,175 @@ class FCCDialog:
             self.fcc_data_ref = self.fcc_data
         self.dialog.destroy()
 
+    def _show_station_selection(self, facilities, query_params):
+        """Show dialog for user to select one station from multiple results
+
+        Args:
+            facilities: List of facility dictionaries
+            query_params: Query parameters to store with selection
+        """
+        # Create selection dialog
+        selection_dialog = tk.Toplevel(self.dialog)
+        selection_dialog.title("Select Station")
+        selection_dialog.geometry("800x600")
+        selection_dialog.transient(self.dialog)
+        selection_dialog.grab_set()
+
+        # Center on parent
+        selection_dialog.update_idletasks()
+        x = self.dialog.winfo_x() + (self.dialog.winfo_width() // 2) - (selection_dialog.winfo_width() // 2)
+        y = self.dialog.winfo_y() + (self.dialog.winfo_height() // 2) - (selection_dialog.winfo_height() // 2)
+        selection_dialog.geometry(f"+{x}+{y}")
+
+        main_frame = ttk.Frame(selection_dialog, padding=20)
+        main_frame.pack(fill=tk.BOTH, expand=True)
+
+        # Title
+        ttk.Label(main_frame, text=f"Found {len(facilities)} stations - Select one:",
+                 font=('TkDefaultFont', 12, 'bold')).pack(pady=(0, 10))
+
+        # Create listbox with scrollbar
+        list_frame = ttk.Frame(main_frame)
+        list_frame.pack(fill=tk.BOTH, expand=True, pady=(0, 10))
+
+        scrollbar = ttk.Scrollbar(list_frame, orient=tk.VERTICAL)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+        listbox = tk.Listbox(list_frame, font=('Courier', 10),
+                            yscrollcommand=scrollbar.set, height=15)
+        listbox.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        scrollbar.config(command=listbox.yview)
+
+        # Populate listbox with station info
+        for i, facility in enumerate(facilities):
+            callsign = facility.get('callSign', 'N/A')
+            freq = facility.get('frequency', 'N/A')
+            city = facility.get('city', 'N/A')
+            state = facility.get('state', 'N/A')
+            lat = facility.get('latitude', 'N/A')
+            lon = facility.get('longitude', 'N/A')
+
+            # Format as aligned columns
+            line = f"{i+1:2}. {callsign:8} {freq:6} MHz  {city:15} {state:2}  ({lat}, {lon})"
+            listbox.insert(tk.END, line)
+
+        # Details text area
+        ttk.Label(main_frame, text="Station Details:", font=('TkDefaultFont', 10, 'bold')).pack(anchor=tk.W, pady=(10, 5))
+
+        details_text = tk.Text(main_frame, wrap=tk.WORD, font=('Courier', 9), height=8, state=tk.DISABLED)
+        details_scrollbar = ttk.Scrollbar(main_frame, orient=tk.VERTICAL, command=details_text.yview)
+        details_text.configure(yscrollcommand=details_scrollbar.set)
+
+        details_text.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, pady=(0, 10))
+        details_scrollbar.pack(side=tk.RIGHT, fill=tk.Y, pady=(0, 10))
+
+        def on_listbox_select(event):
+            """Update details when selection changes"""
+            selection = listbox.curselection()
+            if selection:
+                idx = selection[0]
+                facility = facilities[idx]
+
+                # Update details display
+                details_text.config(state=tk.NORMAL)
+                details_text.delete(1.0, tk.END)
+
+                details_text.insert(tk.END, f"Call Sign: {facility.get('callSign', 'N/A')}\n")
+                details_text.insert(tk.END, f"Facility ID: {facility.get('facilityId', 'N/A')}\n")
+
+                # License status
+                if 'lmsFileNumber' in facility:
+                    details_text.insert(tk.END, f"LMS File No: {facility.get('lmsFileNumber', 'N/A')}\n")
+                if 'licensedDate' in facility:
+                    details_text.insert(tk.END, f"Licensed Date: {facility.get('licensedDate', 'N/A')}\n")
+                if 'lmsApplicationId' in facility:
+                    details_text.insert(tk.END, f"LMS Application ID: {facility.get('lmsApplicationId', 'N/A')}\n")
+                if 'licenseStatus' in facility:
+                    details_text.insert(tk.END, f"License Status: {facility.get('licenseStatus', 'N/A')}\n")
+
+                details_text.insert(tk.END, f"Frequency: {facility.get('frequency', 'N/A')} MHz\n")
+                details_text.insert(tk.END, f"City: {facility.get('city', 'N/A')}\n")
+                details_text.insert(tk.END, f"State: {facility.get('state', 'N/A')}\n")
+
+                if 'erp' in facility:
+                    erp_val = facility.get('erp', 'N/A')
+                    erp_unit = facility.get('erpUnit', 'W')
+                    details_text.insert(tk.END, f"ERP: {erp_val} {erp_unit}")
+
+                    if 'erpWatts' in facility:
+                        erp_w = facility['erpWatts']
+                        erp_dbm = facility.get('erpDbm', 'N/A')
+                        details_text.insert(tk.END, f" ({erp_w:.0f} W, {erp_dbm:.1f} dBm)")
+                    details_text.insert(tk.END, "\n")
+
+                if 'haat' in facility:
+                    haat_val = facility.get('haat', 'N/A')
+                    haat_unit = facility.get('haatUnit', 'm')
+                    details_text.insert(tk.END, f"HAAT: {haat_val} {haat_unit}\n")
+
+                # AGL (if available)
+                if 'agl' in facility:
+                    agl_m = facility.get('agl', 0)
+                    agl_ft = facility.get('aglFeet', 0)
+                    details_text.insert(tk.END, f"AGL: {agl_m} m ({agl_ft:.1f} ft)\n")
+
+                lat = facility.get('latitude', 'N/A')
+                lon = facility.get('longitude', 'N/A')
+                details_text.insert(tk.END, f"Location: {lat}, {lon}\n")
+
+                if 'fccUrl' in facility:
+                    details_text.insert(tk.END, f"FCC URL: {facility['fccUrl']}\n")
+
+                details_text.config(state=tk.DISABLED)
+
+        listbox.bind('<<ListboxSelect>>', on_listbox_select)
+
+        # Select first item by default
+        if facilities:
+            listbox.selection_set(0)
+            listbox.event_generate('<<ListboxSelect>>')
+
+        def on_select():
+            """User confirmed selection"""
+            selection = listbox.curselection()
+            if not selection:
+                messagebox.showwarning("No Selection", "Please select a station")
+                return
+
+            idx = selection[0]
+            selected_facility = facilities[idx]
+
+            # Store only the selected station
+            self.fcc_data = {
+                'query_time': datetime.datetime.now().isoformat(),
+                'query_params': query_params,
+                'facilities': [selected_facility]  # Only the selected one
+            }
+
+            self.status_var.set(f"Success - Selected {selected_facility.get('callSign', 'N/A')}")
+            self.progress_var.set("")
+            self.update_display()
+            self.notebook.select(self.current_tab)
+
+            selection_dialog.destroy()
+            messagebox.showinfo("Station Selected",
+                              f"Selected station: {selected_facility.get('callSign', 'N/A')}\n"
+                              f"Frequency: {selected_facility.get('frequency', 'N/A')} MHz\n"
+                              f"Location: {selected_facility.get('city', 'N/A')}, {selected_facility.get('state', 'N/A')}")
+
+        def on_cancel():
+            """User cancelled selection"""
+            selection_dialog.destroy()
+            self.status_var.set("Selection cancelled")
+            self.progress_var.set("")
+
+        # Buttons
+        button_frame = ttk.Frame(main_frame)
+        button_frame.pack(fill=tk.X, pady=(10, 0))
+
+        ttk.Button(button_frame, text="Select Station", command=on_select).pack(side=tk.LEFT, padx=5)
+        ttk.Button(button_frame, text="Cancel", command=on_cancel).pack(side=tk.LEFT, padx=5)
+
     def query_current_station(self):
         """Query FCC for current station location using scraper"""
         print("FCC DIALOG: query_current_station() button clicked")
@@ -234,22 +403,34 @@ class FCCDialog:
                 # Store results
                 if facilities:
                     print(f"FCC DIALOG: Query successful, storing {len(facilities)} facilities")
-                    self.fcc_data = {
-                        'query_time': datetime.datetime.now().isoformat(),
-                        'query_params': {
+
+                    # If multiple stations found, let user select one
+                    if len(facilities) > 1:
+                        self.dialog.after(0, lambda: self._show_station_selection(facilities, {
                             'lat': self.current_lat,
                             'lon': self.current_lon,
                             'frequency': self.current_freq,
                             'radius_km': 10,
                             'method': 'scraper_coordinates'
-                        },
-                        'facilities': facilities
-                    }
-                    self.status_var.set("Success")
-                    self.progress_var.set(f"Found {len(facilities)} facilities")
-                    self.dialog.after(0, self.update_display)
-                    self.dialog.after(0, lambda: messagebox.showinfo("Success",
-                        f"Found {len(facilities)} stations within 10 km"))
+                        }))
+                    else:
+                        # Single station, use it directly
+                        self.fcc_data = {
+                            'query_time': datetime.datetime.now().isoformat(),
+                            'query_params': {
+                                'lat': self.current_lat,
+                                'lon': self.current_lon,
+                                'frequency': self.current_freq,
+                                'radius_km': 10,
+                                'method': 'scraper_coordinates'
+                            },
+                            'facilities': facilities
+                        }
+                        self.status_var.set("Success")
+                        self.progress_var.set(f"Found 1 facility")
+                        self.dialog.after(0, self.update_display)
+                        self.dialog.after(0, lambda: messagebox.showinfo("Success",
+                            f"Found 1 station within 10 km"))
                 else:
                     print("FCC DIALOG: Query returned no facilities")
                     self.status_var.set("No Results")
@@ -476,25 +657,35 @@ class FCCDialog:
                         results = self.fcc_api.search_by_coordinates_scraper(lat, lon, radius, state)
 
                         if results and len(results) > 0:
-                            # Store the data
-                            self.fcc_data = {
-                                'query_time': datetime.datetime.now().isoformat(),
-                                'query_params': {
+                            # If multiple stations found, let user select one
+                            if len(results) > 1:
+                                self.dialog.after(0, lambda: self._show_station_selection(results, {
                                     'lat': lat,
                                     'lon': lon,
                                     'radius_km': radius,
                                     'state': state,
                                     'method': 'scraper_coordinates'
-                                },
-                                'facilities': results
-                            }
+                                }))
+                            else:
+                                # Single station, use it directly
+                                self.fcc_data = {
+                                    'query_time': datetime.datetime.now().isoformat(),
+                                    'query_params': {
+                                        'lat': lat,
+                                        'lon': lon,
+                                        'radius_km': radius,
+                                        'state': state,
+                                        'method': 'scraper_coordinates'
+                                    },
+                                    'facilities': results
+                                }
 
-                            self.status_var.set(f"Success - Found {len(results)} stations")
-                            self.progress_var.set("")
-                            self.dialog.after(0, self.update_display)
-                            self.dialog.after(0, lambda: self.notebook.select(self.current_tab))
-                            self.dialog.after(0, lambda: messagebox.showinfo("Success",
-                                f"Found {len(results)} stations within {radius} km"))
+                                self.status_var.set(f"Success - Found 1 station")
+                                self.progress_var.set("")
+                                self.dialog.after(0, self.update_display)
+                                self.dialog.after(0, lambda: self.notebook.select(self.current_tab))
+                                self.dialog.after(0, lambda: messagebox.showinfo("Success",
+                                    f"Found 1 station within {radius} km"))
                         else:
                             self.status_var.set("No results found")
                             self.progress_var.set("")
@@ -832,10 +1023,23 @@ class FCCDialog:
                 data = [
                     ["Call Sign:", facility.get('callSign', 'N/A')],
                     ["Facility ID:", facility.get('facilityId', 'N/A')],
+                ]
+
+                # License status fields
+                if 'lmsFileNumber' in facility:
+                    data.append(["LMS File No:", facility.get('lmsFileNumber', 'N/A')])
+                if 'licensedDate' in facility:
+                    data.append(["Licensed Date:", facility.get('licensedDate', 'N/A')])
+                if 'lmsApplicationId' in facility:
+                    data.append(["LMS Application ID:", facility.get('lmsApplicationId', 'N/A')])
+                if 'licenseStatus' in facility:
+                    data.append(["License Status:", facility.get('licenseStatus', 'N/A')])
+
+                data.extend([
                     ["Frequency:", f"{facility.get('frequency', 'N/A')} MHz"],
                     ["City:", facility.get('city', 'N/A')],
                     ["State:", facility.get('state', 'N/A')],
-                ]
+                ])
 
                 if 'erp' in facility:
                     erp_val = facility.get('erp', 'N/A')
@@ -853,6 +1057,13 @@ class FCCDialog:
                     haat_val = facility.get('haat', 'N/A')
                     haat_unit = facility.get('haatUnit', 'm')
                     data.append(["HAAT:", f"{haat_val} {haat_unit}"])
+
+                # AGL (if available)
+                if 'agl' in facility:
+                    agl_m = facility.get('agl', 0)
+                    agl_ft = facility.get('aglFeet', 0)
+                    data.append(["AGL:", f"{agl_m} m ({agl_ft:.1f} ft)"])
+
                 if 'latitude' in facility and 'longitude' in facility:
                     data.append(["Location:", f"{facility.get('latitude', 0):.6f}°, {facility.get('longitude', 0):.6f}°"])
                 if 'fccUrl' in facility:
@@ -951,8 +1162,17 @@ class FCCDialog:
                 params = self.fcc_data.get('query_params', {})
                 self.data_text.insert(tk.END, f"Query Time: {self.fcc_data.get('query_time', 'Unknown')[:19]}\n")
                 self.data_text.insert(tk.END, f"Location: {params.get('lat', 0):.6f}°, {params.get('lon', 0):.6f}°\n")
-                self.data_text.insert(tk.END, f"Frequency: {params.get('frequency', 0)} MHz\n")
-                self.data_text.insert(tk.END, f"Service: {params.get('service', 'Unknown')}\n")
+
+                # Only show frequency if it was part of the query
+                if 'frequency' in params and params.get('frequency'):
+                    self.data_text.insert(tk.END, f"Frequency: {params.get('frequency', 0)} MHz\n")
+
+                # Show service from query params or method
+                if 'service' in params:
+                    self.data_text.insert(tk.END, f"Service: {params.get('service')}\n")
+                elif params.get('method') == 'scraper_coordinates':
+                    self.data_text.insert(tk.END, f"Service: FM (all within radius)\n")
+
                 self.data_text.insert(tk.END, f"Search Radius: {params.get('radius_km', 0)} km\n\n")
 
                 facilities = self.fcc_data.get('facilities', [])
@@ -962,6 +1182,17 @@ class FCCDialog:
                         self.data_text.insert(tk.END, f"FACILITY {i}:\n")
                         self.data_text.insert(tk.END, f"  Call Sign: {facility.get('callSign', 'N/A')}\n")
                         self.data_text.insert(tk.END, f"  Facility ID: {facility.get('facilityId', 'N/A')}\n")
+
+                        # License status
+                        if 'lmsFileNumber' in facility:
+                            self.data_text.insert(tk.END, f"  LMS File No: {facility.get('lmsFileNumber', 'N/A')}\n")
+                        if 'licensedDate' in facility:
+                            self.data_text.insert(tk.END, f"  Licensed Date: {facility.get('licensedDate', 'N/A')}\n")
+                        if 'lmsApplicationId' in facility:
+                            self.data_text.insert(tk.END, f"  LMS Application ID: {facility.get('lmsApplicationId', 'N/A')}\n")
+                        if 'licenseStatus' in facility:
+                            self.data_text.insert(tk.END, f"  License Status: {facility.get('licenseStatus', 'N/A')}\n")
+
                         self.data_text.insert(tk.END, f"  Frequency: {facility.get('frequency', 'N/A')} MHz\n")
                         self.data_text.insert(tk.END, f"  City: {facility.get('city', 'N/A')}\n")
                         self.data_text.insert(tk.END, f"  State: {facility.get('state', 'N/A')}\n")
@@ -980,6 +1211,13 @@ class FCCDialog:
                         haat_val = facility.get('haat', 'N/A')
                         haat_unit = facility.get('haatUnit', 'm')
                         self.data_text.insert(tk.END, f"  HAAT: {haat_val} {haat_unit}\n")
+
+                        # AGL (if available)
+                        if 'agl' in facility:
+                            agl_m = facility.get('agl', 0)
+                            agl_ft = facility.get('aglFeet', 0)
+                            self.data_text.insert(tk.END, f"  AGL: {agl_m} m ({agl_ft:.1f} ft)\n")
+
                         self.data_text.insert(tk.END, f"  Location: {facility.get('latitude', 0):.6f}°, {facility.get('longitude', 0):.6f}°\n")
 
                         # Add clickable FCC link

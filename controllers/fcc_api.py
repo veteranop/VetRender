@@ -25,7 +25,7 @@ class FCCAPIHandler:
         """Initialize FCC API handler"""
         self.session = requests.Session()
         self.session.headers.update({
-            'User-Agent': 'VetRender RF Planning Software'
+            'User-Agent': 'Cellfire RF Studio - RF Planning Software'
         })
         self.scraper = None  # Lazy-load scraper only when needed
 

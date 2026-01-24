@@ -12,7 +12,7 @@ from tkinter import messagebox, filedialog
 
 
 class ExportHandler:
-    """Handles all export functionality for VetRender"""
+    """Handles all export functionality for Cellfire RF Studio"""
 
     def __init__(self, config_manager):
         """Initialize export handler
@@ -109,7 +109,7 @@ class ExportHandler:
 
             # Generate filename
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            filename = f"VetRender_Coverage_{timestamp}.kml"
+            filename = f"CellfireRF_Coverage_{timestamp}.kml"
             filepath = os.path.join(self.export_dir, filename)
 
             # Ask user where to save

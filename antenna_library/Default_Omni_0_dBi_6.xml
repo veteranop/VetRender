@@ -1,0 +1,61 @@
+<antenna>
+<azimuth>
+<point angle="0" gain="0"/>
+<point angle="10" gain="0"/>
+<point angle="20" gain="0"/>
+<point angle="30" gain="0"/>
+<point angle="40" gain="0"/>
+<point angle="50" gain="0"/>
+<point angle="60" gain="0"/>
+<point angle="70" gain="0"/>
+<point angle="80" gain="0"/>
+<point angle="90" gain="0"/>
+<point angle="100" gain="0"/>
+<point angle="110" gain="0"/>
+<point angle="120" gain="0"/>
+<point angle="130" gain="0"/>
+<point angle="140" gain="0"/>
+<point angle="150" gain="0"/>
+<point angle="160" gain="0"/>
+<point angle="170" gain="0"/>
+<point angle="180" gain="0"/>
+<point angle="190" gain="0"/>
+<point angle="200" gain="0"/>
+<point angle="210" gain="0"/>
+<point angle="220" gain="0"/>
+<point angle="230" gain="0"/>
+<point angle="240" gain="0"/>
+<point angle="250" gain="0"/>
+<point angle="260" gain="0"/>
+<point angle="270" gain="0"/>
+<point angle="280" gain="0"/>
+<point angle="290" gain="0"/>
+<point angle="300" gain="0"/>
+<point angle="310" gain="0"/>
+<point angle="320" gain="0"/>
+<point angle="330" gain="0"/>
+<point angle="340" gain="0"/>
+<point angle="350" gain="0"/>
+</azimuth>
+<elevation>
+<point angle="-90" gain="-10"/>
+<point angle="-80" gain="-10"/>
+<point angle="-70" gain="-10"/>
+<point angle="-60" gain="-10"/>
+<point angle="-50" gain="-10"/>
+<point angle="-40" gain="-10"/>
+<point angle="-30" gain="-10"/>
+<point angle="-20" gain="-10"/>
+<point angle="-10" gain="-10"/>
+<point angle="0" gain="0"/>
+<point angle="10" gain="-10"/>
+<point angle="20" gain="-10"/>
+<point angle="30" gain="-10"/>
+<point angle="40" gain="-10"/>
+<point angle="50" gain="-10"/>
+<point angle="60" gain="-10"/>
+<point angle="70" gain="-10"/>
+<point angle="80" gain="-10"/>
+<point angle="90" gain="-10"/>
+</elevation>
+</antenna>

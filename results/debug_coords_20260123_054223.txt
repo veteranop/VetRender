@@ -1,0 +1,1912 @@
+Coordinates: 43.661225, -114.402965
+DMS: 43°39'40.41"N, 114°24'10.67"W
+Radius: 10 km, State: None
+================================================================================
+<!DOCTYPE html lang='en'>
+<head>
+<center style='position:relative; top:50px; margin-left:auto; margin-right:auto; z-index:-1;'>FM Query is looking up data...</center><meta http-equiv='X-UA-Compatible' content='IE=Edge'>
+ <link rel='shortcut icon' href='https://www.fcc.gov/themes/custom/fcc/favicon.ico' type='image/vnd.microsoft.icon' />
+<link rel='prefetch' href='/bureaus/mb/databases/querydata/AMFMTV.js'>
+<link rel='stylesheet prefetch' href='https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css' title='jQueryUIcss'>
+<link rel='stylesheet prefetch' href='https://code.jquery.com/resources/demos/style.css' title='CSScode'>
+<link rel='prefetch' href='https://www.fcc.gov/sites/default/files/fcc-seal-rgb-2020.png' title='FCC Color Seal'>
+<script src='https://code.jquery.com/jquery-1.12.4.js' title='jQueryJS'></script>
+<script src='https://code.jquery.com/ui/1.12.1/jquery-ui.js' title='jQueryUIjs'></script>
+
+  <script src='/bureaus/mb/databases/querydata/AMFMTV.js' name='JSnew' ></script>
+  <meta http-equiv='cache-control' content='max-age=36000'>
+
+<title class='smalltext'>FM Query Results -- Audio Division (FCC) USA</title>
+<script type='text/javascript'><!-- 
+
+ var URLstring = 'CALL=&FILENUMBER=&STATE=&CITY=&FREQ=&FRE2=&SINGLE=0&SERV=&STATUS=&FACID=&ASRN=&CLASS=&LIST=0&THISTAB=RESULTS+TO+THIS+PAGE/TAB&DIST=10&DLAT2=43&MLAT2=39&SLAT2=40&NS=N&DLON2=114&MLON2=24&SLON2=11&EW=W&SIZE=9';
+ var textsize = 9;
+ var list = 0;
+ var asrnOut      = '';
+ var FAAstudyLINK = '';
+ queriesStylesheet();
+--></script>
+
+</head>
+<body bgcolor='#FFFFFF'>
+<script type='text/javascript'><!-- 
+ var whichQuery = 'fmq';
+ var count=0; var IPaddress = 'transition.fcc.gov';
+  RedWhiteBlueStripe();
+</script><br><br><br><div id='info' style='position:relative; margin-left:auto; margin-right: auto; width:1000px; height:48px; top: -70px; font-family: Candara, Lucida Console; background-color: #2233FF; color: white; font-size:16pt; padding:7px; z-index:3;'><div style='height: 0px; width:1000px; position: relative; margin-left:auto; margin-right: auto; right:-275px; color:white; z-index: 7;'>Federal Communications Commission -- FM Query Results </div><br><div style='height: 0px; position: relative; margin-left:auto; margin-right: auto; top: -30px; left: -35px;'><img style='z-index:4; height:80px; width:80px; position:relative; left:1px; top:-10px;, z-index:4;' src='https://www.fcc.gov/sites/default/files/fcc-seal-rgb-2020.png'></div><br><script> NavbarTopOfPage(); </script></div><br><br><br><script style='height:0px;'>
+  printOnePerPage();
+  var FirstLicensedDate = '';
+  var HistoryCardsAt = 0;
+ var IPaddress = 'transition.fcc.gov';
+ var machine = 1;
+ var omit = 0;
+ var recordcount;
+ var facility_id = 0;
+ var c_application_id = 0;
+ var c_callsign;
+ var c_facility_callsign;
+ var four_letter_callsign;
+ var c_service;
+ var c_station_class;
+ var c_dom_status;
+ var c_filenumber;
+ var c_comm_city_app;
+ var c_comm_state_app;
+ var c_country;
+ var c_lat_deg;
+ var c_lat_min;
+ var c_lat_sec;
+ var c_lat_dir;
+ var c_lon_deg;
+ var c_lon_min;
+ var c_lon_sec;
+ var c_lon_dir;
+ var freq;
+ var c_station_channel;
+ var p_haat_max;
+ var p_rcamsl_max;
+ var p_erp_max;
+ var alat83;
+ var alon83;
+ var service_contour;
+ var lms_appid;
+ var ns;
+ var ew;
+ var terrdb;
+ var list;
+ var c_da_ind;
+ var c_antenna_type;
+ var longstring;
+ var  lms_histcard_id;
+var temp = 0;
+var initial = 0;
+var whitefill = 0;
+ --></script>
+
+<div id='incoming' style='max-width: 920px; min-width: 920px; margin-left: auto; margin-right: auto; position:relative; top:-90px;;'><table border='0' width='900' align='center' valign='top' bgcolor='#EFFDDE' cellpadding='1'><tr><td colspan=6 style='background-color:#024F00' align='center'>   <b style='color:white; right:-400px; font-family: Candara;'>FM Query now uses <a style='font-family: Candara;' target='_blank' href='https://enterpriseefiling.fcc.gov/dataentry/public/tv/lmsDatabase.html'><font style='color:white'><abbr title=' Licensing Management System '>LMS</abbr> data</font></a>.&nbsp;  Coordinates are NAD83.</b></td></tr><tr><td align='center' colspan='1' width='250'><font style='font-size: 19pt ; Candara;'>FM Query Results<nobr style='font-size: 11pt;'><br><P><center><font style='font-size: 13pt; color: #7F0044; font-family: Candara;'>Fri Jan 23 12:42:22 2026 Eastern time</font></center>
+</nobr></font></td><!-- Future use --><td></td><td>&nbsp;&nbsp;</td><td><form method='get' action='/fcc-bin/fmq'>&nbsp;&nbsp;&nbsp;<select name='size'><option style='font-size: 5pt;' >5</option><option style='font-size: 6pt;' >6</option><option style='font-size: 7pt;' >7</option><option style='font-size: 8pt;' >8</option><option style='font-size: 9pt;'  selected>9</option><option style='font-size: 10pt;' >10</option><option style='font-size: 12pt;' >12</option><option style='font-size: 14pt;' >14</option><option style='font-size: 16pt;' >16</option><option style='font-size: 18pt;' >18</option><option style='font-size: 20pt;' >20</option><option style='font-size: 23pt;' >23</option><option style='font-size: 26pt;' >26</option></select>&nbsp;&nbsp;<input style='height:0'  type='hidden' name='freq' value='0.0'>
+<input style='height:0'  type='hidden' name='fre2' value='0.0'>
+<input style='height:0'  type='hidden' name='facid' value='0'>
+<input style='height:0'  type='hidden' name='list' value='0'>
+<input style='height:0'  type='hidden' name='dist' value='10.0000'>
+<input style='height:0'  type='hidden' name='ns' value='N'>
+<input style='height:0'  type='hidden' name='dlat2' value='43'>
+<input style='height:0'  type='hidden' name='mlat2' value='39'>
+<input style='height:0'  type='hidden' name='slat2' value='40.00'>
+<input style='height:0'  type='hidden' name='ew' value='W'>
+<input style='height:0'  type='hidden' name='dlon2' value='114'>
+<input style='height:0'  type='hidden' name='mlon2' value='24'>
+<input style='height:0'  type='hidden' name='slon2' value='11.000000'>
+<input style='height:0'  type='hidden' name='asrn' value='0'>
+<input type='submit' value='Resize Results'></form></td><td rowspan=2 height=0 valign='top'><script> QueriesBirthday(); </script></td> </tr>
+<tr><td cellpadding='2' colspan='1' align='left' style='font-size:9pt;'><div summary='Search parameters' style='font-family: Candara, Tahoma, Verdana, Arial, Helvtica, sans-serif; font-size:11pt; line-spacing:0.9; position:relative; left;'>
+-----&nbsp;Search&nbsp;Parameters&nbsp;-----<br><br>
+ Search&nbsp;Radius: 10.000&nbsp;km <br>
+ Center&nbsp;Latitude: N  43 39 40.00<br>
+ Center&nbsp;Longitude: W 114 24 11.00<br>
+ Lower&nbsp;Channel: 200<br>
+ Upper&nbsp;Channel: 300<br>
+</div></td><td colspan='4' align='left' valign='bottom' style='font-size:9pt; font-family: Candara;'> <a href='https://www.fcc.gov/media/radio/fm-query'>FM Query</a> results are derived from the public files available  <a target='_blank' href='https://enterpriseefiling.fcc.gov/dataentry/public/tv/lmsDatabase.html' >here</A>.<br></td></tr></table><br><center><span align='center' class='listtext'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Canadian and Mexican border zone records are included in the FM Query. </b></span></center></div><div style='width:880px; position:relative; margin-left: auto; margin-right: auto; top:-85px;'><pre class='listtext'><script type='text/javascript'><!-- 
+  omit = 0;
+  recordcount = '9999';
+  facility_id = '172637';
+  c_application_id = '201511035';
+  hostname = 'transition';
+  c_callsign = 'KDPI';
+  c_facility_callsign = 'KDPI';
+  four_letter_callsign = 'KDPI';
+  c_service = 'FM';
+  c_station_class = 'A';
+
+  c_dom_status = 'LIC';
+  c_filenumber = 'BLED-20151103BBS';
+  c_comm_city_app = "KETCHUM";
+  c_comm_state_app = 'ID';
+  c_country = 'US';
+  var c_nad = '83';
+  c_lat_deg = '43';
+  c_lat_min = '39';
+  c_lat_sec = '40.60';
+  c_lat_dir = 'N';
+  c_lon_deg = '114';
+  c_lon_min = '24';
+  c_lon_sec = '10.10';
+  c_lon_dir = 'W';
+  freq = '88.5';
+  c_station_channel = '203';
+ p_haat_max = '638.0';
+ p_rcamsl_max = '2760.';
+ p_erp_max = '0.105';
+  alat83 = '43.661277';
+  alon83 = '-114.402805';
+  longstring = "";
+  service_contour  = 60;
+ lms_appid = '6202e07d4c184e178531c1b6063ebeb7';
+  lms_histcard_id = '-';
+FirstLicensedDate = '';
+HistoryCardsAt = 0;
+ ns = 1;
+ ew = -1;
+ terrdb = 7;
+ list = 0;
+ c_da_ind = '-';
+ c_antenna_type = ' ';
+ temp = 0;
+ initial = 0;
+ whitefill = 0;
+--></script>
+<div id='10000' class='listtext' style='page-break-before: always; margin-right:auto; margin-left:auto; left:0; right:0;' width='124'><pre>
+
+
+                                                                                                               <span class='listtext-noprint'><A HREF='#n10001' name='n10000'>Next Record</a>
+</span>
+<span class='blue'>&nbsp;&nbsp;<b>KDPI                  <a target='_blank' style='text-decoration-color: blue; display: inline-block; width:300px;' title=' Community Information ' href='/fcc-bin/atlas?state=ID&city=KETCHUM&radius=100'>ID KETCHUM                                      </a>&nbsp;&nbsp;&nbsp;USA            </b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a style='background-color: #FF2700; color: white; font-weight: bold; border-style: solid; border-width: 1px; border-color: black;' href='https://enterpriseefiling.fcc.gov/dataentry/public/tv/publicFacilitySearch.html' title='To LMS Facility Search'>&nbsp;FM&nbsp;</a>&nbsp;<a style='background-color: #FFBF44; color: black; font-weight: bold; border-style: solid; border-width: 1px; border-color: black;' href='https://enterpriseefiling.fcc.gov/dataentry/public/tv/publicAppSearch.html' title='To LMS Application Search'>&nbsp;LIC&nbsp;</a></span>
+<font style='position:relative; top:15px; float:right; right:-85px;'><a class='listtext' target='_blank' href='https://publicfiles.fcc.gov/fm-profile/KDPI'>To KDPI Public Files</a></font></span>
+<div style='z-index:2; max-width:300pt; position:relative; top:25px; margin-left:auto; margin-right:auto; float:right; right:-85px; '><a target='_blank' load='lazy' href='https://publicfiles.fcc.gov/fm-profile/KDPI'><img id='Station Logo' style='max-height:140px; max-width:140px; border-color:white;' src="https://publicfiles.fcc.gov/api/manager/download/entity/logo/172637/fm" onerror='this.parentNode.removeChild(this);' title=' Logo from FCC Public Inspection Files, publicfiles.fcc.gov .
+ A click will take you to the public file info submitted by KDPI. 
+
+ Any reference to programming format is supplied by the licensee, 
+ the FCC does not collect programming format information. 
+'></a></div><span class='listtext'>  Licensee: <b>KDPI DROP-IN RADIO, INC.</b></span><p><span class='listtext' >  <nobr>Service Designation: <b class='red'>FM</b>   'Full Service' FM station or application
+</nobr></span>
+<span class='listtext'>  <nobr>Channel/Class: <b>203 A</b>  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Frequency: <b> 88.5 MHz</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font class='red'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Licensed</font></nobr></span>
+<span class='listtext'>  Digital operation not reported -- analog only</span>
+<br><span class='listtext'>  <nobr><b>LMS File No.: BLED-20151103BBS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Facility ID number: 172637</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</nobr><br><br><span class='listtext'>  <nobr>LMS Application ID:  6202e07d4c184e178531c1b6063ebeb7 &nbsp;&nbsp;&nbsp;</nobr></span><br><span class='listtext'>  <nobr>Licensed date: 2015-11-06</nobr></span>
+</td></tr></table>
+<span class='listtext'>  <script type='text/javascript'><!--
+ associatedTranslators(); 
+//--></script></span>
+<script type='text/javascript'><!--
+  $( function() { 
+    $( "#tabs-10000" ).tabs().addClass( "ui-tabs-10000 " );
+  } ); 
+</script>
+<style type='text/css'>
+ .ui-tabs-10000 .ui-tabs-nav li a       { display:block; color: #886F00; }
+  .ui-tabs-10000 .ui-tabs-nav li a.hover { display:block; color: font-weight:bold; }
+  .ui-tabs-10000 .ui-tabs-nav li.ui-tabs-active { padding-bottom: 0; padding-left: .1em; border-left-width: 1px; background-color: #EFDFEF; border-color: #F28927; color: #000000; } 
+ </style>
+
+<div id='tabs-10000' style='width:70em; margin-right:auto; margin-left:auto; border:1; background-color:white;' >    <ul class='ul-button' style='top:-4em; z-index:1; height:0; width:25em;' ><li style='color:white;' class='li-button'><a href='#tabs-10000-1'>Technical Data</a></li><li style='color:white;' class='li-button'><a href='#tabs-10000-2'>Links & Maps</a></li></ul>  <div id='tabs-10000-1' style='position:relative; top:-5em;' m='Mobile'>
+
+
+<table><tr><td align='left' class='listtext' width='300' style='background-color:#EAE6DF;'><nobr>&nbsp;&nbsp; 43&#176; 39' 40.60" N Latitude&nbsp;&nbsp;</nobr><br><nobr>&nbsp;&nbsp;114&#176; 24' 10.10" W Longitude (NAD 83)&nbsp;&nbsp;<br><br><nobr class='smalltext;' style='color:red;'>&nbsp;&nbsp;&nbsp;Use NAD83 for FM filings in LMS.</nobr></nobr></td><td class='listtext' width='150' align='right' valign='top' style='background-color:#EAE6DF;'> &nbsp;43.661278&nbsp;&nbsp;&nbsp; -114.402806&nbsp;&nbsp;&nbsp;</td><td class='listtext' width='300' valign='top'><nobr>&nbsp;&nbsp;Previous NAD27 coordinates:<br> &nbsp;&nbsp;&nbsp;43&#176; 39' 41"<br>&nbsp;&nbsp;114&#176; 24' 7"&nbsp;&nbsp;&nbsp;</nobr><br></td><script type='text/javascript'><!--
+ FirstLicensedBanner(); 
+--></script>
+</tr></table>
+
+<span class='listtext'><table border='0' class='listtext' cellpadding='1' cellspacing='1' width='100%'><tr><td class='listtext' summary=''>&nbsp;&nbsp;</td><td class='black' align='right'>Polarization:&nbsp;&nbsp;&nbsp;&nbsp;</td><td class='black'>Horizontal</td><td class='black'>Vertical </td><td></td></tr><tr><td class='listtext' summary=''>&nbsp;&nbsp;</td><td class='listtext' align='left' style='background-color: #FFEFEE;' >Effective Radiated Power (ERP):</td><td class='listtext' align='center' style='background-color: #FFEFFE;' >0.105</td><td class='listtext' align='center' style='background-color: #FFEFFE;' >0.105</td><td class='listtext' align='left'   style='background-color: #FFEFFE;' >kW ERP</td></tr><tr><td class='listtext' summary='' >&nbsp;&nbsp;</td><td class='listtext' align='left' style='background-color: #FFEFFE;' >ERP with Beam Tilt:</td><td class='listtext' align='center' style='background-color: #FFEFFE;' >0.105</td><td class='listtext' align='center' style='background-color: #FFEFFE;' >0.105</td><td class='listtext' align='left'   style='background-color: #FFEFFE;' >kW ERP</td></tr><tr><td class='listtext' summary=''>&nbsp;&nbsp;</td><td class='listtext' align='left' style='background-color: #FFEFEE;' >Antenna&nbsp;radiation&nbsp;center&nbsp;Height&nbsp;Above&nbsp;Average&nbsp;Terrain:&nbsp;&nbsp;</td><td class='listtext' align='center' style='background-color: #FFEFFE;' >638.</td><td class='listtext' align='center' style='background-color: #FFEFFE;' >638.</td><td class='listtext' align='left'  style='background-color: #FFEFFE;' width='30%' ><nobr>meters HAAT</nobr> - <u style='color: #FF7800;'><script type='text/javascript'><!-- 
+calculateHAAT();
+--></script>
+</u></td></tr><tr><td class='listtext' summary=''>&nbsp;&nbsp;</td><td class='listtext' align='left' style='background-color: #FFFFFF;' ><nobr>Antenna radiation Center Height Above Mean&nbsp;Sea&nbsp;Level:&nbsp;&nbsp;&nbsp;&nbsp;</nobr></td><td class='listtext' align='center' style='background-color: #FFFFFF;' >2760.</td><td class='listtext' align='center' style='background-color: #FFFFFF;' >2760.</td><td class='listtext' align='left'   style='background-color: #FFFFFF;' >meters AMSL</td></tr><tr><td class='listtext' summary=''>&nbsp;&nbsp;</td><td class='listtext' align='left' style='background-color: #FFFFFF;'><nobr>Antenna radiation center Height Above Ground&nbsp;Level:&nbsp;&nbsp;&nbsp;&nbsp;</nobr></td><td class='listtext' align='center' style='background-color: #FFFFFF;' >16.</td><td class='listtext' align='center' style='background-color: #FFFFFF;' >16.</td><td class='listtext' align='left'  style='background-color: #FFFFFF;'  >meters AGL</td></tr></table></span>
+
+<span class='ltyellow'>   0.03      km (0.02      miles) </span><span class="listtext"> distant from 43&#176; 39' 40.00" N Lat 114&#176; 24' 11.00" W Lon,
+    at a bearing of </span><span class="ltyellow"> 47.34&#176;</span><span class="listtext"> using the method in <a href="http://www.ecfr.gov/cgi-bin/text-idx?node=se47.5.73_1208">Section 73.208</a> of calculating distance. 
+    <span class="listtext">(Reverse bearing 227.34&#176;.)</span>
+
+<span class='listtext'>   Non-Directional    </span> <span class='listtext'>      &nbsp;Antenna ID: &nbsp;<font class='smalltext' title='LMS aant_antenna_record_id'>f0ade41d838e4c458ee1c1b6063ebeb7</font>&nbsp;&nbsp;<span class='listtext'>
+   Antenna Make: PSI     Antenna Model: FML-2A-HR-WS, TWO BAYS, 0.75 WAVELENGTH SPACED</span>
+<span class='listtext'>   No. of antenna sections: 2</span>
+
+</div><div style='height:0; width:0;' ><script> var divheight = $("#tabs-10000-1").height();     divheight=divheight+Math.round(9*1.1);</script></div><div id='tabs-10000-2' m='Mobile' style='position:relative; top:-5em;' class='listtext-noprint'>
+
+
+
+<script type='text/javascript'><!-- 
+LMSlinks();
+CDBSlinks();
+Maplinks(); 
+PIFlinks(); 
+HistoryCardsLink();
+ULSlinks();
+radiusSearch();
+FMpreliminaryStudy();
+ClassAallotmentChannelFinder();
+
+toAtlas();
+--></script>
+</div><script> $('#tabs-10000-2').css('height', divheight*1.0);</script>
+</div></pre><br><script type='text/javascript'><!-- 
+  omit = 0;
+  recordcount = '10000';
+  facility_id = '763565';
+  c_application_id = '275617';
+  hostname = 'transition';
+  c_callsign = 'KZSV';
+  c_facility_callsign = 'KZSV';
+  four_letter_callsign = 'KZSV';
+  c_service = 'FM';
+  c_station_class = 'A';
+
+  c_dom_status = 'LIC';
+  c_filenumber = '0000275617';
+  c_comm_city_app = "KETCHUM";
+  c_comm_state_app = 'ID';
+  c_country = 'US';
+  var c_nad = '83';
+  c_lat_deg = '43';
+  c_lat_min = '39';
+  c_lat_sec = '40.60';
+  c_lat_dir = 'N';
+  c_lon_deg = '114';
+  c_lon_min = '24';
+  c_lon_sec = '11.50';
+  c_lon_dir = 'W';
+  freq = '89.3';
+  c_station_channel = '207';
+ p_haat_max = '662.0';
+ p_rcamsl_max = '2756.';
+ p_erp_max = '0.018';
+  alat83 = '43.661277';
+  alon83 = '-114.403194';
+  longstring = "";
+  service_contour  = 60;
+ lms_appid = '25076ff39819f03901981e52efb201f5';
+  lms_histcard_id = '-';
+FirstLicensedDate = '';
+HistoryCardsAt = 0;
+ ns = 1;
+ ew = -1;
+ terrdb = 7;
+ list = 0;
+ c_da_ind = '-';
+ c_antenna_type = ' ';
+ temp = 0;
+ initial = 0;
+ whitefill = 0;
+--></script>
+<div id='10001' class='listtext' style='page-break-before: always; margin-right:auto; margin-left:auto; left:0; right:0;' width='123'><pre>
+
+
+                                                                                            <span class='listtext-noprint;' style='top:20px;'><a href='#n10000' name='n10001'>Previous Record</A> -- <a href='#n10002'>Next Record</A></span>
+
+<span class='blue'>&nbsp;&nbsp;<b>KZSV                  <a target='_blank' style='text-decoration-color: blue; display: inline-block; width:300px;' title=' Community Information ' href='/fcc-bin/atlas?state=ID&city=KETCHUM&radius=100'>ID KETCHUM                                      </a>&nbsp;&nbsp;&nbsp;USA            </b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a style='background-color: #FF2700; color: white; font-weight: bold; border-style: solid; border-width: 1px; border-color: black;' href='https://enterpriseefiling.fcc.gov/dataentry/public/tv/publicFacilitySearch.html' title='To LMS Facility Search'>&nbsp;FM&nbsp;</a>&nbsp;<a style='background-color: #FFBF44; color: black; font-weight: bold; border-style: solid; border-width: 1px; border-color: black;' href='https://enterpriseefiling.fcc.gov/dataentry/public/tv/publicAppSearch.html' title='To LMS Application Search'>&nbsp;LIC&nbsp;</a></span>
+<font style='position:relative; top:15px; float:right; right:-85px;'><a class='listtext' target='_blank' href='https://publicfiles.fcc.gov/fm-profile/KZSV'>To KZSV Public Files</a></font></span>
+<div style='z-index:2; max-width:300pt; position:relative; top:25px; margin-left:auto; margin-right:auto; float:right; right:-85px; '><a target='_blank' load='lazy' href='https://publicfiles.fcc.gov/fm-profile/KZSV'><img id='Station Logo' style='max-height:140px; max-width:140px; border-color:white;' src="https://publicfiles.fcc.gov/api/manager/download/entity/logo/763565/fm" onerror='this.parentNode.removeChild(this);' title=' Logo from FCC Public Inspection Files, publicfiles.fcc.gov .
+ A click will take you to the public file info submitted by KZSV. 
+
+ Any reference to programming format is supplied by the licensee, 
+ the FCC does not collect programming format information. 
+'></a></div><span class='listtext'>  Licensee: <b>SALT & LIGHT RADIO, LLC</b></span><p><span class='listtext' >  <nobr>Service Designation: <b class='red'>FM</b>   'Full Service' FM station or application
+</nobr></span>
+<span class='listtext'>  <nobr>Channel/Class: <b>207 A</b>  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Frequency: <b> 89.3 MHz</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font class='red'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Licensed</font></nobr></span>
+<span class='listtext'>  Digital operation not reported -- analog only</span>
+<br><span class='listtext'>  <nobr><b>LMS File No.: 0000275617&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Facility ID number: 763565</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</nobr><br><br><span class='listtext'>  <nobr>LMS Application ID:  25076ff39819f03901981e52efb201f5 &nbsp;&nbsp;&nbsp;</nobr></span><br><span class='listtext'>  <nobr>Licensed date: 2025-07-29</nobr></span>
+</td></tr></table>
+<span class='listtext'>  <script type='text/javascript'><!--
+ associatedTranslators(); 
+//--></script></span>
+<script type='text/javascript'><!--
+  $( function() { 
+    $( "#tabs-10001" ).tabs().addClass( "ui-tabs-10001 " );
+  } ); 
+</script>
+<style type='text/css'>
+ .ui-tabs-10001 .ui-tabs-nav li a       { display:block; color: #886F00; }
+  .ui-tabs-10001 .ui-tabs-nav li a.hover { display:block; color: font-weight:bold; }
+  .ui-tabs-10001 .ui-tabs-nav li.ui-tabs-active { padding-bottom: 0; padding-left: .1em; border-left-width: 1px; background-color: #EFDFEF; border-color: #F28927; color: #000000; } 
+ </style>
+
+<div id='tabs-10001' style='width:70em; margin-right:auto; margin-left:auto; border:1; background-color:white;' >    <ul class='ul-button' style='top:-4em; z-index:1; height:0; width:25em;' ><li style='color:white;' class='li-button'><a href='#tabs-10001-1'>Technical Data</a></li><li style='color:white;' class='li-button'><a href='#tabs-10001-2'>Links & Maps</a></li></ul>  <div id='tabs-10001-1' style='position:relative; top:-5em;' m='Mobile'>
+
+
+<table><tr><td align='left' class='listtext' width='300' style='background-color:#EAE6DF;'><nobr>&nbsp;&nbsp; 43&#176; 39' 40.60" N Latitude&nbsp;&nbsp;</nobr><br><nobr>&nbsp;&nbsp;114&#176; 24' 11.50" W Longitude (NAD 83)&nbsp;&nbsp;<br><br><nobr class='smalltext;' style='color:red;'>&nbsp;&nbsp;&nbsp;Use NAD83 for FM filings in LMS.</nobr></nobr></td><td class='listtext' width='150' align='right' valign='top' style='background-color:#EAE6DF;'> &nbsp;43.661278&nbsp;&nbsp;&nbsp; -114.403194&nbsp;&nbsp;&nbsp;</td><td class='listtext' width='300' valign='top'></td><script type='text/javascript'><!--
+ FirstLicensedBanner(); 
+--></script>
+</tr></table>
+
+<span class='listtext'><table border='0' class='listtext' cellpadding='1' cellspacing='1' width='100%'><tr><td class='listtext' summary=''>&nbsp;&nbsp;</td><td class='black' align='right'>Polarization:&nbsp;&nbsp;&nbsp;&nbsp;</td><td class='black'>Horizontal</td><td class='black'>Vertical </td><td></td></tr><tr><td class='listtext' summary=''>&nbsp;&nbsp;</td><td class='listtext' align='left' style='background-color: #FFEFEE;' >Effective Radiated Power (ERP):</td><td class='listtext' align='center' style='background-color: #FFEFFE;' >0.018</td><td class='listtext' align='center' style='background-color: #FFEFFE;' >0.018</td><td class='listtext' align='left'   style='background-color: #FFEFFE;' >kW ERP</td></tr><tr><td class='listtext' summary='' >&nbsp;&nbsp;</td><td class='listtext' align='left' style='background-color: #FFEFFE;' >ERP with Beam Tilt:</td><td class='listtext' align='center' style='background-color: #FFEFFE;' >0.</td><td class='listtext' align='center' style='background-color: #FFEFFE;' >0.</td><td class='listtext' align='left'   style='background-color: #FFEFFE;' >kW ERP</td></tr><tr><td class='listtext' summary=''>&nbsp;&nbsp;</td><td class='listtext' align='left' style='background-color: #FFEFEE;' >Antenna&nbsp;radiation&nbsp;center&nbsp;Height&nbsp;Above&nbsp;Average&nbsp;Terrain:&nbsp;&nbsp;</td><td class='listtext' align='center' style='background-color: #FFEFFE;' >662.</td><td class='listtext' align='center' style='background-color: #FFEFFE;' >662.</td><td class='listtext' align='left'  style='background-color: #FFEFFE;' width='30%' ><nobr>meters HAAT</nobr> - <u style='color: #FF7800;'><script type='text/javascript'><!-- 
+calculateHAAT();
+--></script>
+</u></td></tr><tr><td class='listtext' summary=''>&nbsp;&nbsp;</td><td class='listtext' align='left' style='background-color: #FFFFFF;' ><nobr>Antenna radiation Center Height Above Mean&nbsp;Sea&nbsp;Level:&nbsp;&nbsp;&nbsp;&nbsp;</nobr></td><td class='listtext' align='center' style='background-color: #FFFFFF;' >2756.</td><td class='listtext' align='center' style='background-color: #FFFFFF;' >2756.</td><td class='listtext' align='left'   style='background-color: #FFFFFF;' >meters AMSL</td></tr><tr><td class='listtext' summary=''>&nbsp;&nbsp;</td><td class='listtext' align='left' style='background-color: #FFFFFF;'><nobr>Antenna radiation center Height Above Ground&nbsp;Level:&nbsp;&nbsp;&nbsp;&nbsp;</nobr></td><td class='listtext' align='center' style='background-color: #FFFFFF;' >12.</td><td class='listtext' align='center' style='background-color: #FFFFFF;' >12.</td><td class='listtext' align='left'  style='background-color: #FFFFFF;'  >meters AGL</td></tr></table></span>
+
+<span class='ltyellow'>   0.02      km (0.01      miles) </span><span class="listtext"> distant from 43&#176; 39' 40.00" N Lat 114&#176; 24' 11.00" W Lon,
+    at a bearing of </span><span class="ltyellow">  0.00&#176;</span><span class="listtext"> using the method in <a href="http://www.ecfr.gov/cgi-bin/text-idx?node=se47.5.73_1208">Section 73.208</a> of calculating distance. 
+    <span class="listtext">(Reverse bearing   0.00&#176;.)</span>
+
+<span class='listtext'>   Non-Directional    </span> <span class='listtext'>      &nbsp;Antenna ID: &nbsp;<font class='smalltext' title='LMS aant_antenna_record_id'>25076ff39819f03901981e52f2730204</font>&nbsp;&nbsp;<span class='listtext'>
+   Antenna Make: ERI     Antenna Model: LP-1E</span>
+<span class='listtext'>   No. of antenna sections: 1</span>
+
+</div><div style='height:0; width:0;' ><script> var divheight = $("#tabs-10001-1").height();     divheight=divheight+Math.round(9*1.1);</script></div><div id='tabs-10001-2' m='Mobile' style='position:relative; top:-5em;' class='listtext-noprint'>
+
+
+
+<script type='text/javascript'><!-- 
+LMSlinks();
+Maplinks(); 
+PIFlinks(); 
+HistoryCardsLink();
+ULSlinks();
+radiusSearch();
+FMpreliminaryStudy();
+ClassAallotmentChannelFinder();
+
+toAtlas();
+--></script>
+</div><script> $('#tabs-10001-2').css('height', divheight*1.0);</script>
+</div></pre><br><script type='text/javascript'><!-- 
+  omit = 0;
+  recordcount = '10001';
+  facility_id = '141769';
+  c_application_id = '200709107';
+  hostname = 'transition';
+  c_callsign = 'K213EN';
+  c_facility_callsign = 'K213EN';
+  four_letter_callsign = 'K213EN';
+  c_service = 'FX';
+  c_station_class = 'D';
+
+  c_dom_status = 'LIC';
+  c_filenumber = 'BLFT-20070910ADJ';
+  c_comm_city_app = "HAILEY";
+  c_comm_state_app = 'ID';
+  c_country = 'US';
+  var c_nad = '83';
+  c_lat_deg = '43';
+  c_lat_min = '38';
+  c_lat_sec = '35.60';
+  c_lat_dir = 'N';
+  c_lon_deg = '114';
+  c_lon_min = '23';
+  c_lon_sec = '52.10';
+  c_lon_dir = 'W';
+  freq = '90.5';
+  c_station_channel = '213';
+ p_haat_max = '565.5';
+ p_rcamsl_max = '2639.';
+ p_erp_max = '0.005';
+  alat83 = '43.643222';
+  alon83 = '-114.397805';
+  longstring = "";
+  service_contour  = 60;
+ lms_appid = '11fd544400d64db48146c1b6063ebeb7';
+  lms_histcard_id = '-';
+FirstLicensedDate = '';
+HistoryCardsAt = 0;
+ ns = 1;
+ ew = -1;
+ terrdb = 7;
+ list = 0;
+ c_da_ind = '-';
+ c_antenna_type = ' ';
+ temp = 0;
+ initial = 0;
+ whitefill = 0;
+--></script>
+<div id='10002' class='listtext' style='page-break-before: always; margin-right:auto; margin-left:auto; left:0; right:0;' width='155'><pre>
+
+
+                                                                                            <span class='listtext-noprint;' style='top:20px;'><a href='#n10001' name='n10002'>Previous Record</A> -- <a href='#n10003'>Next Record</A></span>
+
+<span class='blue'>&nbsp;&nbsp;<b>K213EN                <a target='_blank' style='text-decoration-color: blue; display: inline-block; width:300px;' title=' Community Information ' href='/fcc-bin/atlas?state=ID&city=HAILEY&radius=100'>ID HAILEY                                       </a>&nbsp;&nbsp;&nbsp;USA            </b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a style='background-color: #007F25; color: white; font-weight: bold; border-style: solid; border-width: 1px; border-color: black;' href='https://enterpriseefiling.fcc.gov/dataentry/public/tv/publicFacilitySearch.html' title='To LMS Facility Search'>&nbsp;FX&nbsp;</a>&nbsp;<a style='background-color: #FFBF44; color: black; font-weight: bold; border-style: solid; border-width: 1px; border-color: black;' href='https://enterpriseefiling.fcc.gov/dataentry/public/tv/publicAppSearch.html' title='To LMS Application Search'>&nbsp;LIC&nbsp;</a></span>
+<font style='position:relative; top:15px; float:right; right:-85px;'><a class='listtext' target='_blank' href='https://publicfiles.fcc.gov/fm-profile/K213EN'>To K213EN Public Files</a></font></span>
+<div style='z-index:2; max-width:300pt; position:relative; top:25px; margin-left:auto; margin-right:auto; float:right; right:-85px; '><a target='_blank' load='lazy' href='https://publicfiles.fcc.gov/fm-profile/K213EN'><img id='Station Logo' style='max-height:140px; max-width:140px; border-color:white;' src="https://publicfiles.fcc.gov/api/manager/download/entity/logo/141769/fm" onerror='this.parentNode.removeChild(this);' title=' Logo from FCC Public Inspection Files, publicfiles.fcc.gov .
+ A click will take you to the public file info submitted by K213EN. 
+
+ Any reference to programming format is supplied by the licensee, 
+ the FCC does not collect programming format information. 
+'></a></div><span class='listtext'>  Licensee: <b>IDAHO STATE BOARD OF EDUCATION (BOISE STATE UNIVERSITY)</b></span><p><span class='listtext' >  <nobr>Service Designation: <b class='red'>FX</b>   Translator Station (retransmits signal, different channel than main station)
+</nobr></span>
+<span class='listtext'>  <nobr>Channel/Class: <b>213 D</b>  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Frequency: <b> 90.5 MHz</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font class='red'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Licensed</font></nobr></span>
+<br><span class='listtext'>  <nobr><b>LMS File No.: BLFT-20070910ADJ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Facility ID number: 141769</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</nobr><br><br><span class='listtext'>  <nobr>LMS Application ID:  11fd544400d64db48146c1b6063ebeb7 &nbsp;&nbsp;&nbsp;</nobr></span><br><span class='listtext'>  <nobr>Licensed date: 2007-09-20</nobr></span>
+ <iframe id='200709107Primary141769' scrolling=no style='height:27px; width:980px; border:0px; ' src='/fcc-bin/fmq?RELAYS87408&textsize=9'></iframe></td></tr></table>
+<script type='text/javascript'><!--
+  $( function() { 
+    $( "#tabs-10002" ).tabs().addClass( "ui-tabs-10002 " );
+  } ); 
+</script>
+<style type='text/css'>
+ .ui-tabs-10002 .ui-tabs-nav li a       { display:block; color: #886F00; }
+  .ui-tabs-10002 .ui-tabs-nav li a.hover { display:block; color: font-weight:bold; }
+  .ui-tabs-10002 .ui-tabs-nav li.ui-tabs-active { padding-bottom: 0; padding-left: .1em; border-left-width: 1px; background-color: #EFDFEF; border-color: #F28927; color: #000000; } 
+ </style>
+
+<div id='tabs-10002' style='width:70em; margin-right:auto; margin-left:auto; border:1; background-color:white;' >    <ul class='ul-button' style='top:-4em; z-index:1; height:0; width:25em;' ><li style='color:white;' class='li-button'><a href='#tabs-10002-1'>Technical Data</a></li><li style='color:white;' class='li-button'><a href='#tabs-10002-2'>Links & Maps</a></li></ul>  <div id='tabs-10002-1' style='position:relative; top:-5em;' m='Mobile'>
+
+
+<table><tr><td align='left' class='listtext' width='300' style='background-color:#EAE6DF;'><nobr>&nbsp;&nbsp; 43&#176; 38' 35.60" N Latitude&nbsp;&nbsp;</nobr><br><nobr>&nbsp;&nbsp;114&#176; 23' 52.10" W Longitude (NAD 83)&nbsp;&nbsp;<br><br><nobr class='smalltext;' style='color:red;'>&nbsp;&nbsp;&nbsp;Use NAD83 for FM filings in LMS.</nobr></nobr></td><td class='listtext' width='150' align='right' valign='top' style='background-color:#EAE6DF;'> &nbsp;43.643222&nbsp;&nbsp;&nbsp; -114.397806&nbsp;&nbsp;&nbsp;</td><td class='listtext' width='300' valign='top'><nobr>&nbsp;&nbsp;Previous NAD27 coordinates:<br> &nbsp;&nbsp;&nbsp;43&#176; 38' 36"<br>&nbsp;&nbsp;114&#176; 23' 49"&nbsp;&nbsp;&nbsp;</nobr><br></td><script type='text/javascript'><!--
+ FirstLicensedBanner(); 
+--></script>
+</tr></table>
+
+<span class='listtext'><table border='0' class='listtext' cellpadding='1' cellspacing='1' width='100%'><tr><td class='listtext' summary=''>&nbsp;&nbsp;</td><td class='black' align='right'>Polarization:&nbsp;&nbsp;&nbsp;&nbsp;</td><td class='black'>Horizontal</td><td class='black'>Vertical </td><td></td></tr><tr><td class='listtext' summary=''>&nbsp;&nbsp;</td><td class='listtext' align='left' style='background-color: #FFEFEE;' >Effective Radiated Power (ERP):</td><td class='listtext' align='center' style='background-color: #FFEFFE;' >0.005</td><td class='listtext' align='center' style='background-color: #FFEFFE;' >0.005</td><td class='listtext' align='left'   style='background-color: #FFEFFE;' >kW ERP</td></tr><tr><td class='listtext' summary='' >&nbsp;&nbsp;</td><td class='listtext' align='left' style='background-color: #FFEFFE;' >ERP with Beam Tilt:</td><td class='listtext' align='center' style='background-color: #FFEFFE;' >0.005</td><td class='listtext' align='center' style='background-color: #FFEFFE;' >0.005</td><td class='listtext' align='left'   style='background-color: #FFEFFE;' >kW ERP</td></tr><tr><td class='listtext' summary=''>&nbsp;&nbsp;</td><td class='listtext' align='left' style='background-color: #FFEFEE;' >Antenna&nbsp;radiation&nbsp;center&nbsp;Height&nbsp;Above&nbsp;Average&nbsp;Terrain:&nbsp;&nbsp;</td><td class='listtext' align='center' style='background-color: #FFEFFE;' >565.5</td><td class='listtext' align='center' style='background-color: #FFEFFE;' >0.</td><td class='listtext' align='left'  style='background-color: #FFEFFE;' width='30%' ><nobr>meters HAAT</nobr> - <u style='color: #FF7800;'><script type='text/javascript'><!-- 
+calculateHAAT();
+--></script>
+</u></td></tr><tr><td class='listtext' summary=''>&nbsp;&nbsp;</td><td class='listtext' align='left' style='background-color: #FFFFFF;' ><nobr>Antenna radiation Center Height Above Mean&nbsp;Sea&nbsp;Level:&nbsp;&nbsp;&nbsp;&nbsp;</nobr></td><td class='listtext' align='center' style='background-color: #FFFFFF;' >2639.</td><td class='listtext' align='center' style='background-color: #FFFFFF;' >2639.</td><td class='listtext' align='left'   style='background-color: #FFFFFF;' >meters AMSL</td></tr><tr><td class='listtext' summary=''>&nbsp;&nbsp;</td><td class='listtext' align='left' style='background-color: #FFFFFF;'><nobr>Antenna radiation center Height Above Ground&nbsp;Level:&nbsp;&nbsp;&nbsp;&nbsp;</nobr></td><td class='listtext' align='center' style='background-color: #FFFFFF;' >6.</td><td class='listtext' align='center' style='background-color: #FFFFFF;' >6.</td><td class='listtext' align='left'  style='background-color: #FFFFFF;'  >meters AGL</td></tr></table></span>
+
+<span class='ltyellow'>   2.03      km (1.26      miles) </span><span class="listtext"> distant from 43&#176; 39' 40.00" N Lat 114&#176; 24' 11.00" W Lon,
+    at a bearing of </span><span class="ltyellow">168.01&#176;</span><span class="listtext"> using the method in <a href="http://www.ecfr.gov/cgi-bin/text-idx?node=se47.5.73_1208">Section 73.208</a> of calculating distance. 
+    <span class="listtext">(Reverse bearing 348.01&#176;.)</span>
+
+<span class='listtext'>   Non-Directional    </span> <span class='listtext'>      &nbsp;Antenna ID: &nbsp;<font class='smalltext' title='LMS aant_antenna_record_id'>bb24255a4fe24780a72fc1b6063ebeb7</font>&nbsp;&nbsp;<span class='listtext'>
+   Antenna Make: SHI     Antenna Model: 6812</span>
+<span class='listtext'>   No. of antenna sections: -</span>
+
+</div><div style='height:0; width:0;' ><script> var divheight = $("#tabs-10002-1").height();     divheight=divheight+Math.round(9*1.1);</script></div><div id='tabs-10002-2' m='Mobile' style='position:relative; top:-5em;' class='listtext-noprint'>
+
+
+
+<script type='text/javascript'><!-- 
+LMSlinks();
+CDBSlinks();
+Maplinks(); 
+PIFlinks(); 
+ULSlinks();
+radiusSearch();
+FMpreliminaryStudy();
+toAtlas();
+--></script>
+</div><script> $('#tabs-10002-2').css('height', divheight*1.0);</script>
+</div></pre><br><script type='text/javascript'><!-- 
+  omit = 0;
+  recordcount = '10002';
+  facility_id = '87408';
+  c_application_id = '268018';
+  hostname = 'transition';
+  c_callsign = 'KBSS';
+  c_facility_callsign = 'KBSS';
+  four_letter_callsign = 'KBSS';
+  c_service = 'FM';
+  c_station_class = 'C2';
+
+  c_dom_status = 'STA';
+  c_filenumber = '0000268018';
+  c_comm_city_app = "SUN VALLEY";
+  c_comm_state_app = 'ID';
+  c_country = 'US';
+  var c_nad = '83';
+  c_lat_deg = '43';
+  c_lat_min = '38';
+  c_lat_sec = '36.20';
+  c_lat_dir = 'N';
+  c_lon_deg = '114';
+  c_lon_min = '23';
+  c_lon_sec = '52.90';
+  c_lon_dir = 'W';
+  freq = '91.1';
+  c_station_channel = '216';
+ p_haat_max = '570.0';
+ p_rcamsl_max = '2645.';
+ p_erp_max = '0.75';
+  alat83 = '43.643388';
+  alon83 = '-114.398027';
+  longstring = "";
+  service_contour  = 60;
+ lms_appid = '25076ff3958c41960195a53fe6820a5c';
+  lms_histcard_id = '-';
+FirstLicensedDate = '';
+HistoryCardsAt = 0;
+ ns = 1;
+ ew = -1;
+ terrdb = 7;
+ list = 0;
+ c_da_ind = '-';
+ c_antenna_type = ' ';
+ temp = 0;
+ initial = 0;
+ whitefill = 0;
+--></script>
+<div id='10003' class='listtext' style='page-break-before: always; margin-right:auto; margin-left:auto; left:0; right:0;' width='130'><pre>
+
+
+                                                                                            <span class='listtext-noprint;' style='top:20px;'><a href='#n10002' name='n10003'>Previous Record</A> -- <a href='#n10004'>Next Record</A></span>
+
+<span class='blue'>&nbsp;&nbsp;<b>KBSS                  <a target='_blank' style='text-decoration-color: blue; display: inline-block; width:300px;' title=' Community Information ' href='/fcc-bin/atlas?state=ID&city=SUN VALLEY&radius=100'>ID SUN VALLEY                                   </a>&nbsp;&nbsp;&nbsp;USA            </b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a style='background-color: #FF2700; color: white; font-weight: bold; border-style: solid; border-width: 1px; border-color: black;' href='https://enterpriseefiling.fcc.gov/dataentry/public/tv/publicFacilitySearch.html' title='To LMS Facility Search'>&nbsp;FM&nbsp;</a>      </span>
+<font style='position:relative; top:15px; float:right; right:-85px;'><a class='listtext' target='_blank' href='https://publicfiles.fcc.gov/fm-profile/KBSS'>To KBSS Public Files</a></font></span>
+<div style='z-index:2; max-width:300pt; position:relative; top:25px; margin-left:auto; margin-right:auto; float:right; right:-85px; '><a target='_blank' load='lazy' href='https://publicfiles.fcc.gov/fm-profile/KBSS'><img id='Station Logo' style='max-height:140px; max-width:140px; border-color:white;' src="https://publicfiles.fcc.gov/api/manager/download/entity/logo/87408/fm" onerror='this.parentNode.removeChild(this);' title=' Logo from FCC Public Inspection Files, publicfiles.fcc.gov .
+ A click will take you to the public file info submitted by KBSS. 
+
+ Any reference to programming format is supplied by the licensee, 
+ the FCC does not collect programming format information. 
+'></a></div><span class='listtext'>  Licensee: <b>IDAHO STATE BOARD OF EDUCATION</b></span><p><span class='listtext' >  <nobr>Service Designation: <b class='red'>FM</b>   'Full Service' FM station or application
+</nobr></span>
+<span class='listtext'>  <nobr>Channel/Class: <b>216 C2</b>  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Frequency: <b> 91.1 MHz</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font class='red'> <abbr title='Special Temporary Authority'>STA</abbr> Application</font></nobr></span>
+<br><span class='listtext'>  <nobr><b>LMS File No.: 0000268018&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Facility ID number: 87408</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</nobr><br><span class='listtext'>  <nobr>Application received date:  2025-03-17 &nbsp;&nbsp;&nbsp;  STA Grant Date: 2025-05-16</nobr></span>
+<br><br><span class='listtext'>  <nobr>LMS Application ID:  25076ff3958c41960195a53fe6820a5c &nbsp;&nbsp;&nbsp;</nobr></span><br><span class='listtext'>  <nobr>Application received date:  2025-03-17 &nbsp;&nbsp;&nbsp;  Grant date: 2025-05-16</nobr></span>
+ <iframe id='268018Primary87408' scrolling=no style='height:27px; width:980px; border:0px; ' src='/fcc-bin/fmq?RELAYS28243&textsize=9'></iframe></td></tr></table>
+<span class='listtext'>  <script type='text/javascript'><!--
+ associatedTranslators(); 
+//--></script></span>
+<script type='text/javascript'><!--
+  $( function() { 
+    $( "#tabs-10003" ).tabs().addClass( "ui-tabs-10003 " );
+  } ); 
+</script>
+<style type='text/css'>
+ .ui-tabs-10003 .ui-tabs-nav li a       { display:block; color: #886F00; }
+  .ui-tabs-10003 .ui-tabs-nav li a.hover { display:block; color: font-weight:bold; }
+  .ui-tabs-10003 .ui-tabs-nav li.ui-tabs-active { padding-bottom: 0; padding-left: .1em; border-left-width: 1px; background-color: #EFDFEF; border-color: #F28927; color: #000000; } 
+ </style>
+
+<div id='tabs-10003' style='width:70em; margin-right:auto; margin-left:auto; border:1; background-color:white;' >    <ul class='ul-button' style='top:-4em; z-index:1; height:0; width:25em;' ><li style='color:white;' class='li-button'><a href='#tabs-10003-1'>Technical Data</a></li><li style='color:white;' class='li-button'><a href='#tabs-10003-2'>Links & Maps</a></li></ul>  <div id='tabs-10003-1' style='position:relative; top:-5em;' m='Mobile'>
+
+
+<table><tr><td align='left' class='listtext' width='300' style='background-color:#EAE6DF;'><nobr>&nbsp;&nbsp; 43&#176; 38' 36.20" N Latitude&nbsp;&nbsp;</nobr><br><nobr>&nbsp;&nbsp;114&#176; 23' 52.90" W Longitude (NAD 83)&nbsp;&nbsp;<br><br><nobr class='smalltext;' style='color:red;'>&nbsp;&nbsp;&nbsp;Use NAD83 for FM filings in LMS.</nobr></nobr></td><td class='listtext' width='150' align='right' valign='top' style='background-color:#EAE6DF;'> &nbsp;43.643389&nbsp;&nbsp;&nbsp; -114.398028&nbsp;&nbsp;&nbsp;</td><td class='listtext' width='300' valign='top'></td><script type='text/javascript'><!--
+ FirstLicensedBanner(); 
+--></script>
+</tr></table>
+
+<span class='listtext'><table border='0' class='listtext' cellpadding='1' cellspacing='1' width='100%'><tr><td class='listtext' summary=''>&nbsp;&nbsp;</td><td class='black' align='right'>Polarization:&nbsp;&nbsp;&nbsp;&nbsp;</td><td class='black'>Horizontal</td><td class='black'>Vertical </td><td></td></tr><tr><td class='listtext' summary=''>&nbsp;&nbsp;</td><td class='listtext' align='left' style='background-color: #FFEFEE;' >Effective Radiated Power (ERP):</td><td class='listtext' align='center' style='background-color: #FFEFFE;' >0.75</td><td class='listtext' align='center' style='background-color: #FFEFFE;' >0.75</td><td class='listtext' align='left'   style='background-color: #FFEFFE;' >kW ERP</td></tr><tr><td class='listtext' summary='' >&nbsp;&nbsp;</td><td class='listtext' align='left' style='background-color: #FFEFFE;' >ERP with Beam Tilt:</td><td class='listtext' align='center' style='background-color: #FFEFFE;' >0.</td><td class='listtext' align='center' style='background-color: #FFEFFE;' >0.</td><td class='listtext' align='left'   style='background-color: #FFEFFE;' >kW ERP</td></tr><tr><td class='listtext' summary=''>&nbsp;&nbsp;</td><td class='listtext' align='left' style='background-color: #FFEFEE;' >Antenna&nbsp;radiation&nbsp;center&nbsp;Height&nbsp;Above&nbsp;Average&nbsp;Terrain:&nbsp;&nbsp;</td><td class='listtext' align='center' style='background-color: #FFEFFE;' >570.</td><td class='listtext' align='center' style='background-color: #FFEFFE;' >570.</td><td class='listtext' align='left'  style='background-color: #FFEFFE;' width='30%' ><nobr>meters HAAT</nobr> - <u style='color: #FF7800;'><script type='text/javascript'><!-- 
+calculateHAAT();
+--></script>
+</u></td></tr><tr><td class='listtext' summary=''>&nbsp;&nbsp;</td><td class='listtext' align='left' style='background-color: #FFFFFF;' ><nobr>Antenna radiation Center Height Above Mean&nbsp;Sea&nbsp;Level:&nbsp;&nbsp;&nbsp;&nbsp;</nobr></td><td class='listtext' align='center' style='background-color: #FFFFFF;' >2645.</td><td class='listtext' align='center' style='background-color: #FFFFFF;' >2645.</td><td class='listtext' align='left'   style='background-color: #FFFFFF;' >meters AMSL</td></tr><tr><td class='listtext' summary=''>&nbsp;&nbsp;</td><td class='listtext' align='left' style='background-color: #FFFFFF;'><nobr>Antenna radiation center Height Above Ground&nbsp;Level:&nbsp;&nbsp;&nbsp;&nbsp;</nobr></td><td class='listtext' align='center' style='background-color: #FFFFFF;' >11.</td><td class='listtext' align='center' style='background-color: #FFFFFF;' >11.</td><td class='listtext' align='left'  style='background-color: #FFFFFF;'  >meters AGL</td></tr></table></span>
+
+<span class='ltyellow'>   2.01      km (1.25      miles) </span><span class="listtext"> distant from 43&#176; 39' 40.00" N Lat 114&#176; 24' 11.00" W Lon,
+    at a bearing of </span><span class="ltyellow">168.40&#176;</span><span class="listtext"> using the method in <a href="http://www.ecfr.gov/cgi-bin/text-idx?node=se47.5.73_1208">Section 73.208</a> of calculating distance. 
+    <span class="listtext">(Reverse bearing 348.40&#176;.)</span>
+
+<span class='listtext'>   Non-Directional    </span> <span class='listtext'>      &nbsp;Antenna ID: &nbsp;<font class='smalltext' title='LMS aant_antenna_record_id'>25076ff3958c41960195a53fe8f50a63</font>&nbsp;&nbsp;<span class='listtext'>
+
+</span></div><div style='height:0; width:0;' ><script> var divheight = $("#tabs-10003-1").height();     divheight=divheight+Math.round(9*1.1);</script></div><div id='tabs-10003-2' m='Mobile' style='position:relative; top:-5em;' class='listtext-noprint'>
+
+
+
+<script type='text/javascript'><!-- 
+LMSlinks();
+CDBSlinks();
+Maplinks(); 
+PIFlinks(); 
+ULSlinks();
+radiusSearch();
+FMpreliminaryStudy();
+ClassAallotmentChannelFinder();
+
+toAtlas();
+--></script>
+</div><script> $('#tabs-10003-2').css('height', divheight*1.0);</script>
+</div></pre><br><script type='text/javascript'><!-- 
+  omit = 0;
+  recordcount = '10003';
+  facility_id = '87408';
+  c_application_id = '219820';
+  hostname = 'transition';
+  c_callsign = 'KBSS';
+  c_facility_callsign = 'KBSS';
+  four_letter_callsign = 'KBSS';
+  c_service = 'FM';
+  c_station_class = 'C2';
+
+  c_dom_status = 'LIC';
+  c_filenumber = '0000219820';
+  c_comm_city_app = "SUN VALLEY";
+  c_comm_state_app = 'ID';
+  c_country = 'US';
+  var c_nad = '83';
+  c_lat_deg = '43';
+  c_lat_min = '38';
+  c_lat_sec = '36.20';
+  c_lat_dir = 'N';
+  c_lon_deg = '114';
+  c_lon_min = '23';
+  c_lon_sec = '52.90';
+  c_lon_dir = 'W';
+  freq = '91.1';
+  c_station_channel = '216';
+ p_haat_max = '570.0';
+ p_rcamsl_max = '2645.';
+ p_erp_max = '0.75';
+  alat83 = '43.643388';
+  alon83 = '-114.398027';
+  longstring = "";
+  service_contour  = 60;
+ lms_appid = '25076ff38a251a4e018a286f13810088';
+  lms_histcard_id = '-';
+FirstLicensedDate = '';
+HistoryCardsAt = 0;
+ ns = 1;
+ ew = -1;
+ terrdb = 7;
+ list = 0;
+ c_da_ind = '-';
+ c_antenna_type = ' ';
+ temp = 0;
+ initial = 0;
+ whitefill = 0;
+--></script>
+<div id='10004' class='listtext' style='page-break-before: always; margin-right:auto; margin-left:auto; left:0; right:0;' width='130'><pre>
+
+
+                                                                                            <span class='listtext-noprint;' style='top:20px;'><a href='#n10003' name='n10004'>Previous Record</A> -- <a href='#n10005'>Next Record</A></span>
+
+<span class='blue'>&nbsp;&nbsp;<b>KBSS                  <a target='_blank' style='text-decoration-color: blue; display: inline-block; width:300px;' title=' Community Information ' href='/fcc-bin/atlas?state=ID&city=SUN VALLEY&radius=100'>ID SUN VALLEY                                   </a>&nbsp;&nbsp;&nbsp;USA            </b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a style='background-color: #FF2700; color: white; font-weight: bold; border-style: solid; border-width: 1px; border-color: black;' href='https://enterpriseefiling.fcc.gov/dataentry/public/tv/publicFacilitySearch.html' title='To LMS Facility Search'>&nbsp;FM&nbsp;</a>&nbsp;<a style='background-color: #FFBF44; color: black; font-weight: bold; border-style: solid; border-width: 1px; border-color: black;' href='https://enterpriseefiling.fcc.gov/dataentry/public/tv/publicAppSearch.html' title='To LMS Application Search'>&nbsp;LIC&nbsp;</a></span>
+<font style='position:relative; top:15px; float:right; right:-85px;'><a class='listtext' target='_blank' href='https://publicfiles.fcc.gov/fm-profile/KBSS'>To KBSS Public Files</a></font></span>
+<div style='z-index:2; max-width:300pt; position:relative; top:25px; margin-left:auto; margin-right:auto; float:right; right:-85px; '><a target='_blank' load='lazy' href='https://publicfiles.fcc.gov/fm-profile/KBSS'><img id='Station Logo' style='max-height:140px; max-width:140px; border-color:white;' src="https://publicfiles.fcc.gov/api/manager/download/entity/logo/87408/fm" onerror='this.parentNode.removeChild(this);' title=' Logo from FCC Public Inspection Files, publicfiles.fcc.gov .
+ A click will take you to the public file info submitted by KBSS. 
+
+ Any reference to programming format is supplied by the licensee, 
+ the FCC does not collect programming format information. 
+'></a></div><span class='listtext'>  Licensee: <b>IDAHO STATE BOARD OF EDUCATION</b></span><p><span class='listtext' >  <nobr>Service Designation: <b class='red'>FM</b>   'Full Service' FM station or application
+</nobr></span>
+<span class='listtext'>  <nobr>Channel/Class: <b>216 C2</b>  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Frequency: <b> 91.1 MHz</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font class='red'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Licensed</font></nobr></span>
+<span class='listtext'>  Digital Operation reported:  Hybrid (analog + digital)</span>
+<br><span class='listtext'>  <nobr><b>LMS File No.: 0000219820&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Facility ID number: 87408</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</nobr><br><br><span class='listtext'>  <nobr>LMS Application ID:  25076ff38a251a4e018a286f13810088 &nbsp;&nbsp;&nbsp;</nobr></span><br><span class='listtext'>  <nobr>Licensed date: 2023-09-07</nobr></span>
+ <iframe id='219820Primary87408' scrolling=no style='height:27px; width:980px; border:0px; ' src='/fcc-bin/fmq?RELAYS28243&textsize=9'></iframe></td></tr></table>
+<span class='listtext'>  <script type='text/javascript'><!--
+ associatedTranslators(); 
+//--></script></span>
+<script type='text/javascript'><!--
+  $( function() { 
+    $( "#tabs-10004" ).tabs().addClass( "ui-tabs-10004 " );
+  } ); 
+</script>
+<style type='text/css'>
+ .ui-tabs-10004 .ui-tabs-nav li a       { display:block; color: #886F00; }
+  .ui-tabs-10004 .ui-tabs-nav li a.hover { display:block; color: font-weight:bold; }
+  .ui-tabs-10004 .ui-tabs-nav li.ui-tabs-active { padding-bottom: 0; padding-left: .1em; border-left-width: 1px; background-color: #EFDFEF; border-color: #F28927; color: #000000; } 
+ </style>
+
+<div id='tabs-10004' style='width:70em; margin-right:auto; margin-left:auto; border:1; background-color:white;' >    <ul class='ul-button' style='top:-4em; z-index:1; height:0; width:25em;' ><li style='color:white;' class='li-button'><a href='#tabs-10004-1'>Technical Data</a></li><li style='color:white;' class='li-button'><a href='#tabs-10004-2'>Links & Maps</a></li></ul>  <div id='tabs-10004-1' style='position:relative; top:-5em;' m='Mobile'>
+
+
+<table><tr><td align='left' class='listtext' width='300' style='background-color:#EAE6DF;'><nobr>&nbsp;&nbsp; 43&#176; 38' 36.20" N Latitude&nbsp;&nbsp;</nobr><br><nobr>&nbsp;&nbsp;114&#176; 23' 52.90" W Longitude (NAD 83)&nbsp;&nbsp;<br><br><nobr class='smalltext;' style='color:red;'>&nbsp;&nbsp;&nbsp;Use NAD83 for FM filings in LMS.</nobr></nobr></td><td class='listtext' width='150' align='right' valign='top' style='background-color:#EAE6DF;'> &nbsp;43.643389&nbsp;&nbsp;&nbsp; -114.398028&nbsp;&nbsp;&nbsp;</td><td class='listtext' width='300' valign='top'></td><script type='text/javascript'><!--
+ FirstLicensedBanner(); 
+--></script>
+</tr></table>
+
+<span class='listtext'><table border='0' class='listtext' cellpadding='1' cellspacing='1' width='100%'><tr><td class='listtext' summary=''>&nbsp;&nbsp;</td><td class='black' align='right'>Polarization:&nbsp;&nbsp;&nbsp;&nbsp;</td><td class='black'>Horizontal</td><td class='black'>Vertical </td><td></td></tr><tr><td class='listtext' summary=''>&nbsp;&nbsp;</td><td class='listtext' align='left' style='background-color: #FFEFEE;' >Effective Radiated Power (ERP):</td><td class='listtext' align='center' style='background-color: #FFEFFE;' >0.75</td><td class='listtext' align='center' style='background-color: #FFEFFE;' >0.75</td><td class='listtext' align='left'   style='background-color: #FFEFFE;' >kW ERP</td></tr><tr><td class='listtext' summary='' >&nbsp;&nbsp;</td><td class='listtext' align='left' style='background-color: #FFEFFE;' >ERP with Beam Tilt:</td><td class='listtext' align='center' style='background-color: #FFEFFE;' >0.</td><td class='listtext' align='center' style='background-color: #FFEFFE;' >0.</td><td class='listtext' align='left'   style='background-color: #FFEFFE;' >kW ERP</td></tr><tr><td class='listtext' summary=''>&nbsp;&nbsp;</td><td class='listtext' align='left' style='background-color: #FFEFEE;' >Antenna&nbsp;radiation&nbsp;center&nbsp;Height&nbsp;Above&nbsp;Average&nbsp;Terrain:&nbsp;&nbsp;</td><td class='listtext' align='center' style='background-color: #FFEFFE;' >570.</td><td class='listtext' align='center' style='background-color: #FFEFFE;' >570.</td><td class='listtext' align='left'  style='background-color: #FFEFFE;' width='30%' ><nobr>meters HAAT</nobr> - <u style='color: #FF7800;'><script type='text/javascript'><!-- 
+calculateHAAT();
+--></script>
+</u></td></tr><tr><td class='listtext' summary=''>&nbsp;&nbsp;</td><td class='listtext' align='left' style='background-color: #FFFFFF;' ><nobr>Antenna radiation Center Height Above Mean&nbsp;Sea&nbsp;Level:&nbsp;&nbsp;&nbsp;&nbsp;</nobr></td><td class='listtext' align='center' style='background-color: #FFFFFF;' >2645.</td><td class='listtext' align='center' style='background-color: #FFFFFF;' >2645.</td><td class='listtext' align='left'   style='background-color: #FFFFFF;' >meters AMSL</td></tr><tr><td class='listtext' summary=''>&nbsp;&nbsp;</td><td class='listtext' align='left' style='background-color: #FFFFFF;'><nobr>Antenna radiation center Height Above Ground&nbsp;Level:&nbsp;&nbsp;&nbsp;&nbsp;</nobr></td><td class='listtext' align='center' style='background-color: #FFFFFF;' >11.</td><td class='listtext' align='center' style='background-color: #FFFFFF;' >11.</td><td class='listtext' align='left'  style='background-color: #FFFFFF;'  >meters AGL</td></tr></table></span>
+
+<span class='ltyellow'>   2.01      km (1.25      miles) </span><span class="listtext"> distant from 43&#176; 39' 40.00" N Lat 114&#176; 24' 11.00" W Lon,
+    at a bearing of </span><span class="ltyellow">168.40&#176;</span><span class="listtext"> using the method in <a href="http://www.ecfr.gov/cgi-bin/text-idx?node=se47.5.73_1208">Section 73.208</a> of calculating distance. 
+    <span class="listtext">(Reverse bearing 348.40&#176;.)</span>
+
+<span class='listtext'>   Non-Directional    </span> <span class='listtext'>      &nbsp;Antenna ID: &nbsp;<font class='smalltext' title='LMS aant_antenna_record_id'>25076ff38a251a4e018a286f140c0090</font>&nbsp;&nbsp;<span class='listtext'>
+   Antenna Make: SHI     Antenna Model: 6810-1R</span>
+<span class='listtext'>   No. of antenna sections: 1</span>
+
+</div><div style='height:0; width:0;' ><script> var divheight = $("#tabs-10004-1").height();     divheight=divheight+Math.round(9*1.1);</script></div><div id='tabs-10004-2' m='Mobile' style='position:relative; top:-5em;' class='listtext-noprint'>
+
+
+
+<script type='text/javascript'><!-- 
+LMSlinks();
+CDBSlinks();
+Maplinks(); 
+PIFlinks(); 
+HistoryCardsLink();
+ULSlinks();
+radiusSearch();
+FMpreliminaryStudy();
+ClassAallotmentChannelFinder();
+
+toAtlas();
+--></script>
+</div><script> $('#tabs-10004-2').css('height', divheight*1.0);</script>
+</div></pre><br><script type='text/javascript'><!-- 
+  omit = 0;
+  recordcount = '10004';
+  facility_id = '87408';
+  c_application_id = '266827';
+  hostname = 'transition';
+  c_callsign = 'KBSS';
+  c_facility_callsign = 'KBSS';
+  four_letter_callsign = 'KBSS';
+  c_service = 'FS';
+  c_station_class = 'C2';
+
+  c_dom_status = 'LIC';
+  c_filenumber = '0000266827';
+  c_comm_city_app = "SUN VALLEY";
+  c_comm_state_app = 'ID';
+  c_country = 'US';
+  var c_nad = '83';
+  c_lat_deg = '43';
+  c_lat_min = '38';
+  c_lat_sec = '36.20';
+  c_lat_dir = 'N';
+  c_lon_deg = '114';
+  c_lon_min = '23';
+  c_lon_sec = '52.90';
+  c_lon_dir = 'W';
+  freq = '91.1';
+  c_station_channel = '216';
+ p_haat_max = '570.0';
+ p_rcamsl_max = '2645.';
+ p_erp_max = '0.225';
+  alat83 = '43.643388';
+  alon83 = '-114.398027';
+  longstring = "";
+  service_contour  = 60;
+ lms_appid = '25076ff394e07de401951aeba5b0290e';
+  lms_histcard_id = '-';
+FirstLicensedDate = '';
+HistoryCardsAt = 0;
+ ns = 1;
+ ew = -1;
+ terrdb = 7;
+ list = 0;
+ c_da_ind = '-';
+ c_antenna_type = ' ';
+ temp = 0;
+ initial = 0;
+ whitefill = 0;
+--></script>
+<div id='10005' class='listtext' style='page-break-before: always; margin-right:auto; margin-left:auto; left:0; right:0;' width='130'><pre>
+
+
+                                                                                            <span class='listtext-noprint;' style='top:20px;'><a href='#n10004' name='n10005'>Previous Record</A> -- <a href='#n10006'>Next Record</A></span>
+
+<span class='blue'>&nbsp;&nbsp;<b>KBSS                  <a target='_blank' style='text-decoration-color: blue; display: inline-block; width:300px;' title=' Community Information ' href='/fcc-bin/atlas?state=ID&city=SUN VALLEY&radius=100'>ID SUN VALLEY                                   </a>&nbsp;&nbsp;&nbsp;USA            </b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a style='background-color: #383842; color: white; font-weight: bold; border-style: solid; border-width: 1px; border-color: black;' href='https://enterpriseefiling.fcc.gov/dataentry/public/tv/publicFacilitySearch.html' title='To LMS Facility Search'>&nbsp;FS&nbsp;</a>&nbsp;<a style='background-color: #FFBF44; color: black; font-weight: bold; border-style: solid; border-width: 1px; border-color: black;' href='https://enterpriseefiling.fcc.gov/dataentry/public/tv/publicAppSearch.html' title='To LMS Application Search'>&nbsp;LIC&nbsp;</a></span>
+<font style='position:relative; top:15px; float:right; right:-85px;'><a class='listtext' target='_blank' href='https://publicfiles.fcc.gov/fm-profile/KBSS'>To KBSS Public Files</a></font></span>
+<div style='z-index:2; max-width:300pt; position:relative; top:25px; margin-left:auto; margin-right:auto; float:right; right:-85px; '><a target='_blank' load='lazy' href='https://publicfiles.fcc.gov/fm-profile/KBSS'><img id='Station Logo' style='max-height:140px; max-width:140px; border-color:white;' src="https://publicfiles.fcc.gov/api/manager/download/entity/logo/87408/fm" onerror='this.parentNode.removeChild(this);' title=' Logo from FCC Public Inspection Files, publicfiles.fcc.gov .
+ A click will take you to the public file info submitted by KBSS. 
+
+ Any reference to programming format is supplied by the licensee, 
+ the FCC does not collect programming format information. 
+'></a></div><span class='listtext'>  Licensee: <b>IDAHO STATE BOARD OF EDUCATION</b></span><p><span class='listtext' >  <nobr>Service Designation: <b class='red'>FS</b>   Auxiliary station (backup for the main station)
+</nobr></span>
+<span class='listtext'>  <nobr>Channel/Class: <b>216 C2</b>  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Frequency: <b> 91.1 MHz</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font class='red'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Licensed</font></nobr></span>
+<br><span class='listtext'>  <nobr><b>LMS File No.: 0000266827&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Facility ID number: 87408</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</nobr><br><br><span class='listtext'>  <nobr>LMS Application ID:  25076ff394e07de401951aeba5b0290e &nbsp;&nbsp;&nbsp;</nobr></span><br><span class='listtext'>  <nobr>Licensed date: 2025-03-12</nobr></span>
+ <iframe id='266827Primary87408' scrolling=no style='height:27px; width:980px; border:0px; ' src='/fcc-bin/fmq?RELAYS28243&textsize=9'></iframe></td></tr></table>
+<script type='text/javascript'><!--
+  $( function() { 
+    $( "#tabs-10005" ).tabs().addClass( "ui-tabs-10005 " );
+  } ); 
+</script>
+<style type='text/css'>
+ .ui-tabs-10005 .ui-tabs-nav li a       { display:block; color: #886F00; }
+  .ui-tabs-10005 .ui-tabs-nav li a.hover { display:block; color: font-weight:bold; }
+  .ui-tabs-10005 .ui-tabs-nav li.ui-tabs-active { padding-bottom: 0; padding-left: .1em; border-left-width: 1px; background-color: #EFDFEF; border-color: #F28927; color: #000000; } 
+ </style>
+
+<div id='tabs-10005' style='width:70em; margin-right:auto; margin-left:auto; border:1; background-color:white;' >    <ul class='ul-button' style='top:-4em; z-index:1; height:0; width:25em;' ><li style='color:white;' class='li-button'><a href='#tabs-10005-1'>Technical Data</a></li><li style='color:white;' class='li-button'><a href='#tabs-10005-2'>Links & Maps</a></li></ul>  <div id='tabs-10005-1' style='position:relative; top:-5em;' m='Mobile'>
+
+
+<table><tr><td align='left' class='listtext' width='300' style='background-color:#EAE6DF;'><nobr>&nbsp;&nbsp; 43&#176; 38' 36.20" N Latitude&nbsp;&nbsp;</nobr><br><nobr>&nbsp;&nbsp;114&#176; 23' 52.90" W Longitude (NAD 83)&nbsp;&nbsp;<br><br><nobr class='smalltext;' style='color:red;'>&nbsp;&nbsp;&nbsp;Use NAD83 for FM filings in LMS.</nobr></nobr></td><td class='listtext' width='150' align='right' valign='top' style='background-color:#EAE6DF;'> &nbsp;43.643389&nbsp;&nbsp;&nbsp; -114.398028&nbsp;&nbsp;&nbsp;</td><td class='listtext' width='300' valign='top'></td><script type='text/javascript'><!--
+ FirstLicensedBanner(); 
+--></script>
+</tr></table>
+
+<span class='listtext'><table border='0' class='listtext' cellpadding='1' cellspacing='1' width='100%'><tr><td class='listtext' summary=''>&nbsp;&nbsp;</td><td class='black' align='right'>Polarization:&nbsp;&nbsp;&nbsp;&nbsp;</td><td class='black'>Horizontal</td><td class='black'>Vertical </td><td></td></tr><tr><td class='listtext' summary=''>&nbsp;&nbsp;</td><td class='listtext' align='left' style='background-color: #FFEFEE;' >Effective Radiated Power (ERP):</td><td class='listtext' align='center' style='background-color: #FFEFFE;' >0.225</td><td class='listtext' align='center' style='background-color: #FFEFFE;' >0.225</td><td class='listtext' align='left'   style='background-color: #FFEFFE;' >kW ERP</td></tr><tr><td class='listtext' summary='' >&nbsp;&nbsp;</td><td class='listtext' align='left' style='background-color: #FFEFFE;' >ERP with Beam Tilt:</td><td class='listtext' align='center' style='background-color: #FFEFFE;' >0.</td><td class='listtext' align='center' style='background-color: #FFEFFE;' >0.</td><td class='listtext' align='left'   style='background-color: #FFEFFE;' >kW ERP</td></tr><tr><td class='listtext' summary=''>&nbsp;&nbsp;</td><td class='listtext' align='left' style='background-color: #FFEFEE;' >Antenna&nbsp;radiation&nbsp;center&nbsp;Height&nbsp;Above&nbsp;Average&nbsp;Terrain:&nbsp;&nbsp;</td><td class='listtext' align='center' style='background-color: #FFEFFE;' >570.</td><td class='listtext' align='center' style='background-color: #FFEFFE;' >570.</td><td class='listtext' align='left'  style='background-color: #FFEFFE;' width='30%' ><nobr>meters HAAT</nobr> - <u style='color: #FF7800;'><script type='text/javascript'><!-- 
+calculateHAAT();
+--></script>
+</u></td></tr><tr><td class='listtext' summary=''>&nbsp;&nbsp;</td><td class='listtext' align='left' style='background-color: #FFFFFF;' ><nobr>Antenna radiation Center Height Above Mean&nbsp;Sea&nbsp;Level:&nbsp;&nbsp;&nbsp;&nbsp;</nobr></td><td class='listtext' align='center' style='background-color: #FFFFFF;' >2645.</td><td class='listtext' align='center' style='background-color: #FFFFFF;' >2645.</td><td class='listtext' align='left'   style='background-color: #FFFFFF;' >meters AMSL</td></tr><tr><td class='listtext' summary=''>&nbsp;&nbsp;</td><td class='listtext' align='left' style='background-color: #FFFFFF;'><nobr>Antenna radiation center Height Above Ground&nbsp;Level:&nbsp;&nbsp;&nbsp;&nbsp;</nobr></td><td class='listtext' align='center' style='background-color: #FFFFFF;' >11.</td><td class='listtext' align='center' style='background-color: #FFFFFF;' >11.</td><td class='listtext' align='left'  style='background-color: #FFFFFF;'  >meters AGL</td></tr></table></span>
+
+<span class='ltyellow'>   2.01      km (1.25      miles) </span><span class="listtext"> distant from 43&#176; 39' 40.00" N Lat 114&#176; 24' 11.00" W Lon,
+    at a bearing of </span><span class="ltyellow">168.40&#176;</span><span class="listtext"> using the method in <a href="http://www.ecfr.gov/cgi-bin/text-idx?node=se47.5.73_1208">Section 73.208</a> of calculating distance. 
+    <span class="listtext">(Reverse bearing 348.40&#176;.)</span>
+
+<span class='listtext'>   Non-Directional    </span> <span class='listtext'>      &nbsp;Antenna ID: &nbsp;<font class='smalltext' title='LMS aant_antenna_record_id'>25076ff394e07de401951aeba7f52915</font>&nbsp;&nbsp;<span class='listtext'>
+   Antenna Make: SHI     Antenna Model: 6810-1R</span>
+<span class='listtext'>   No. of antenna sections: 1</span>
+
+</div><div style='height:0; width:0;' ><script> var divheight = $("#tabs-10005-1").height();     divheight=divheight+Math.round(9*1.1);</script></div><div id='tabs-10005-2' m='Mobile' style='position:relative; top:-5em;' class='listtext-noprint'>
+
+
+
+<script type='text/javascript'><!-- 
+LMSlinks();
+CDBSlinks();
+Maplinks(); 
+PIFlinks(); 
+ULSlinks();
+radiusSearch();
+FMpreliminaryStudy();
+toAtlas();
+--></script>
+</div><script> $('#tabs-10005-2').css('height', divheight*1.0);</script>
+</div></pre><br><script type='text/javascript'><!-- 
+  omit = 0;
+  recordcount = '10005';
+  facility_id = '42917';
+  c_application_id = '200901219';
+  hostname = 'transition';
+  c_callsign = 'KWRV';
+  c_facility_callsign = 'KWRV';
+  four_letter_callsign = 'KWRV';
+  c_service = 'FM';
+  c_station_class = 'A';
+
+  c_dom_status = 'LIC';
+  c_filenumber = 'BLED-20090121ADD';
+  c_comm_city_app = "SUN VALLEY";
+  c_comm_state_app = 'ID';
+  c_country = 'US';
+  var c_nad = '83';
+  c_lat_deg = '43';
+  c_lat_min = '39';
+  c_lat_sec = '40.60';
+  c_lat_dir = 'N';
+  c_lon_deg = '114';
+  c_lon_min = '24';
+  c_lon_sec = '11.10';
+  c_lon_dir = 'W';
+  freq = '91.9';
+  c_station_channel = '220';
+ p_haat_max = '656.6';
+ p_rcamsl_max = '2755.2';
+ p_erp_max = '0.1';
+  alat83 = '43.661277';
+  alon83 = '-114.403083';
+  longstring = "";
+  service_contour  = 60;
+ lms_appid = 'e5cf608a251742ebbf02c1b6063ebeb7';
+  lms_histcard_id = '-';
+FirstLicensedDate = '';
+HistoryCardsAt = 0;
+ ns = 1;
+ ew = -1;
+ terrdb = 7;
+ list = 0;
+ c_da_ind = '-';
+ c_antenna_type = ' ';
+ temp = 0;
+ initial = 0;
+ whitefill = 0;
+--></script>
+<div id='10006' class='listtext' style='page-break-before: always; margin-right:auto; margin-left:auto; left:0; right:0;' width='130'><pre>
+
+
+                                                                                            <span class='listtext-noprint;' style='top:20px;'><a href='#n10005' name='n10006'>Previous Record</A> -- <a href='#n10007'>Next Record</A></span>
+
+<span class='blue'>&nbsp;&nbsp;<b>KWRV                  <a target='_blank' style='text-decoration-color: blue; display: inline-block; width:300px;' title=' Community Information ' href='/fcc-bin/atlas?state=ID&city=SUN VALLEY&radius=100'>ID SUN VALLEY                                   </a>&nbsp;&nbsp;&nbsp;USA            </b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a style='background-color: #FF2700; color: white; font-weight: bold; border-style: solid; border-width: 1px; border-color: black;' href='https://enterpriseefiling.fcc.gov/dataentry/public/tv/publicFacilitySearch.html' title='To LMS Facility Search'>&nbsp;FM&nbsp;</a>&nbsp;<a style='background-color: #FFBF44; color: black; font-weight: bold; border-style: solid; border-width: 1px; border-color: black;' href='https://enterpriseefiling.fcc.gov/dataentry/public/tv/publicAppSearch.html' title='To LMS Application Search'>&nbsp;LIC&nbsp;</a></span>
+<font style='position:relative; top:15px; float:right; right:-85px;'><a class='listtext' target='_blank' href='https://publicfiles.fcc.gov/fm-profile/KWRV'>To KWRV Public Files</a></font></span>
+<div style='z-index:2; max-width:300pt; position:relative; top:25px; margin-left:auto; margin-right:auto; float:right; right:-85px; '><a target='_blank' load='lazy' href='https://publicfiles.fcc.gov/fm-profile/KWRV'><img id='Station Logo' style='max-height:140px; max-width:140px; border-color:white;' src="https://publicfiles.fcc.gov/api/manager/download/entity/logo/42917/fm" onerror='this.parentNode.removeChild(this);' title=' Logo from FCC Public Inspection Files, publicfiles.fcc.gov .
+ A click will take you to the public file info submitted by KWRV. 
+
+ Any reference to programming format is supplied by the licensee, 
+ the FCC does not collect programming format information. 
+'></a></div><span class='listtext'>  Licensee: <b>IDAHO STATE BOARD OF EDUCATION</b></span><p><span class='listtext' >  <nobr>Service Designation: <b class='red'>FM</b>   'Full Service' FM station or application
+</nobr></span>
+<span class='listtext'>  <nobr>Channel/Class: <b>220 A</b>  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Frequency: <b> 91.9 MHz</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font class='red'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Licensed</font></nobr></span>
+<span class='listtext'>  Digital operation not reported -- analog only</span>
+<br><span class='listtext'>  <nobr><b>LMS File No.: BLED-20090121ADD&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Facility ID number: 42917</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</nobr><br><br><span class='listtext'>  <nobr>LMS Application ID:  e5cf608a251742ebbf02c1b6063ebeb7 &nbsp;&nbsp;&nbsp;</nobr></span><br><span class='listtext'>  <nobr>Licensed date: 2009-02-10</nobr></span>
+</td></tr></table>
+<span class='listtext'>  <script type='text/javascript'><!--
+ associatedTranslators(); 
+//--></script></span>
+<script type='text/javascript'><!--
+  $( function() { 
+    $( "#tabs-10006" ).tabs().addClass( "ui-tabs-10006 " );
+  } ); 
+</script>
+<style type='text/css'>
+ .ui-tabs-10006 .ui-tabs-nav li a       { display:block; color: #886F00; }
+  .ui-tabs-10006 .ui-tabs-nav li a.hover { display:block; color: font-weight:bold; }
+  .ui-tabs-10006 .ui-tabs-nav li.ui-tabs-active { padding-bottom: 0; padding-left: .1em; border-left-width: 1px; background-color: #EFDFEF; border-color: #F28927; color: #000000; } 
+ </style>
+
+<div id='tabs-10006' style='width:70em; margin-right:auto; margin-left:auto; border:1; background-color:white;' >    <ul class='ul-button' style='top:-4em; z-index:1; height:0; width:25em;' ><li style='color:white;' class='li-button'><a href='#tabs-10006-1'>Technical Data</a></li><li style='color:white;' class='li-button'><a href='#tabs-10006-2'>Links & Maps</a></li></ul>  <div id='tabs-10006-1' style='position:relative; top:-5em;' m='Mobile'>
+
+
+<table><tr><td align='left' class='listtext' width='300' style='background-color:#EAE6DF;'><nobr>&nbsp;&nbsp; 43&#176; 39' 40.60" N Latitude&nbsp;&nbsp;</nobr><br><nobr>&nbsp;&nbsp;114&#176; 24' 11.10" W Longitude (NAD 83)&nbsp;&nbsp;<br><br><nobr class='smalltext;' style='color:red;'>&nbsp;&nbsp;&nbsp;Use NAD83 for FM filings in LMS.</nobr></nobr></td><td class='listtext' width='150' align='right' valign='top' style='background-color:#EAE6DF;'> &nbsp;43.661278&nbsp;&nbsp;&nbsp; -114.403083&nbsp;&nbsp;&nbsp;</td><td class='listtext' width='300' valign='top'><nobr>&nbsp;&nbsp;Previous NAD27 coordinates:<br> &nbsp;&nbsp;&nbsp;43&#176; 39' 41"<br>&nbsp;&nbsp;114&#176; 24' 8"&nbsp;&nbsp;&nbsp;</nobr><br></td><script type='text/javascript'><!--
+ FirstLicensedBanner(); 
+--></script>
+</tr></table>
+
+<span class='listtext'><table border='0' class='listtext' cellpadding='1' cellspacing='1' width='100%'><tr><td class='listtext' summary=''>&nbsp;&nbsp;</td><td class='black' align='right'>Polarization:&nbsp;&nbsp;&nbsp;&nbsp;</td><td class='black'>Horizontal</td><td class='black'>Vertical </td><td></td></tr><tr><td class='listtext' summary=''>&nbsp;&nbsp;</td><td class='listtext' align='left' style='background-color: #FFEFEE;' >Effective Radiated Power (ERP):</td><td class='listtext' align='center' style='background-color: #FFEFFE;' >0.1</td><td class='listtext' align='center' style='background-color: #FFEFFE;' >0.1</td><td class='listtext' align='left'   style='background-color: #FFEFFE;' >kW ERP</td></tr><tr><td class='listtext' summary='' >&nbsp;&nbsp;</td><td class='listtext' align='left' style='background-color: #FFEFFE;' >ERP with Beam Tilt:</td><td class='listtext' align='center' style='background-color: #FFEFFE;' >0.1</td><td class='listtext' align='center' style='background-color: #FFEFFE;' >0.1</td><td class='listtext' align='left'   style='background-color: #FFEFFE;' >kW ERP</td></tr><tr><td class='listtext' summary=''>&nbsp;&nbsp;</td><td class='listtext' align='left' style='background-color: #FFEFEE;' >Antenna&nbsp;radiation&nbsp;center&nbsp;Height&nbsp;Above&nbsp;Average&nbsp;Terrain:&nbsp;&nbsp;</td><td class='listtext' align='center' style='background-color: #FFEFFE;' >656.6</td><td class='listtext' align='center' style='background-color: #FFEFFE;' >656.6</td><td class='listtext' align='left'  style='background-color: #FFEFFE;' width='30%' ><nobr>meters HAAT</nobr> - <u style='color: #FF7800;'><script type='text/javascript'><!-- 
+calculateHAAT();
+--></script>
+</u></td></tr><tr><td class='listtext' summary=''>&nbsp;&nbsp;</td><td class='listtext' align='left' style='background-color: #FFFFFF;' ><nobr>Antenna radiation Center Height Above Mean&nbsp;Sea&nbsp;Level:&nbsp;&nbsp;&nbsp;&nbsp;</nobr></td><td class='listtext' align='center' style='background-color: #FFFFFF;' >2755.2</td><td class='listtext' align='center' style='background-color: #FFFFFF;' >2755.2</td><td class='listtext' align='left'   style='background-color: #FFFFFF;' >meters AMSL</td></tr><tr><td class='listtext' summary=''>&nbsp;&nbsp;</td><td class='listtext' align='left' style='background-color: #FFFFFF;'><nobr>Antenna radiation center Height Above Ground&nbsp;Level:&nbsp;&nbsp;&nbsp;&nbsp;</nobr></td><td class='listtext' align='center' style='background-color: #FFFFFF;' >12.2</td><td class='listtext' align='center' style='background-color: #FFFFFF;' >12.2</td><td class='listtext' align='left'  style='background-color: #FFFFFF;'  >meters AGL</td></tr></table></span>
+
+<span class='ltyellow'>   0.02      km (0.01      miles) </span><span class="listtext"> distant from 43&#176; 39' 40.00" N Lat 114&#176; 24' 11.00" W Lon,
+    at a bearing of </span><span class="ltyellow">  0.00&#176;</span><span class="listtext"> using the method in <a href="http://www.ecfr.gov/cgi-bin/text-idx?node=se47.5.73_1208">Section 73.208</a> of calculating distance. 
+    <span class="listtext">(Reverse bearing   0.00&#176;.)</span>
+
+<span class='listtext'>   Non-Directional    </span> <span class='listtext'>      &nbsp;Antenna ID: &nbsp;<font class='smalltext' title='LMS aant_antenna_record_id'>8051f94b67644c1f8555c1b6063ebeb7</font>&nbsp;&nbsp;<span class='listtext'>
+   Antenna Make: ERI     Antenna Model: LPX-4E-HW</span>
+<span class='listtext'>   No. of antenna sections: 4</span>
+
+</div><div style='height:0; width:0;' ><script> var divheight = $("#tabs-10006-1").height();     divheight=divheight+Math.round(9*1.1);</script></div><div id='tabs-10006-2' m='Mobile' style='position:relative; top:-5em;' class='listtext-noprint'>
+
+
+
+<script type='text/javascript'><!-- 
+LMSlinks();
+CDBSlinks();
+Maplinks(); 
+PIFlinks(); 
+HistoryCardsLink();
+ULSlinks();
+radiusSearch();
+FMpreliminaryStudy();
+ClassAallotmentChannelFinder();
+
+toAtlas();
+--></script>
+</div><script> $('#tabs-10006-2').css('height', divheight*1.0);</script>
+</div></pre><br><script type='text/javascript'><!-- 
+  omit = 0;
+  recordcount = '10006';
+  facility_id = '28247';
+  c_application_id = '199410244';
+  hostname = 'transition';
+  c_callsign = 'K228DO';
+  c_facility_callsign = 'K228DO';
+  four_letter_callsign = 'K228DN';
+  c_service = 'FX';
+  c_station_class = 'D';
+
+  c_dom_status = 'LIC';
+  c_filenumber = 'BLFT-19941024TD';
+  c_comm_city_app = "KETCHUM";
+  c_comm_state_app = 'ID';
+  c_country = 'US';
+  var c_nad = '83';
+  c_lat_deg = '43';
+  c_lat_min = '40';
+  c_lat_sec = '54.60';
+  c_lat_dir = 'N';
+  c_lon_deg = '114';
+  c_lon_min = '22';
+  c_lon_sec = '9.10 ';
+  c_lon_dir = 'W';
+  freq = '93.5';
+  c_station_channel = '228';
+ p_haat_max = '-376.0';
+ p_rcamsl_max = '1786.';
+ p_erp_max = '0.008';
+  alat83 = '43.681833';
+  alon83 = '-114.369194';
+  longstring = "";
+  service_contour  = 60;
+ lms_appid = '526654c39a6143a08ff8c1b6063ebeb7';
+  lms_histcard_id = '-';
+FirstLicensedDate = '';
+HistoryCardsAt = 0;
+ ns = 1;
+ ew = -1;
+ terrdb = 7;
+ list = 0;
+ c_da_ind = '-';
+ c_antenna_type = ' ';
+ temp = 0;
+ initial = 0;
+ whitefill = 0;
+--></script>
+<div id='10007' class='listtext' style='page-break-before: always; margin-right:auto; margin-left:auto; left:0; right:0;' width='130'><pre>
+
+
+                                                                                            <span class='listtext-noprint;' style='top:20px;'><a href='#n10006' name='n10007'>Previous Record</A> -- <a href='#n10008'>Next Record</A></span>
+
+<span class='blue'>&nbsp;&nbsp;<b>K228DO                <a target='_blank' style='text-decoration-color: blue; display: inline-block; width:300px;' title=' Community Information ' href='/fcc-bin/atlas?state=ID&city=KETCHUM&radius=100'>ID KETCHUM                                      </a>&nbsp;&nbsp;&nbsp;USA            </b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a style='background-color: #007F25; color: white; font-weight: bold; border-style: solid; border-width: 1px; border-color: black;' href='https://enterpriseefiling.fcc.gov/dataentry/public/tv/publicFacilitySearch.html' title='To LMS Facility Search'>&nbsp;FX&nbsp;</a>&nbsp;<a style='background-color: #FFBF44; color: black; font-weight: bold; border-style: solid; border-width: 1px; border-color: black;' href='https://enterpriseefiling.fcc.gov/dataentry/public/tv/publicAppSearch.html' title='To LMS Application Search'>&nbsp;LIC&nbsp;</a></span>
+<font style='position:relative; top:15px; float:right; right:-85px;'><a class='listtext' target='_blank' href='https://publicfiles.fcc.gov/fm-profile/K228DO'>To K228DO Public Files</a></font></span>
+<div style='z-index:2; max-width:300pt; position:relative; top:25px; margin-left:auto; margin-right:auto; float:right; right:-85px; '><a target='_blank' load='lazy' href='https://publicfiles.fcc.gov/fm-profile/K228DO'><img id='Station Logo' style='max-height:140px; max-width:140px; border-color:white;' src="https://publicfiles.fcc.gov/api/manager/download/entity/logo/28247/fm" onerror='this.parentNode.removeChild(this);' title=' Logo from FCC Public Inspection Files, publicfiles.fcc.gov .
+ A click will take you to the public file info submitted by K228DO. 
+
+ Any reference to programming format is supplied by the licensee, 
+ the FCC does not collect programming format information. 
+'></a></div><span class='listtext'>  Licensee: <b>IDAHO STATE BOARD OF EDUCATION</b></span><p><span class='listtext' >  <nobr>Service Designation: <b class='red'>FX</b>   Translator Station (retransmits signal, different channel than main station)
+</nobr></span>
+<span class='listtext'>  <nobr>Channel/Class: <b>228 D</b>  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Frequency: <b> 93.5 MHz</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font class='red'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Licensed</font></nobr></span>
+<br><span class='listtext'>  <nobr><b>LMS File No.: BLFT-19941024TD&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Facility ID number: 28247</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</nobr><br><br><span class='listtext'>  <nobr>LMS Application ID:  526654c39a6143a08ff8c1b6063ebeb7 &nbsp;&nbsp;&nbsp;</nobr></span><br><span class='listtext'>  <nobr>Licensed date: 1994-12-21</nobr></span>
+ <iframe id='199410244Primary28247' scrolling=no style='height:27px; width:980px; border:0px; ' src='/fcc-bin/fmq?RELAYS87408&textsize=9'></iframe></td></tr></table>
+<script type='text/javascript'><!--
+  $( function() { 
+    $( "#tabs-10007" ).tabs().addClass( "ui-tabs-10007 " );
+  } ); 
+</script>
+<style type='text/css'>
+ .ui-tabs-10007 .ui-tabs-nav li a       { display:block; color: #886F00; }
+  .ui-tabs-10007 .ui-tabs-nav li a.hover { display:block; color: font-weight:bold; }
+  .ui-tabs-10007 .ui-tabs-nav li.ui-tabs-active { padding-bottom: 0; padding-left: .1em; border-left-width: 1px; background-color: #EFDFEF; border-color: #F28927; color: #000000; } 
+ </style>
+
+<div id='tabs-10007' style='width:70em; margin-right:auto; margin-left:auto; border:1; background-color:white;' >    <ul class='ul-button' style='top:-4em; z-index:1; height:0; width:25em;' ><li style='color:white;' class='li-button'><a href='#tabs-10007-1'>Technical Data</a></li><li style='color:white;' class='li-button'><a href='#tabs-10007-2'>Links & Maps</a></li></ul>  <div id='tabs-10007-1' style='position:relative; top:-5em;' m='Mobile'>
+
+
+<table><tr><td align='left' class='listtext' width='300' style='background-color:#EAE6DF;'><nobr>&nbsp;&nbsp; 43&#176; 40' 54.60" N Latitude&nbsp;&nbsp;</nobr><br><nobr>&nbsp;&nbsp;114&#176; 22' 09.10" W Longitude (NAD 83)&nbsp;&nbsp;<br><br><nobr class='smalltext;' style='color:red;'>&nbsp;&nbsp;&nbsp;Use NAD83 for FM filings in LMS.</nobr></nobr></td><td class='listtext' width='150' align='right' valign='top' style='background-color:#EAE6DF;'> &nbsp;43.681833&nbsp;&nbsp;&nbsp; -114.369194&nbsp;&nbsp;&nbsp;</td><td class='listtext' width='300' valign='top'><nobr>&nbsp;&nbsp;Previous NAD27 coordinates:<br> &nbsp;&nbsp;&nbsp;43&#176; 40' 55"<br>&nbsp;&nbsp;114&#176; 22' 6"&nbsp;&nbsp;&nbsp;</nobr><br></td><script type='text/javascript'><!--
+ FirstLicensedBanner(); 
+--></script>
+</tr></table>
+
+<span class='listtext'><table border='0' class='listtext' cellpadding='1' cellspacing='1' width='100%'><tr><td class='listtext' summary=''>&nbsp;&nbsp;</td><td class='black' align='right'>Polarization:&nbsp;&nbsp;&nbsp;&nbsp;</td><td class='black'>Horizontal</td><td class='black'>Vertical </td><td></td></tr><tr><td class='listtext' summary=''>&nbsp;&nbsp;</td><td class='listtext' align='left' style='background-color: #FFEFEE;' >Effective Radiated Power (ERP):</td><td class='listtext' align='center' style='background-color: #FFEFFE;' >0.008</td><td class='listtext' align='center' style='background-color: #FFEFFE;' >0.008</td><td class='listtext' align='left'   style='background-color: #FFEFFE;' >kW ERP</td></tr><tr><td class='listtext' summary='' >&nbsp;&nbsp;</td><td class='listtext' align='left' style='background-color: #FFEFFE;' >ERP with Beam Tilt:</td><td class='listtext' align='center' style='background-color: #FFEFFE;' >0.008</td><td class='listtext' align='center' style='background-color: #FFEFFE;' >0.008</td><td class='listtext' align='left'   style='background-color: #FFEFFE;' >kW ERP</td></tr><tr><td class='listtext' summary=''>&nbsp;&nbsp;</td><td class='listtext' align='left' style='background-color: #FFEFEE;' >Antenna&nbsp;radiation&nbsp;center&nbsp;Height&nbsp;Above&nbsp;Average&nbsp;Terrain:&nbsp;&nbsp;</td><td class='listtext' align='center' style='background-color: #FFEFFE;' >-376.</td><td class='listtext' align='center' style='background-color: #FFEFFE;' >-376.</td><td class='listtext' align='left'  style='background-color: #FFEFFE;' width='30%' ><nobr>meters HAAT</nobr> - <u style='color: #FF7800;'><script type='text/javascript'><!-- 
+calculateHAAT();
+--></script>
+</u></td></tr><tr><td class='listtext' summary=''>&nbsp;&nbsp;</td><td class='listtext' align='left' style='background-color: #FFFFFF;' ><nobr>Antenna radiation Center Height Above Mean&nbsp;Sea&nbsp;Level:&nbsp;&nbsp;&nbsp;&nbsp;</nobr></td><td class='listtext' align='center' style='background-color: #FFFFFF;' >1786.</td><td class='listtext' align='center' style='background-color: #FFFFFF;' >1786.</td><td class='listtext' align='left'   style='background-color: #FFFFFF;' >meters AMSL</td></tr><tr><td class='listtext' summary=''>&nbsp;&nbsp;</td><td class='listtext' align='left' style='background-color: #FFFFFF;'><nobr>Antenna radiation center Height Above Ground&nbsp;Level:&nbsp;&nbsp;&nbsp;&nbsp;</nobr></td><td class='listtext' align='center' style='background-color: #FFFFFF;' >0.</td><td class='listtext' align='center' style='background-color: #FFFFFF;' >0.</td><td class='listtext' align='left'  style='background-color: #FFFFFF;'  >meters AGL</td></tr></table></span>
+
+<span class='ltyellow'>   3.57      km (2.22      miles) </span><span class="listtext"> distant from 43&#176; 39' 40.00" N Lat 114&#176; 24' 11.00" W Lon,
+    at a bearing of </span><span class="ltyellow"> 49.75&#176;</span><span class="listtext"> using the method in <a href="http://www.ecfr.gov/cgi-bin/text-idx?node=se47.5.73_1208">Section 73.208</a> of calculating distance. 
+    <span class="listtext">(Reverse bearing 229.78&#176;.)</span>
+
+<span class='listtext'>   Non-Directional    </span> <span class='listtext'>      &nbsp;Antenna ID: &nbsp;<font class='smalltext' title='LMS aant_antenna_record_id'>0dac27315ba84563ae22c1b6063ebeb7</font>&nbsp;&nbsp;<span class='listtext'>
+   Antenna Make: SHI     Antenna Model: 6812</span>
+<span class='listtext'>   No. of antenna sections: -</span>
+
+</div><div style='height:0; width:0;' ><script> var divheight = $("#tabs-10007-1").height();     divheight=divheight+Math.round(9*1.1);</script></div><div id='tabs-10007-2' m='Mobile' style='position:relative; top:-5em;' class='listtext-noprint'>
+
+
+
+<script type='text/javascript'><!-- 
+LMSlinks();
+CDBSlinks();
+Maplinks(); 
+PIFlinks(); 
+ULSlinks();
+radiusSearch();
+FMpreliminaryStudy();
+toAtlas();
+--></script>
+</div><script> $('#tabs-10007-2').css('height', divheight*1.0);</script>
+</div></pre><br><script type='text/javascript'><!-- 
+  omit = 0;
+  recordcount = '10007';
+  facility_id = '17828';
+  c_application_id = '201309300';
+  hostname = 'transition';
+  c_callsign = 'KSKI-FM';
+  c_facility_callsign = 'KSKI-FM';
+  four_letter_callsign = 'KSKI';
+  c_service = 'FM';
+  c_station_class = 'C1';
+
+  c_dom_status = 'LIC';
+  c_filenumber = 'BLH-20130930BUY';
+  c_comm_city_app = "SUN VALLEY";
+  c_comm_state_app = 'ID';
+  c_country = 'US';
+  var c_nad = '83';
+  c_lat_deg = '43';
+  c_lat_min = '38';
+  c_lat_sec = '36.60';
+  c_lat_dir = 'N';
+  c_lon_deg = '114';
+  c_lon_min = '23';
+  c_lon_sec = '53.10';
+  c_lon_dir = 'W';
+  freq = '94.5';
+  c_station_channel = '233';
+ p_haat_max = '583.0';
+ p_rcamsl_max = '2658.';
+ p_erp_max = '2.5';
+  alat83 = '43.643500';
+  alon83 = '-114.398083';
+  longstring = "";
+  service_contour  = 60;
+ lms_appid = 'a98d7d3669f6487795cdc1b6063ebeb7';
+  lms_histcard_id = '82860ba1-d1ee-56ca-69d1-1917d54e3683';
+FirstLicensedDate = '06-27-1978';
+HistoryCardsAt = 10;
+ ns = 1;
+ ew = -1;
+ terrdb = 7;
+ list = 0;
+ c_da_ind = '-';
+ c_antenna_type = ' ';
+ temp = 0;
+ initial = 0;
+ whitefill = 0;
+--></script>
+<div id='10008' class='listtext' style='page-break-before: always; margin-right:auto; margin-left:auto; left:0; right:0;' width='123'><pre>
+
+
+                                                                                            <span class='listtext-noprint;' style='top:20px;'><a href='#n10007' name='n10008'>Previous Record</A> -- <a href='#n10009'>Next Record</A></span>
+
+<span class='blue'>&nbsp;&nbsp;<b>KSKI-FM               <a target='_blank' style='text-decoration-color: blue; display: inline-block; width:300px;' title=' Community Information ' href='/fcc-bin/atlas?state=ID&city=SUN VALLEY&radius=100'>ID SUN VALLEY                                   </a>&nbsp;&nbsp;&nbsp;USA            </b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a style='background-color: #FF2700; color: white; font-weight: bold; border-style: solid; border-width: 1px; border-color: black;' href='https://enterpriseefiling.fcc.gov/dataentry/public/tv/publicFacilitySearch.html' title='To LMS Facility Search'>&nbsp;FM&nbsp;</a>&nbsp;<a style='background-color: #FFBF44; color: black; font-weight: bold; border-style: solid; border-width: 1px; border-color: black;' href='https://enterpriseefiling.fcc.gov/dataentry/public/tv/publicAppSearch.html' title='To LMS Application Search'>&nbsp;LIC&nbsp;</a></span>
+<font style='position:relative; top:15px; float:right; right:-85px;'><a class='listtext' target='_blank' href='https://publicfiles.fcc.gov/fm-profile/KSKI-FM'>To KSKI-FM Public Files</a></font></span>
+<div style='z-index:2; max-width:300pt; position:relative; top:25px; margin-left:auto; margin-right:auto; float:right; right:-85px; '><a target='_blank' load='lazy' href='https://publicfiles.fcc.gov/fm-profile/KSKI-FM'><img id='Station Logo' style='max-height:140px; max-width:140px; border-color:white;' src="https://publicfiles.fcc.gov/api/manager/download/entity/logo/17828/fm" onerror='this.parentNode.removeChild(this);' title=' Logo from FCC Public Inspection Files, publicfiles.fcc.gov .
+ A click will take you to the public file info submitted by KSKI-FM. 
+
+ Any reference to programming format is supplied by the licensee, 
+ the FCC does not collect programming format information. 
+'></a></div><span class='listtext'>  Licensee: <b>MAGIC VALLEY MEDIA, LLC</b></span><p><span class='listtext' >  <nobr>Service Designation: <b class='red'>FM</b>   'Full Service' FM station or application
+</nobr></span>
+<span class='listtext'>  <nobr>Channel/Class: <b>233 C1</b>  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Frequency: <b> 94.5 MHz</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font class='red'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Licensed</font></nobr></span>
+<span class='listtext'>  Digital operation not reported -- analog only</span>
+<br><span class='listtext'>  <nobr><b>LMS File No.: BLH-20130930BUY&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Facility ID number: 17828</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</nobr><br><br><span class='listtext'>  <nobr>LMS Application ID:  a98d7d3669f6487795cdc1b6063ebeb7 &nbsp;&nbsp;&nbsp;</nobr></span><br><span class='listtext'>  <nobr>Licensed date: 2013-12-05</nobr></span>
+</td></tr></table>
+<span class='listtext'>  <script type='text/javascript'><!--
+ associatedTranslators(); 
+//--></script></span>
+<script type='text/javascript'><!--
+  $( function() { 
+    $( "#tabs-10008" ).tabs().addClass( "ui-tabs-10008 " );
+  } ); 
+</script>
+<style type='text/css'>
+ .ui-tabs-10008 .ui-tabs-nav li a       { display:block; color: #886F00; }
+  .ui-tabs-10008 .ui-tabs-nav li a.hover { display:block; color: font-weight:bold; }
+  .ui-tabs-10008 .ui-tabs-nav li.ui-tabs-active { padding-bottom: 0; padding-left: .1em; border-left-width: 1px; background-color: #EFDFEF; border-color: #F28927; color: #000000; } 
+ </style>
+
+<div id='tabs-10008' style='width:70em; margin-right:auto; margin-left:auto; border:1; background-color:white;' >    <ul class='ul-button' style='top:-4em; z-index:1; height:0; width:25em;' ><li style='color:white;' class='li-button'><a href='#tabs-10008-1'>Technical Data</a></li><li style='color:white;' class='li-button'><a href='#tabs-10008-2'>Links & Maps</a></li></ul>  <div id='tabs-10008-1' style='position:relative; top:-5em;' m='Mobile'>
+
+
+<table><tr><td align='left' class='listtext' width='300' style='background-color:#EAE6DF;'><nobr>&nbsp;&nbsp; 43&#176; 38' 36.60" N Latitude&nbsp;&nbsp;</nobr><br><nobr>&nbsp;&nbsp;114&#176; 23' 53.10" W Longitude (NAD 83)&nbsp;&nbsp;<br><br><nobr class='smalltext;' style='color:red;'>&nbsp;&nbsp;&nbsp;Use NAD83 for FM filings in LMS.</nobr></nobr></td><td class='listtext' width='150' align='right' valign='top' style='background-color:#EAE6DF;'> &nbsp;43.643500&nbsp;&nbsp;&nbsp; -114.398083&nbsp;&nbsp;&nbsp;</td><td class='listtext' width='300' valign='top'><nobr>&nbsp;&nbsp;Previous NAD27 coordinates:<br> &nbsp;&nbsp;&nbsp;43&#176; 38' 37"<br>&nbsp;&nbsp;114&#176; 23' 50"&nbsp;&nbsp;&nbsp;</nobr><br></td><script type='text/javascript'><!--
+ FirstLicensedBanner(); 
+--></script>
+</tr></table>
+
+<span class='listtext'><table border='0' class='listtext' cellpadding='1' cellspacing='1' width='100%'><tr><td class='listtext' summary=''>&nbsp;&nbsp;</td><td class='black' align='right'>Polarization:&nbsp;&nbsp;&nbsp;&nbsp;</td><td class='black'>Horizontal</td><td class='black'>Vertical </td><td></td></tr><tr><td class='listtext' summary=''>&nbsp;&nbsp;</td><td class='listtext' align='left' style='background-color: #FFEFEE;' >Effective Radiated Power (ERP):</td><td class='listtext' align='center' style='background-color: #FFEFFE;' >2.5</td><td class='listtext' align='center' style='background-color: #FFEFFE;' >2.5</td><td class='listtext' align='left'   style='background-color: #FFEFFE;' >kW ERP</td></tr><tr><td class='listtext' summary='' >&nbsp;&nbsp;</td><td class='listtext' align='left' style='background-color: #FFEFFE;' >ERP with Beam Tilt:</td><td class='listtext' align='center' style='background-color: #FFEFFE;' >2.5</td><td class='listtext' align='center' style='background-color: #FFEFFE;' >2.5</td><td class='listtext' align='left'   style='background-color: #FFEFFE;' >kW ERP</td></tr><tr><td class='listtext' summary=''>&nbsp;&nbsp;</td><td class='listtext' align='left' style='background-color: #FFEFEE;' >Antenna&nbsp;radiation&nbsp;center&nbsp;Height&nbsp;Above&nbsp;Average&nbsp;Terrain:&nbsp;&nbsp;</td><td class='listtext' align='center' style='background-color: #FFEFFE;' >583.</td><td class='listtext' align='center' style='background-color: #FFEFFE;' >583.</td><td class='listtext' align='left'  style='background-color: #FFEFFE;' width='30%' ><nobr>meters HAAT</nobr> - <u style='color: #FF7800;'><script type='text/javascript'><!-- 
+calculateHAAT();
+--></script>
+</u></td></tr><tr><td class='listtext' summary=''>&nbsp;&nbsp;</td><td class='listtext' align='left' style='background-color: #FFFFFF;' ><nobr>Antenna radiation Center Height Above Mean&nbsp;Sea&nbsp;Level:&nbsp;&nbsp;&nbsp;&nbsp;</nobr></td><td class='listtext' align='center' style='background-color: #FFFFFF;' >2658.</td><td class='listtext' align='center' style='background-color: #FFFFFF;' >2658.</td><td class='listtext' align='left'   style='background-color: #FFFFFF;' >meters AMSL</td></tr><tr><td class='listtext' summary=''>&nbsp;&nbsp;</td><td class='listtext' align='left' style='background-color: #FFFFFF;'><nobr>Antenna radiation center Height Above Ground&nbsp;Level:&nbsp;&nbsp;&nbsp;&nbsp;</nobr></td><td class='listtext' align='center' style='background-color: #FFFFFF;' >24.</td><td class='listtext' align='center' style='background-color: #FFFFFF;' >24.</td><td class='listtext' align='left'  style='background-color: #FFFFFF;'  >meters AGL</td></tr></table></span>
+
+<span class='ltyellow'>   2.00      km (1.24      miles) </span><span class="listtext"> distant from 43&#176; 39' 40.00" N Lat 114&#176; 24' 11.00" W Lon,
+    at a bearing of </span><span class="ltyellow">168.45&#176;</span><span class="listtext"> using the method in <a href="http://www.ecfr.gov/cgi-bin/text-idx?node=se47.5.73_1208">Section 73.208</a> of calculating distance. 
+    <span class="listtext">(Reverse bearing 348.46&#176;.)</span>
+
+<span class='listtext'>   Non-Directional    </span> <span class='listtext'>      &nbsp;Antenna ID: &nbsp;<font class='smalltext' title='LMS aant_antenna_record_id'>b39d71ccf82c45de9d8dc1b6063ebeb7</font>&nbsp;&nbsp;<span class='listtext'>
+   Antenna Make: JAM     Antenna Model: JCPB-4H-R (RFR 0.5)</span>
+<span class='listtext'>   No. of antenna sections: 4</span>
+
+</div><div style='height:0; width:0;' ><script> var divheight = $("#tabs-10008-1").height();     divheight=divheight+Math.round(9*1.1);</script></div><div id='tabs-10008-2' m='Mobile' style='position:relative; top:-5em;' class='listtext-noprint'>
+
+
+
+<script type='text/javascript'><!-- 
+LMSlinks();
+CDBSlinks();
+Maplinks(); 
+PIFlinks(); 
+HistoryCardsLink();
+ULSlinks();
+radiusSearch();
+FMpreliminaryStudy();
+ClassAallotmentChannelFinder();
+
+toAtlas();
+--></script>
+</div><script> $('#tabs-10008-2').css('height', divheight*1.0);</script>
+</div></pre><br><script type='text/javascript'><!-- 
+  omit = 0;
+  recordcount = '10008';
+  facility_id = '1163';
+  c_application_id = '201310281';
+  hostname = 'transition';
+  c_callsign = 'KECH-FM';
+  c_facility_callsign = 'KECH-FM';
+  four_letter_callsign = 'KECH';
+  c_service = 'FM';
+  c_station_class = 'C1';
+
+  c_dom_status = 'LIC';
+  c_filenumber = 'BLH-20131028AAU';
+  c_comm_city_app = "SUN VALLEY";
+  c_comm_state_app = 'ID';
+  c_country = 'US';
+  var c_nad = '83';
+  c_lat_deg = '43';
+  c_lat_min = '38';
+  c_lat_sec = '36.60';
+  c_lat_dir = 'N';
+  c_lon_deg = '114';
+  c_lon_min = '23';
+  c_lon_sec = '53.10';
+  c_lon_dir = 'W';
+  freq = '95.3';
+  c_station_channel = '237';
+ p_haat_max = '583.0';
+ p_rcamsl_max = '2658.';
+ p_erp_max = '2.5';
+  alat83 = '43.643500';
+  alon83 = '-114.398083';
+  longstring = "";
+  service_contour  = 60;
+ lms_appid = 'd0ed91e54401462e8d9dc1b6063ebeb7';
+  lms_histcard_id = '-';
+FirstLicensedDate = '-6-27-1978';
+HistoryCardsAt = 0;
+ ns = 1;
+ ew = -1;
+ terrdb = 7;
+ list = 0;
+ c_da_ind = '-';
+ c_antenna_type = ' ';
+ temp = 0;
+ initial = 0;
+ whitefill = 0;
+--></script>
+<div id='10009' class='listtext' style='page-break-before: always; margin-right:auto; margin-left:auto; left:0; right:0;' width='122'><pre>
+
+
+                                                                                            <span class='listtext-noprint;' style='top:20px;'><a href='#n10008' name='n10009'>Previous Record</A> -- <a href='#n10010'>Next Record</A></span>
+
+<span class='blue'>&nbsp;&nbsp;<b>KECH-FM               <a target='_blank' style='text-decoration-color: blue; display: inline-block; width:300px;' title=' Community Information ' href='/fcc-bin/atlas?state=ID&city=SUN VALLEY&radius=100'>ID SUN VALLEY                                   </a>&nbsp;&nbsp;&nbsp;USA            </b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a style='background-color: #FF2700; color: white; font-weight: bold; border-style: solid; border-width: 1px; border-color: black;' href='https://enterpriseefiling.fcc.gov/dataentry/public/tv/publicFacilitySearch.html' title='To LMS Facility Search'>&nbsp;FM&nbsp;</a>&nbsp;<a style='background-color: #FFBF44; color: black; font-weight: bold; border-style: solid; border-width: 1px; border-color: black;' href='https://enterpriseefiling.fcc.gov/dataentry/public/tv/publicAppSearch.html' title='To LMS Application Search'>&nbsp;LIC&nbsp;</a></span>
+<font style='position:relative; top:15px; float:right; right:-85px;'><a class='listtext' target='_blank' href='https://publicfiles.fcc.gov/fm-profile/KECH-FM'>To KECH-FM Public Files</a></font></span>
+<div style='z-index:2; max-width:300pt; position:relative; top:25px; margin-left:auto; margin-right:auto; float:right; right:-85px; '><a target='_blank' load='lazy' href='https://publicfiles.fcc.gov/fm-profile/KECH-FM'><img id='Station Logo' style='max-height:140px; max-width:140px; border-color:white;' src="https://publicfiles.fcc.gov/api/manager/download/entity/logo/1163/fm" onerror='this.parentNode.removeChild(this);' title=' Logo from FCC Public Inspection Files, publicfiles.fcc.gov .
+ A click will take you to the public file info submitted by KECH-FM. 
+
+ Any reference to programming format is supplied by the licensee, 
+ the FCC does not collect programming format information. 
+'></a></div><span class='listtext'>  Licensee: <b>WOODS RIVER MEDIA, LLC</b></span><p><span class='listtext' >  <nobr>Service Designation: <b class='red'>FM</b>   'Full Service' FM station or application
+</nobr></span>
+<span class='listtext'>  <nobr>Channel/Class: <b>237 C1</b>  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Frequency: <b> 95.3 MHz</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font class='red'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Licensed</font></nobr></span>
+<span class='listtext'>  Digital operation not reported -- analog only</span>
+<br><span class='listtext'>  <nobr><b>LMS File No.: BLH-20131028AAU&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Facility ID number: 1163</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</nobr><br><br><span class='listtext'>  <nobr>LMS Application ID:  d0ed91e54401462e8d9dc1b6063ebeb7 &nbsp;&nbsp;&nbsp;</nobr></span><br><span class='listtext'>  <nobr>Licensed date: 2013-12-05</nobr></span>
+</td></tr></table>
+<span class='listtext'>  <script type='text/javascript'><!--
+ associatedTranslators(); 
+//--></script></span>
+<script type='text/javascript'><!--
+  $( function() { 
+    $( "#tabs-10009" ).tabs().addClass( "ui-tabs-10009 " );
+  } ); 
+</script>
+<style type='text/css'>
+ .ui-tabs-10009 .ui-tabs-nav li a       { display:block; color: #886F00; }
+  .ui-tabs-10009 .ui-tabs-nav li a.hover { display:block; color: font-weight:bold; }
+  .ui-tabs-10009 .ui-tabs-nav li.ui-tabs-active { padding-bottom: 0; padding-left: .1em; border-left-width: 1px; background-color: #EFDFEF; border-color: #F28927; color: #000000; } 
+ </style>
+
+<div id='tabs-10009' style='width:70em; margin-right:auto; margin-left:auto; border:1; background-color:white;' >    <ul class='ul-button' style='top:-4em; z-index:1; height:0; width:25em;' ><li style='color:white;' class='li-button'><a href='#tabs-10009-1'>Technical Data</a></li><li style='color:white;' class='li-button'><a href='#tabs-10009-2'>Links & Maps</a></li></ul>  <div id='tabs-10009-1' style='position:relative; top:-5em;' m='Mobile'>
+
+
+<table><tr><td align='left' class='listtext' width='300' style='background-color:#EAE6DF;'><nobr>&nbsp;&nbsp; 43&#176; 38' 36.60" N Latitude&nbsp;&nbsp;</nobr><br><nobr>&nbsp;&nbsp;114&#176; 23' 53.10" W Longitude (NAD 83)&nbsp;&nbsp;<br><br><nobr class='smalltext;' style='color:red;'>&nbsp;&nbsp;&nbsp;Use NAD83 for FM filings in LMS.</nobr></nobr></td><td class='listtext' width='150' align='right' valign='top' style='background-color:#EAE6DF;'> &nbsp;43.643500&nbsp;&nbsp;&nbsp; -114.398083&nbsp;&nbsp;&nbsp;</td><td class='listtext' width='300' valign='top'><nobr>&nbsp;&nbsp;Previous NAD27 coordinates:<br> &nbsp;&nbsp;&nbsp;43&#176; 38' 37"<br>&nbsp;&nbsp;114&#176; 23' 50"&nbsp;&nbsp;&nbsp;</nobr><br></td><script type='text/javascript'><!--
+ FirstLicensedBanner(); 
+--></script>
+</tr></table>
+
+<span class='listtext'><table border='0' class='listtext' cellpadding='1' cellspacing='1' width='100%'><tr><td class='listtext' summary=''>&nbsp;&nbsp;</td><td class='black' align='right'>Polarization:&nbsp;&nbsp;&nbsp;&nbsp;</td><td class='black'>Horizontal</td><td class='black'>Vertical </td><td></td></tr><tr><td class='listtext' summary=''>&nbsp;&nbsp;</td><td class='listtext' align='left' style='background-color: #FFEFEE;' >Effective Radiated Power (ERP):</td><td class='listtext' align='center' style='background-color: #FFEFFE;' >2.5</td><td class='listtext' align='center' style='background-color: #FFEFFE;' >2.5</td><td class='listtext' align='left'   style='background-color: #FFEFFE;' >kW ERP</td></tr><tr><td class='listtext' summary='' >&nbsp;&nbsp;</td><td class='listtext' align='left' style='background-color: #FFEFFE;' >ERP with Beam Tilt:</td><td class='listtext' align='center' style='background-color: #FFEFFE;' >2.5</td><td class='listtext' align='center' style='background-color: #FFEFFE;' >2.5</td><td class='listtext' align='left'   style='background-color: #FFEFFE;' >kW ERP</td></tr><tr><td class='listtext' summary=''>&nbsp;&nbsp;</td><td class='listtext' align='left' style='background-color: #FFEFEE;' >Antenna&nbsp;radiation&nbsp;center&nbsp;Height&nbsp;Above&nbsp;Average&nbsp;Terrain:&nbsp;&nbsp;</td><td class='listtext' align='center' style='background-color: #FFEFFE;' >583.</td><td class='listtext' align='center' style='background-color: #FFEFFE;' >583.</td><td class='listtext' align='left'  style='background-color: #FFEFFE;' width='30%' ><nobr>meters HAAT</nobr> - <u style='color: #FF7800;'><script type='text/javascript'><!-- 
+calculateHAAT();
+--></script>
+</u></td></tr><tr><td class='listtext' summary=''>&nbsp;&nbsp;</td><td class='listtext' align='left' style='background-color: #FFFFFF;' ><nobr>Antenna radiation Center Height Above Mean&nbsp;Sea&nbsp;Level:&nbsp;&nbsp;&nbsp;&nbsp;</nobr></td><td class='listtext' align='center' style='background-color: #FFFFFF;' >2658.</td><td class='listtext' align='center' style='background-color: #FFFFFF;' >2658.</td><td class='listtext' align='left'   style='background-color: #FFFFFF;' >meters AMSL</td></tr><tr><td class='listtext' summary=''>&nbsp;&nbsp;</td><td class='listtext' align='left' style='background-color: #FFFFFF;'><nobr>Antenna radiation center Height Above Ground&nbsp;Level:&nbsp;&nbsp;&nbsp;&nbsp;</nobr></td><td class='listtext' align='center' style='background-color: #FFFFFF;' >24.</td><td class='listtext' align='center' style='background-color: #FFFFFF;' >24.</td><td class='listtext' align='left'  style='background-color: #FFFFFF;'  >meters AGL</td></tr></table></span>
+
+<span class='ltyellow'>   2.00      km (1.24      miles) </span><span class="listtext"> distant from 43&#176; 39' 40.00" N Lat 114&#176; 24' 11.00" W Lon,
+    at a bearing of </span><span class="ltyellow">168.45&#176;</span><span class="listtext"> using the method in <a href="http://www.ecfr.gov/cgi-bin/text-idx?node=se47.5.73_1208">Section 73.208</a> of calculating distance. 
+    <span class="listtext">(Reverse bearing 348.46&#176;.)</span>
+
+<span class='listtext'>   Non-Directional    </span> <span class='listtext'>      &nbsp;Antenna ID: &nbsp;<font class='smalltext' title='LMS aant_antenna_record_id'>c4884cef9e384c08b6b9c1b6063ebeb7</font>&nbsp;&nbsp;<span class='listtext'>
+   Antenna Make: JAM     Antenna Model: JCPB-4H-R (RFR 0.5)</span>
+<span class='listtext'>   No. of antenna sections: 4</span>
+
+</div><div style='height:0; width:0;' ><script> var divheight = $("#tabs-10009-1").height();     divheight=divheight+Math.round(9*1.1);</script></div><div id='tabs-10009-2' m='Mobile' style='position:relative; top:-5em;' class='listtext-noprint'>
+
+
+
+<script type='text/javascript'><!-- 
+LMSlinks();
+CDBSlinks();
+Maplinks(); 
+PIFlinks(); 
+HistoryCardsLink();
+ULSlinks();
+radiusSearch();
+FMpreliminaryStudy();
+ClassAallotmentChannelFinder();
+
+toAtlas();
+--></script>
+</div><script> $('#tabs-10009-2').css('height', divheight*1.0);</script>
+</div></pre><br><script type='text/javascript'><!-- 
+  omit = 0;
+  recordcount = '10009';
+  facility_id = '138128';
+  c_application_id = '200606226';
+  hostname = 'transition';
+  c_callsign = 'K248BE';
+  c_facility_callsign = 'K248BE';
+  four_letter_callsign = 'K248BN';
+  c_service = 'FX';
+  c_station_class = 'D';
+
+  c_dom_status = 'LIC';
+  c_filenumber = 'BLFT-20060622AAU';
+  c_comm_city_app = "SUN VALLEY";
+  c_comm_state_app = 'ID';
+  c_country = 'US';
+  var c_nad = '83';
+  c_lat_deg = '43';
+  c_lat_min = '39';
+  c_lat_sec = '41.60';
+  c_lat_dir = 'N';
+  c_lon_deg = '114';
+  c_lon_min = '24';
+  c_lon_sec = '10.10';
+  c_lon_dir = 'W';
+  freq = '97.5';
+  c_station_channel = '248';
+ p_haat_max = '620.8';
+ p_rcamsl_max = '2751.';
+ p_erp_max = '0.01';
+  alat83 = '43.661555';
+  alon83 = '-114.402805';
+  longstring = "";
+  service_contour  = 60;
+ lms_appid = 'fc0fecffde5548e990f2c1b6063ebeb7';
+  lms_histcard_id = '-';
+FirstLicensedDate = '-6-27-1978';
+HistoryCardsAt = 0;
+ ns = 1;
+ ew = -1;
+ terrdb = 7;
+ list = 0;
+ c_da_ind = '-';
+ c_antenna_type = ' ';
+ temp = 0;
+ initial = 0;
+ whitefill = 0;
+--></script>
+<div id='10010' class='listtext' style='page-break-before: always; margin-right:auto; margin-left:auto; left:0; right:0;' width='148'><pre>
+
+
+                                                                                            <span class='listtext-noprint;' style='top:20px;'><a href='#n10009' name='n10010'>Previous Record</A> -- <a href='#n10011'>Next Record</A></span>
+
+<span class='blue'>&nbsp;&nbsp;<b>K248BE                <a target='_blank' style='text-decoration-color: blue; display: inline-block; width:300px;' title=' Community Information ' href='/fcc-bin/atlas?state=ID&city=SUN VALLEY&radius=100'>ID SUN VALLEY                                   </a>&nbsp;&nbsp;&nbsp;USA            </b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a style='background-color: #007F25; color: white; font-weight: bold; border-style: solid; border-width: 1px; border-color: black;' href='https://enterpriseefiling.fcc.gov/dataentry/public/tv/publicFacilitySearch.html' title='To LMS Facility Search'>&nbsp;FX&nbsp;</a>&nbsp;<a style='background-color: #FFBF44; color: black; font-weight: bold; border-style: solid; border-width: 1px; border-color: black;' href='https://enterpriseefiling.fcc.gov/dataentry/public/tv/publicAppSearch.html' title='To LMS Application Search'>&nbsp;LIC&nbsp;</a></span>
+<font style='position:relative; top:15px; float:right; right:-85px;'><a class='listtext' target='_blank' href='https://publicfiles.fcc.gov/fm-profile/K248BE'>To K248BE Public Files</a></font></span>
+<div style='z-index:2; max-width:300pt; position:relative; top:25px; margin-left:auto; margin-right:auto; float:right; right:-85px; '><a target='_blank' load='lazy' href='https://publicfiles.fcc.gov/fm-profile/K248BE'><img id='Station Logo' style='max-height:140px; max-width:140px; border-color:white;' src="https://publicfiles.fcc.gov/api/manager/download/entity/logo/138128/fm" onerror='this.parentNode.removeChild(this);' title=' Logo from FCC Public Inspection Files, publicfiles.fcc.gov .
+ A click will take you to the public file info submitted by K248BE. 
+
+ Any reference to programming format is supplied by the licensee, 
+ the FCC does not collect programming format information. 
+'></a></div><span class='listtext'>  Licensee: <b>IDAHO CONFERENCE OF SEVENTH-DAY ADVENTISTS, INC.</b></span><p><span class='listtext' >  <nobr>Service Designation: <b class='red'>FX</b>   Translator Station (retransmits signal, different channel than main station)
+</nobr></span>
+<span class='listtext'>  <nobr>Channel/Class: <b>248 D</b>  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Frequency: <b> 97.5 MHz</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font class='red'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Licensed</font></nobr></span>
+<br><span class='listtext'>  <nobr><b>LMS File No.: BLFT-20060622AAU&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Facility ID number: 138128</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</nobr><br><br><span class='listtext'>  <nobr>LMS Application ID:  fc0fecffde5548e990f2c1b6063ebeb7 &nbsp;&nbsp;&nbsp;</nobr></span><br><span class='listtext'>  <nobr>Licensed date: 2006-08-17</nobr></span>
+ <iframe id='200606226Primary138128' scrolling=no style='height:27px; width:980px; border:0px; ' src='/fcc-bin/fmq?RELAYS91839&textsize=9'></iframe></td></tr></table>
+<script type='text/javascript'><!--
+  $( function() { 
+    $( "#tabs-10010" ).tabs().addClass( "ui-tabs-10010 " );
+  } ); 
+</script>
+<style type='text/css'>
+ .ui-tabs-10010 .ui-tabs-nav li a       { display:block; color: #886F00; }
+  .ui-tabs-10010 .ui-tabs-nav li a.hover { display:block; color: font-weight:bold; }
+  .ui-tabs-10010 .ui-tabs-nav li.ui-tabs-active { padding-bottom: 0; padding-left: .1em; border-left-width: 1px; background-color: #EFDFEF; border-color: #F28927; color: #000000; } 
+ </style>
+
+<div id='tabs-10010' style='width:70em; margin-right:auto; margin-left:auto; border:1; background-color:white;' >    <ul class='ul-button' style='top:-4em; z-index:1; height:0; width:25em;' ><li style='color:white;' class='li-button'><a href='#tabs-10010-1'>Technical Data</a></li><li style='color:white;' class='li-button'><a href='#tabs-10010-2'>Links & Maps</a></li></ul>  <div id='tabs-10010-1' style='position:relative; top:-5em;' m='Mobile'>
+
+
+<table><tr><td align='left' class='listtext' width='300' style='background-color:#EAE6DF;'><nobr>&nbsp;&nbsp; 43&#176; 39' 41.60" N Latitude&nbsp;&nbsp;</nobr><br><nobr>&nbsp;&nbsp;114&#176; 24' 10.10" W Longitude (NAD 83)&nbsp;&nbsp;<br><br><nobr class='smalltext;' style='color:red;'>&nbsp;&nbsp;&nbsp;Use NAD83 for FM filings in LMS.</nobr></nobr></td><td class='listtext' width='150' align='right' valign='top' style='background-color:#EAE6DF;'> &nbsp;43.661556&nbsp;&nbsp;&nbsp; -114.402806&nbsp;&nbsp;&nbsp;</td><td class='listtext' width='300' valign='top'><nobr>&nbsp;&nbsp;Previous NAD27 coordinates:<br> &nbsp;&nbsp;&nbsp;43&#176; 39' 42"<br>&nbsp;&nbsp;114&#176; 24' 7"&nbsp;&nbsp;&nbsp;</nobr><br></td><script type='text/javascript'><!--
+ FirstLicensedBanner(); 
+--></script>
+</tr></table>
+
+<span class='listtext'><table border='0' class='listtext' cellpadding='1' cellspacing='1' width='100%'><tr><td class='listtext' summary=''>&nbsp;&nbsp;</td><td class='black' align='right'>Polarization:&nbsp;&nbsp;&nbsp;&nbsp;</td><td class='black'>Horizontal</td><td class='black'>Vertical </td><td></td></tr><tr><td class='listtext' summary=''>&nbsp;&nbsp;</td><td class='listtext' align='left' style='background-color: #FFEFEE;' >Effective Radiated Power (ERP):</td><td class='listtext' align='center' style='background-color: #FFEFFE;' >0.</td><td class='listtext' align='center' style='background-color: #FFEFFE;' >0.01</td><td class='listtext' align='left'   style='background-color: #FFEFFE;' >kW ERP</td></tr><tr><td class='listtext' summary='' >&nbsp;&nbsp;</td><td class='listtext' align='left' style='background-color: #FFEFFE;' >ERP with Beam Tilt:</td><td class='listtext' align='center' style='background-color: #FFEFFE;' >0.</td><td class='listtext' align='center' style='background-color: #FFEFFE;' >0.01</td><td class='listtext' align='left'   style='background-color: #FFEFFE;' >kW ERP</td></tr><tr><td class='listtext' summary=''>&nbsp;&nbsp;</td><td class='listtext' align='left' style='background-color: #FFEFEE;' >Antenna&nbsp;radiation&nbsp;center&nbsp;Height&nbsp;Above&nbsp;Average&nbsp;Terrain:&nbsp;&nbsp;</td><td class='listtext' align='center' style='background-color: #FFEFFE;' >0.</td><td class='listtext' align='center' style='background-color: #FFEFFE;' >620.8</td><td class='listtext' align='left'  style='background-color: #FFEFFE;' width='30%' ><nobr>meters HAAT</nobr> - <u style='color: #FF7800;'><script type='text/javascript'><!-- 
+calculateHAAT();
+--></script>
+</u></td></tr><tr><td class='listtext' summary=''>&nbsp;&nbsp;</td><td class='listtext' align='left' style='background-color: #FFFFFF;' ><nobr>Antenna radiation Center Height Above Mean&nbsp;Sea&nbsp;Level:&nbsp;&nbsp;&nbsp;&nbsp;</nobr></td><td class='listtext' align='center' style='background-color: #FFFFFF;' >0.</td><td class='listtext' align='center' style='background-color: #FFFFFF;' >2751.</td><td class='listtext' align='left'   style='background-color: #FFFFFF;' >meters AMSL</td></tr><tr><td class='listtext' summary=''>&nbsp;&nbsp;</td><td class='listtext' align='left' style='background-color: #FFFFFF;'><nobr>Antenna radiation center Height Above Ground&nbsp;Level:&nbsp;&nbsp;&nbsp;&nbsp;</nobr></td><td class='listtext' align='center' style='background-color: #FFFFFF;' >0.</td><td class='listtext' align='center' style='background-color: #FFFFFF;' >6.</td><td class='listtext' align='left'  style='background-color: #FFFFFF;'  >meters AGL</td></tr></table></span>
+
+<span class='ltyellow'>   0.05      km (0.03      miles) </span><span class="listtext"> distant from 43&#176; 39' 40.00" N Lat 114&#176; 24' 11.00" W Lon,
+    at a bearing of </span><span class="ltyellow"> 22.14&#176;</span><span class="listtext"> using the method in <a href="http://www.ecfr.gov/cgi-bin/text-idx?node=se47.5.73_1208">Section 73.208</a> of calculating distance. 
+    <span class="listtext">(Reverse bearing 202.14&#176;.)</span>
+
+<span class='listtext'>   Non-Directional    </span> <span class='listtext'>      &nbsp;Antenna ID: &nbsp;<font class='smalltext' title='LMS aant_antenna_record_id'>3c7d3a1e9754417d8e99c1b6063ebeb7</font>&nbsp;&nbsp;<span class='listtext'>
+   Antenna Make: SCA     Antenna Model: FMV</span>
+<span class='listtext'>   No. of antenna sections: -</span>
+
+</div><div style='height:0; width:0;' ><script> var divheight = $("#tabs-10010-1").height();     divheight=divheight+Math.round(9*1.1);</script></div><div id='tabs-10010-2' m='Mobile' style='position:relative; top:-5em;' class='listtext-noprint'>
+
+
+
+<script type='text/javascript'><!-- 
+LMSlinks();
+CDBSlinks();
+Maplinks(); 
+PIFlinks(); 
+ULSlinks();
+radiusSearch();
+FMpreliminaryStudy();
+toAtlas();
+--></script>
+</div><script> $('#tabs-10010-2').css('height', divheight*1.0);</script>
+</div></pre><br><script type='text/javascript'><!-- 
+  omit = 0;
+  recordcount = '10010';
+  facility_id = '28251';
+  c_application_id = '201404224';
+  hostname = 'transition';
+  c_callsign = 'K262BZ';
+  c_facility_callsign = 'K262BZ';
+  four_letter_callsign = 'K262BN';
+  c_service = 'FX';
+  c_station_class = 'D';
+
+  c_dom_status = 'LIC';
+  c_filenumber = 'BLFT-20140422ABV';
+  c_comm_city_app = "BELLEVUE";
+  c_comm_state_app = 'ID';
+  c_country = 'US';
+  var c_nad = '83';
+  c_lat_deg = '43';
+  c_lat_min = '39';
+  c_lat_sec = '41.60';
+  c_lat_dir = 'N';
+  c_lon_deg = '114';
+  c_lon_min = '24';
+  c_lon_sec = '10.10';
+  c_lon_dir = 'W';
+  freq = '100.3';
+  c_station_channel = '262';
+ p_haat_max = '631.9';
+ p_rcamsl_max = '2762.';
+ p_erp_max = '0.125';
+  alat83 = '43.661555';
+  alon83 = '-114.402805';
+  longstring = "";
+  service_contour  = 60;
+ lms_appid = '32dff70bcea348749083c1b6063ebeb7';
+  lms_histcard_id = '-';
+FirstLicensedDate = '-6-27-1978';
+HistoryCardsAt = 0;
+ ns = 1;
+ ew = -1;
+ terrdb = 7;
+ list = 0;
+ c_da_ind = '-';
+ c_antenna_type = ' ';
+ temp = 0;
+ initial = 0;
+ whitefill = 0;
+--></script>
+<div id='10011' class='listtext' style='page-break-before: always; margin-right:auto; margin-left:auto; left:0; right:0;' width='130'><pre>
+
+
+                                                                                            <span class='listtext-noprint;' style='top:20px;'><a href='#n10010' name='n10011'>Previous Record</A> -- <a href='#n10012'>Next Record</A></span>
+
+<span class='blue'>&nbsp;&nbsp;<b>K262BZ                <a target='_blank' style='text-decoration-color: blue; display: inline-block; width:300px;' title=' Community Information ' href='/fcc-bin/atlas?state=ID&city=BELLEVUE&radius=100'>ID BELLEVUE                                     </a>&nbsp;&nbsp;&nbsp;USA            </b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a style='background-color: #007F25; color: white; font-weight: bold; border-style: solid; border-width: 1px; border-color: black;' href='https://enterpriseefiling.fcc.gov/dataentry/public/tv/publicFacilitySearch.html' title='To LMS Facility Search'>&nbsp;FX&nbsp;</a>&nbsp;<a style='background-color: #FFBF44; color: black; font-weight: bold; border-style: solid; border-width: 1px; border-color: black;' href='https://enterpriseefiling.fcc.gov/dataentry/public/tv/publicAppSearch.html' title='To LMS Application Search'>&nbsp;LIC&nbsp;</a></span>
+<font style='position:relative; top:15px; float:right; right:-85px;'><a class='listtext' target='_blank' href='https://publicfiles.fcc.gov/fm-profile/K262BZ'>To K262BZ Public Files</a></font></span>
+<div style='z-index:2; max-width:300pt; position:relative; top:25px; margin-left:auto; margin-right:auto; float:right; right:-85px; '><a target='_blank' load='lazy' href='https://publicfiles.fcc.gov/fm-profile/K262BZ'><img id='Station Logo' style='max-height:140px; max-width:140px; border-color:white;' src="https://publicfiles.fcc.gov/api/manager/download/entity/logo/28251/fm" onerror='this.parentNode.removeChild(this);' title=' Logo from FCC Public Inspection Files, publicfiles.fcc.gov .
+ A click will take you to the public file info submitted by K262BZ. 
+
+ Any reference to programming format is supplied by the licensee, 
+ the FCC does not collect programming format information. 
+'></a></div><span class='listtext'>  Licensee: <b>IDAHO STATE BOARD OF EDUCATION</b></span><p><span class='listtext' >  <nobr>Service Designation: <b class='red'>FX</b>   Translator Station (retransmits signal, different channel than main station)
+</nobr></span>
+<span class='listtext'>  <nobr>Channel/Class: <b>262 D</b>  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Frequency: <b>100.3 MHz</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font class='red'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Licensed</font></nobr></span>
+<br><span class='listtext'>  <nobr><b>LMS File No.: BLFT-20140422ABV&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Facility ID number: 28251</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</nobr><br><br><span class='listtext'>  <nobr>LMS Application ID:  32dff70bcea348749083c1b6063ebeb7 &nbsp;&nbsp;&nbsp;</nobr></span><br><span class='listtext'>  <nobr>Licensed date: 2014-06-06</nobr></span>
+ <iframe id='201404224Primary28251' scrolling=no style='height:27px; width:980px; border:0px; ' src='/fcc-bin/fmq?RELAYS87408&textsize=9'></iframe></td></tr></table>
+<script type='text/javascript'><!--
+  $( function() { 
+    $( "#tabs-10011" ).tabs().addClass( "ui-tabs-10011 " );
+  } ); 
+</script>
+<style type='text/css'>
+ .ui-tabs-10011 .ui-tabs-nav li a       { display:block; color: #886F00; }
+  .ui-tabs-10011 .ui-tabs-nav li a.hover { display:block; color: font-weight:bold; }
+  .ui-tabs-10011 .ui-tabs-nav li.ui-tabs-active { padding-bottom: 0; padding-left: .1em; border-left-width: 1px; background-color: #EFDFEF; border-color: #F28927; color: #000000; } 
+ </style>
+
+<div id='tabs-10011' style='width:70em; margin-right:auto; margin-left:auto; border:1; background-color:white;' >    <ul class='ul-button' style='top:-4em; z-index:1; height:0; width:25em;' ><li style='color:white;' class='li-button'><a href='#tabs-10011-1'>Technical Data</a></li><li style='color:white;' class='li-button'><a href='#tabs-10011-2'>Links & Maps</a></li></ul>  <div id='tabs-10011-1' style='position:relative; top:-5em;' m='Mobile'>
+
+
+<table><tr><td align='left' class='listtext' width='300' style='background-color:#EAE6DF;'><nobr>&nbsp;&nbsp; 43&#176; 39' 41.60" N Latitude&nbsp;&nbsp;</nobr><br><nobr>&nbsp;&nbsp;114&#176; 24' 10.10" W Longitude (NAD 83)&nbsp;&nbsp;<br><br><nobr class='smalltext;' style='color:red;'>&nbsp;&nbsp;&nbsp;Use NAD83 for FM filings in LMS.</nobr></nobr></td><td class='listtext' width='150' align='right' valign='top' style='background-color:#EAE6DF;'> &nbsp;43.661556&nbsp;&nbsp;&nbsp; -114.402806&nbsp;&nbsp;&nbsp;</td><td class='listtext' width='300' valign='top'><nobr>&nbsp;&nbsp;Previous NAD27 coordinates:<br> &nbsp;&nbsp;&nbsp;43&#176; 39' 42"<br>&nbsp;&nbsp;114&#176; 24' 7"&nbsp;&nbsp;&nbsp;</nobr><br></td><script type='text/javascript'><!--
+ FirstLicensedBanner(); 
+--></script>
+</tr></table>
+
+<span class='listtext'><table border='0' class='listtext' cellpadding='1' cellspacing='1' width='100%'><tr><td class='listtext' summary=''>&nbsp;&nbsp;</td><td class='black' align='right'>Polarization:&nbsp;&nbsp;&nbsp;&nbsp;</td><td class='black'>Horizontal</td><td class='black'>Vertical </td><td></td></tr><tr><td class='listtext' summary=''>&nbsp;&nbsp;</td><td class='listtext' align='left' style='background-color: #FFEFEE;' >Effective Radiated Power (ERP):</td><td class='listtext' align='center' style='background-color: #FFEFFE;' >0.125</td><td class='listtext' align='center' style='background-color: #FFEFFE;' >0.125</td><td class='listtext' align='left'   style='background-color: #FFEFFE;' >kW ERP</td></tr><tr><td class='listtext' summary='' >&nbsp;&nbsp;</td><td class='listtext' align='left' style='background-color: #FFEFFE;' >ERP with Beam Tilt:</td><td class='listtext' align='center' style='background-color: #FFEFFE;' >0.125</td><td class='listtext' align='center' style='background-color: #FFEFFE;' >0.125</td><td class='listtext' align='left'   style='background-color: #FFEFFE;' >kW ERP</td></tr><tr><td class='listtext' summary=''>&nbsp;&nbsp;</td><td class='listtext' align='left' style='background-color: #FFEFEE;' >Antenna&nbsp;radiation&nbsp;center&nbsp;Height&nbsp;Above&nbsp;Average&nbsp;Terrain:&nbsp;&nbsp;</td><td class='listtext' align='center' style='background-color: #FFEFFE;' >631.9</td><td class='listtext' align='center' style='background-color: #FFEFFE;' >0.</td><td class='listtext' align='left'  style='background-color: #FFEFFE;' width='30%' ><nobr>meters HAAT</nobr> - <u style='color: #FF7800;'><script type='text/javascript'><!-- 
+calculateHAAT();
+--></script>
+</u></td></tr><tr><td class='listtext' summary=''>&nbsp;&nbsp;</td><td class='listtext' align='left' style='background-color: #FFFFFF;' ><nobr>Antenna radiation Center Height Above Mean&nbsp;Sea&nbsp;Level:&nbsp;&nbsp;&nbsp;&nbsp;</nobr></td><td class='listtext' align='center' style='background-color: #FFFFFF;' >2762.</td><td class='listtext' align='center' style='background-color: #FFFFFF;' >2762.</td><td class='listtext' align='left'   style='background-color: #FFFFFF;' >meters AMSL</td></tr><tr><td class='listtext' summary=''>&nbsp;&nbsp;</td><td class='listtext' align='left' style='background-color: #FFFFFF;'><nobr>Antenna radiation center Height Above Ground&nbsp;Level:&nbsp;&nbsp;&nbsp;&nbsp;</nobr></td><td class='listtext' align='center' style='background-color: #FFFFFF;' >18.</td><td class='listtext' align='center' style='background-color: #FFFFFF;' >18.</td><td class='listtext' align='left'  style='background-color: #FFFFFF;'  >meters AGL</td></tr></table></span>
+
+<span class='ltyellow'>   0.05      km (0.03      miles) </span><span class="listtext"> distant from 43&#176; 39' 40.00" N Lat 114&#176; 24' 11.00" W Lon,
+    at a bearing of </span><span class="ltyellow"> 22.14&#176;</span><span class="listtext"> using the method in <a href="http://www.ecfr.gov/cgi-bin/text-idx?node=se47.5.73_1208">Section 73.208</a> of calculating distance. 
+    <span class="listtext">(Reverse bearing 202.14&#176;.)</span>
+
+<span class='listtext'>   Non-Directional    </span> <span class='listtext'>      &nbsp;Antenna ID: &nbsp;<font class='smalltext' title='LMS aant_antenna_record_id'>3a313bc819624ebd9253c1b6063ebeb7</font>&nbsp;&nbsp;<span class='listtext'>
+   Antenna Make: SHI     Antenna Model: 6812B</span>
+<span class='listtext'>   No. of antenna sections: -</span>
+
+</div><div style='height:0; width:0;' ><script> var divheight = $("#tabs-10011-1").height();     divheight=divheight+Math.round(9*1.1);</script></div><div id='tabs-10011-2' m='Mobile' style='position:relative; top:-5em;' class='listtext-noprint'>
+
+
+
+<script type='text/javascript'><!-- 
+LMSlinks();
+CDBSlinks();
+Maplinks(); 
+PIFlinks(); 
+ULSlinks();
+radiusSearch();
+FMpreliminaryStudy();
+toAtlas();
+--></script>
+</div><script> $('#tabs-10011-2').css('height', divheight*1.0);</script>
+</div></pre><br><script type='text/javascript'><!-- 
+  omit = 0;
+  recordcount = '10011';
+  facility_id = '17827';
+  c_application_id = '199503315';
+  hostname = 'transition';
+  c_callsign = 'K276DW';
+  c_facility_callsign = 'K276DW';
+  four_letter_callsign = 'K276DN';
+  c_service = 'FX';
+  c_station_class = 'D';
+
+  c_dom_status = 'LIC';
+  c_filenumber = 'BLFT-19950331TC';
+  c_comm_city_app = "KETCHUM, ETC.";
+  c_comm_state_app = 'ID';
+  c_country = 'US';
+  var c_nad = '83';
+  c_lat_deg = '43';
+  c_lat_min = '40';
+  c_lat_sec = '58.60';
+  c_lat_dir = 'N';
+  c_lon_deg = '114';
+  c_lon_min = '20';
+  c_lon_sec = '55.10';
+  c_lon_dir = 'W';
+  freq = '103.1';
+  c_station_channel = '276';
+ p_haat_max = '-108.0';
+ p_rcamsl_max = '2023.';
+ p_erp_max = '0.025';
+  alat83 = '43.682944';
+  alon83 = '-114.348638';
+  longstring = "";
+  service_contour  = 60;
+ lms_appid = '8cc583d21a394520a12cc1b6063ebeb7';
+  lms_histcard_id = '-';
+FirstLicensedDate = '-6-27-1978';
+HistoryCardsAt = 0;
+ ns = 1;
+ ew = -1;
+ terrdb = 7;
+ list = 0;
+ c_da_ind = '-';
+ c_antenna_type = ' ';
+ temp = 0;
+ initial = 0;
+ whitefill = 0;
+--></script>
+<div id='10012' class='listtext' style='page-break-before: always; margin-right:auto; margin-left:auto; left:0; right:0;' width='123'><pre>
+
+
+                                                                                            <span class='listtext-noprint;' style='top:20px;'><a href='#n10011' name='n10012'>Previous Record</A> -- <a href='#n10013'>Next Record</A></span>
+
+<span class='blue'>&nbsp;&nbsp;<b>K276DW                <a target='_blank' style='text-decoration-color: blue; display: inline-block; width:300px;' title=' Community Information ' href='/fcc-bin/atlas?state=ID&city=KETCHUM, ETC.&radius=100'>ID KETCHUM, ETC.                                </a>&nbsp;&nbsp;&nbsp;USA            </b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a style='background-color: #007F25; color: white; font-weight: bold; border-style: solid; border-width: 1px; border-color: black;' href='https://enterpriseefiling.fcc.gov/dataentry/public/tv/publicFacilitySearch.html' title='To LMS Facility Search'>&nbsp;FX&nbsp;</a>&nbsp;<a style='background-color: #FFBF44; color: black; font-weight: bold; border-style: solid; border-width: 1px; border-color: black;' href='https://enterpriseefiling.fcc.gov/dataentry/public/tv/publicAppSearch.html' title='To LMS Application Search'>&nbsp;LIC&nbsp;</a></span>
+<font style='position:relative; top:15px; float:right; right:-85px;'><a class='listtext' target='_blank' href='https://publicfiles.fcc.gov/fm-profile/K276DW'>To K276DW Public Files</a></font></span>
+<div style='z-index:2; max-width:300pt; position:relative; top:25px; margin-left:auto; margin-right:auto; float:right; right:-85px; '><a target='_blank' load='lazy' href='https://publicfiles.fcc.gov/fm-profile/K276DW'><img id='Station Logo' style='max-height:140px; max-width:140px; border-color:white;' src="https://publicfiles.fcc.gov/api/manager/download/entity/logo/17827/fm" onerror='this.parentNode.removeChild(this);' title=' Logo from FCC Public Inspection Files, publicfiles.fcc.gov .
+ A click will take you to the public file info submitted by K276DW. 
+
+ Any reference to programming format is supplied by the licensee, 
+ the FCC does not collect programming format information. 
+'></a></div><span class='listtext'>  Licensee: <b>MAGIC VALLEY MEDIA, LLC</b></span><p><span class='listtext' >  <nobr>Service Designation: <b class='red'>FX</b>   Translator Station (retransmits signal, different channel than main station)
+</nobr></span>
+<span class='listtext'>  <nobr>Channel/Class: <b>276 D</b>  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Frequency: <b>103.1 MHz</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font class='red'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Licensed</font></nobr></span>
+<br><span class='listtext'>  <nobr><b>LMS File No.: BLFT-19950331TC&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Facility ID number: 17827</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</nobr><br><br><span class='listtext'>  <nobr>LMS Application ID:  8cc583d21a394520a12cc1b6063ebeb7 &nbsp;&nbsp;&nbsp;</nobr></span><br><span class='listtext'>  <nobr>Licensed date: 1995-04-18</nobr></span>
+ <iframe id='199503315Primary17827' scrolling=no style='height:27px; width:980px; border:0px; ' src='/fcc-bin/fmq?RELAYS17828&textsize=9'></iframe></td></tr></table>
+<script type='text/javascript'><!--
+  $( function() { 
+    $( "#tabs-10012" ).tabs().addClass( "ui-tabs-10012 " );
+  } ); 
+</script>
+<style type='text/css'>
+ .ui-tabs-10012 .ui-tabs-nav li a       { display:block; color: #886F00; }
+  .ui-tabs-10012 .ui-tabs-nav li a.hover { display:block; color: font-weight:bold; }
+  .ui-tabs-10012 .ui-tabs-nav li.ui-tabs-active { padding-bottom: 0; padding-left: .1em; border-left-width: 1px; background-color: #EFDFEF; border-color: #F28927; color: #000000; } 
+ </style>
+
+<div id='tabs-10012' style='width:70em; margin-right:auto; margin-left:auto; border:1; background-color:white;' >    <ul class='ul-button' style='top:-4em; z-index:1; height:0; width:25em;' ><li style='color:white;' class='li-button'><a href='#tabs-10012-1'>Technical Data</a></li><li style='color:white;' class='li-button'><a href='#tabs-10012-2'>Links & Maps</a></li></ul>  <div id='tabs-10012-1' style='position:relative; top:-5em;' m='Mobile'>
+
+
+<table><tr><td align='left' class='listtext' width='300' style='background-color:#EAE6DF;'><nobr>&nbsp;&nbsp; 43&#176; 40' 58.60" N Latitude&nbsp;&nbsp;</nobr><br><nobr>&nbsp;&nbsp;114&#176; 20' 55.10" W Longitude (NAD 83)&nbsp;&nbsp;<br><br><nobr class='smalltext;' style='color:red;'>&nbsp;&nbsp;&nbsp;Use NAD83 for FM filings in LMS.</nobr></nobr></td><td class='listtext' width='150' align='right' valign='top' style='background-color:#EAE6DF;'> &nbsp;43.682944&nbsp;&nbsp;&nbsp; -114.348639&nbsp;&nbsp;&nbsp;</td><td class='listtext' width='300' valign='top'><nobr>&nbsp;&nbsp;Previous NAD27 coordinates:<br> &nbsp;&nbsp;&nbsp;43&#176; 40' 59"<br>&nbsp;&nbsp;114&#176; 20' 52"&nbsp;&nbsp;&nbsp;</nobr><br></td><script type='text/javascript'><!--
+ FirstLicensedBanner(); 
+--></script>
+</tr></table>
+
+<span class='listtext'><table border='0' class='listtext' cellpadding='1' cellspacing='1' width='100%'><tr><td class='listtext' summary=''>&nbsp;&nbsp;</td><td class='black' align='right'>Polarization:&nbsp;&nbsp;&nbsp;&nbsp;</td><td class='black'>Horizontal</td><td class='black'>Vertical </td><td></td></tr><tr><td class='listtext' summary=''>&nbsp;&nbsp;</td><td class='listtext' align='left' style='background-color: #FFEFEE;' >Effective Radiated Power (ERP):</td><td class='listtext' align='center' style='background-color: #FFEFFE;' >0.025</td><td class='listtext' align='center' style='background-color: #FFEFFE;' >0.025</td><td class='listtext' align='left'   style='background-color: #FFEFFE;' >kW ERP</td></tr><tr><td class='listtext' summary='' >&nbsp;&nbsp;</td><td class='listtext' align='left' style='background-color: #FFEFFE;' >ERP with Beam Tilt:</td><td class='listtext' align='center' style='background-color: #FFEFFE;' >0.025</td><td class='listtext' align='center' style='background-color: #FFEFFE;' >0.025</td><td class='listtext' align='left'   style='background-color: #FFEFFE;' >kW ERP</td></tr><tr><td class='listtext' summary=''>&nbsp;&nbsp;</td><td class='listtext' align='left' style='background-color: #FFEFEE;' >Antenna&nbsp;radiation&nbsp;center&nbsp;Height&nbsp;Above&nbsp;Average&nbsp;Terrain:&nbsp;&nbsp;</td><td class='listtext' align='center' style='background-color: #FFEFFE;' >-108.</td><td class='listtext' align='center' style='background-color: #FFEFFE;' >-108.</td><td class='listtext' align='left'  style='background-color: #FFEFFE;' width='30%' ><nobr>meters HAAT</nobr> - <u style='color: #FF7800;'><script type='text/javascript'><!-- 
+calculateHAAT();
+--></script>
+</u></td></tr><tr><td class='listtext' summary=''>&nbsp;&nbsp;</td><td class='listtext' align='left' style='background-color: #FFFFFF;' ><nobr>Antenna radiation Center Height Above Mean&nbsp;Sea&nbsp;Level:&nbsp;&nbsp;&nbsp;&nbsp;</nobr></td><td class='listtext' align='center' style='background-color: #FFFFFF;' >2023.</td><td class='listtext' align='center' style='background-color: #FFFFFF;' >2023.</td><td class='listtext' align='left'   style='background-color: #FFFFFF;' >meters AMSL</td></tr><tr><td class='listtext' summary=''>&nbsp;&nbsp;</td><td class='listtext' align='left' style='background-color: #FFFFFF;'><nobr>Antenna radiation center Height Above Ground&nbsp;Level:&nbsp;&nbsp;&nbsp;&nbsp;</nobr></td><td class='listtext' align='center' style='background-color: #FFFFFF;' >0.</td><td class='listtext' align='center' style='background-color: #FFFFFF;' >0.</td><td class='listtext' align='left'  style='background-color: #FFFFFF;'  >meters AGL</td></tr></table></span>
+
+<span class='ltyellow'>   5.01      km (3.12      miles) </span><span class="listtext"> distant from 43&#176; 39' 40.00" N Lat 114&#176; 24' 11.00" W Lon,
+    at a bearing of </span><span class="ltyellow"> 60.96&#176;</span><span class="listtext"> using the method in <a href="http://www.ecfr.gov/cgi-bin/text-idx?node=se47.5.73_1208">Section 73.208</a> of calculating distance. 
+    <span class="listtext">(Reverse bearing 241.00&#176;.)</span>
+
+<span class='listtext'>   Non-Directional    </span> <span class='listtext'>      &nbsp;Antenna ID: &nbsp;<font class='smalltext' title='LMS aant_antenna_record_id'>2617cc5c68964594a891c1b6063ebeb7</font>&nbsp;&nbsp;<span class='listtext'>
+   Antenna Make: -       Antenna Model: -</span>
+<span class='listtext'>   No. of antenna sections: -</span>
+
+</div><div style='height:0; width:0;' ><script> var divheight = $("#tabs-10012-1").height();     divheight=divheight+Math.round(9*1.1);</script></div><div id='tabs-10012-2' m='Mobile' style='position:relative; top:-5em;' class='listtext-noprint'>
+
+
+
+<script type='text/javascript'><!-- 
+LMSlinks();
+CDBSlinks();
+Maplinks(); 
+PIFlinks(); 
+ULSlinks();
+radiusSearch();
+FMpreliminaryStudy();
+toAtlas();
+--></script>
+</div><script> $('#tabs-10012-2').css('height', divheight*1.0);</script>
+</div></pre><br><script type='text/javascript'><!-- 
+  omit = 0;
+  recordcount = '10012';
+  facility_id = '202034';
+  c_application_id = '105473';
+  hostname = 'transition';
+  c_callsign = 'K279DA';
+  c_facility_callsign = 'K279DA';
+  four_letter_callsign = 'K279DN';
+  c_service = 'FX';
+  c_station_class = 'D';
+
+  c_dom_status = 'LIC';
+  c_filenumber = '0000105473';
+  c_comm_city_app = "SUN VALLEY";
+  c_comm_state_app = 'ID';
+  c_country = 'US';
+  var c_nad = '83';
+  c_lat_deg = '43';
+  c_lat_min = '39';
+  c_lat_sec = '40.60';
+  c_lat_dir = 'N';
+  c_lon_deg = '114';
+  c_lon_min = '24';
+  c_lon_sec = '11.10';
+  c_lon_dir = 'W';
+  freq = '103.7';
+  c_station_channel = '279';
+ p_haat_max = '0.0';
+ p_rcamsl_max = '2755.';
+ p_erp_max = '0.075';
+  alat83 = '43.661277';
+  alon83 = '-114.403083';
+  longstring = "";
+  service_contour  = 60;
+ lms_appid = '25076f916f68b0c2016f871e0cdc082a';
+  lms_histcard_id = '-';
+FirstLicensedDate = '-6-27-1978';
+HistoryCardsAt = 0;
+ ns = 1;
+ ew = -1;
+ terrdb = 7;
+ list = 0;
+ c_da_ind = '-';
+ c_antenna_type = ' ';
+ temp = 0;
+ initial = 0;
+ whitefill = 0;
+--></script>
+<div id='10013' class='listtext' style='page-break-before: always; margin-right:auto; margin-left:auto; left:0; right:0;' width='127'><pre>
+
+
+                                                                                            <span class='listtext-noprint;' style='top:20px;'><a href='#n10012' name='n10013'>Previous Record</A> -- <a href='#n10014'>Next Record</A></span>
+
+<span class='blue'>&nbsp;&nbsp;<b>K279DA                <a target='_blank' style='text-decoration-color: blue; display: inline-block; width:300px;' title=' Community Information ' href='/fcc-bin/atlas?state=ID&city=SUN VALLEY&radius=100'>ID SUN VALLEY                                   </a>&nbsp;&nbsp;&nbsp;USA            </b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a style='background-color: #007F25; color: white; font-weight: bold; border-style: solid; border-width: 1px; border-color: black;' href='https://enterpriseefiling.fcc.gov/dataentry/public/tv/publicFacilitySearch.html' title='To LMS Facility Search'>&nbsp;FX&nbsp;</a>&nbsp;<a style='background-color: #FFBF44; color: black; font-weight: bold; border-style: solid; border-width: 1px; border-color: black;' href='https://enterpriseefiling.fcc.gov/dataentry/public/tv/publicAppSearch.html' title='To LMS Application Search'>&nbsp;LIC&nbsp;</a></span>
+<font style='position:relative; top:15px; float:right; right:-85px;'><a class='listtext' target='_blank' href='https://publicfiles.fcc.gov/fm-profile/K279DA'>To K279DA Public Files</a></font></span>
+<div style='z-index:2; max-width:300pt; position:relative; top:25px; margin-left:auto; margin-right:auto; float:right; right:-85px; '><a target='_blank' load='lazy' href='https://publicfiles.fcc.gov/fm-profile/K279DA'><img id='Station Logo' style='max-height:140px; max-width:140px; border-color:white;' src="https://publicfiles.fcc.gov/api/manager/download/entity/logo/202034/fm" onerror='this.parentNode.removeChild(this);' title=' Logo from FCC Public Inspection Files, publicfiles.fcc.gov .
+ A click will take you to the public file info submitted by K279DA. 
+
+ Any reference to programming format is supplied by the licensee, 
+ the FCC does not collect programming format information. 
+'></a></div><span class='listtext'>  Licensee: <b>SUN VALLEY MEDIA GROUP, LLC</b></span><p><span class='listtext' >  <nobr>Service Designation: <b class='red'>FX</b>   Translator Station (retransmits signal, different channel than main station)
+</nobr></span>
+<span class='listtext'>  <nobr>Channel/Class: <b>279 D</b>  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Frequency: <b>103.7 MHz</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font class='red'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Licensed</font></nobr></span>
+<br><span class='listtext'>  <nobr><b>LMS File No.: 0000105473&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Facility ID number: 202034</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</nobr><br><br><span class='listtext'>  <nobr>LMS Application ID:  25076f916f68b0c2016f871e0cdc082a &nbsp;&nbsp;&nbsp;</nobr></span><br><span class='listtext'>  <nobr>Licensed date: 2020-02-12</nobr></span>
+ <iframe id='105473Primary202034' scrolling=no style='height:27px; width:980px; border:0px; ' src='/fcc-bin/fmq?RELAYS129638&textsize=9'></iframe></td></tr></table>
+<script type='text/javascript'><!--
+  $( function() { 
+    $( "#tabs-10013" ).tabs().addClass( "ui-tabs-10013 " );
+  } ); 
+</script>
+<style type='text/css'>
+ .ui-tabs-10013 .ui-tabs-nav li a       { display:block; color: #886F00; }
+  .ui-tabs-10013 .ui-tabs-nav li a.hover { display:block; color: font-weight:bold; }
+  .ui-tabs-10013 .ui-tabs-nav li.ui-tabs-active { padding-bottom: 0; padding-left: .1em; border-left-width: 1px; background-color: #EFDFEF; border-color: #F28927; color: #000000; } 
+ </style>
+
+<div id='tabs-10013' style='width:70em; margin-right:auto; margin-left:auto; border:1; background-color:white;' >    <ul class='ul-button' style='top:-4em; z-index:1; height:0; width:25em;' ><li style='color:white;' class='li-button'><a href='#tabs-10013-1'>Technical Data</a></li><li style='color:white;' class='li-button'><a href='#tabs-10013-2'>Links & Maps</a></li></ul>  <div id='tabs-10013-1' style='position:relative; top:-5em;' m='Mobile'>
+
+
+<table><tr><td align='left' class='listtext' width='300' style='background-color:#EAE6DF;'><nobr>&nbsp;&nbsp; 43&#176; 39' 40.60" N Latitude&nbsp;&nbsp;</nobr><br><nobr>&nbsp;&nbsp;114&#176; 24' 11.10" W Longitude (NAD 83)&nbsp;&nbsp;<br><br><nobr class='smalltext;' style='color:red;'>&nbsp;&nbsp;&nbsp;Use NAD83 for FM filings in LMS.</nobr></nobr></td><td class='listtext' width='150' align='right' valign='top' style='background-color:#EAE6DF;'> &nbsp;43.661278&nbsp;&nbsp;&nbsp; -114.403083&nbsp;&nbsp;&nbsp;</td><td class='listtext' width='300' valign='top'></td><script type='text/javascript'><!--
+ FirstLicensedBanner(); 
+--></script>
+</tr></table>
+
+<span class='listtext'><table border='0' class='listtext' cellpadding='1' cellspacing='1' width='100%'><tr><td class='listtext' summary=''>&nbsp;&nbsp;</td><td class='black' align='right'>Polarization:&nbsp;&nbsp;&nbsp;&nbsp;</td><td class='black'>Horizontal</td><td class='black'>Vertical </td><td></td></tr><tr><td class='listtext' summary=''>&nbsp;&nbsp;</td><td class='listtext' align='left' style='background-color: #FFEFEE;' >Effective Radiated Power (ERP):</td><td class='listtext' align='center' style='background-color: #FFEFFE;' >0.075</td><td class='listtext' align='center' style='background-color: #FFEFFE;' >0.075</td><td class='listtext' align='left'   style='background-color: #FFEFFE;' >kW ERP</td></tr><tr><td class='listtext' summary='' >&nbsp;&nbsp;</td><td class='listtext' align='left' style='background-color: #FFEFFE;' >ERP with Beam Tilt:</td><td class='listtext' align='center' style='background-color: #FFEFFE;' >0.</td><td class='listtext' align='center' style='background-color: #FFEFFE;' >0.</td><td class='listtext' align='left'   style='background-color: #FFEFFE;' >kW ERP</td></tr><tr><td class='listtext' summary=''>&nbsp;&nbsp;</td><td class='listtext' align='left' style='background-color: #FFEFEE;' >Antenna&nbsp;radiation&nbsp;center&nbsp;Height&nbsp;Above&nbsp;Average&nbsp;Terrain:&nbsp;&nbsp;</td><td class='listtext' align='center' style='background-color: #FFEFFE;' >0.</td><td class='listtext' align='center' style='background-color: #FFEFFE;' >0.</td><td class='listtext' align='left'  style='background-color: #FFEFFE;' width='30%' ><nobr>meters HAAT</nobr> - <u style='color: #FF7800;'><script type='text/javascript'><!-- 
+calculateHAAT();
+--></script>
+</u></td></tr><tr><td class='listtext' summary=''>&nbsp;&nbsp;</td><td class='listtext' align='left' style='background-color: #FFFFFF;' ><nobr>Antenna radiation Center Height Above Mean&nbsp;Sea&nbsp;Level:&nbsp;&nbsp;&nbsp;&nbsp;</nobr></td><td class='listtext' align='center' style='background-color: #FFFFFF;' >2755.</td><td class='listtext' align='center' style='background-color: #FFFFFF;' >2755.</td><td class='listtext' align='left'   style='background-color: #FFFFFF;' >meters AMSL</td></tr><tr><td class='listtext' summary=''>&nbsp;&nbsp;</td><td class='listtext' align='left' style='background-color: #FFFFFF;'><nobr>Antenna radiation center Height Above Ground&nbsp;Level:&nbsp;&nbsp;&nbsp;&nbsp;</nobr></td><td class='listtext' align='center' style='background-color: #FFFFFF;' >11.</td><td class='listtext' align='center' style='background-color: #FFFFFF;' >11.</td><td class='listtext' align='left'  style='background-color: #FFFFFF;'  >meters AGL</td></tr></table></span>
+
+<span class='ltyellow'>   0.02      km (0.01      miles) </span><span class="listtext"> distant from 43&#176; 39' 40.00" N Lat 114&#176; 24' 11.00" W Lon,
+    at a bearing of </span><span class="ltyellow">  0.00&#176;</span><span class="listtext"> using the method in <a href="http://www.ecfr.gov/cgi-bin/text-idx?node=se47.5.73_1208">Section 73.208</a> of calculating distance. 
+    <span class="listtext">(Reverse bearing   0.00&#176;.)</span>
+
+<span class='listtext'>   Non-Directional    </span> <span class='listtext'>      &nbsp;Antenna ID: &nbsp;<font class='smalltext' title='LMS aant_antenna_record_id'>25076f916f68b0c2016f871e0d3d0831</font>&nbsp;&nbsp;<span class='listtext'>
+   Antenna Make: SHI     Antenna Model: SLV-1</span>
+<span class='listtext'>   No. of antenna sections: 1</span>
+
+</div><div style='height:0; width:0;' ><script> var divheight = $("#tabs-10013-1").height();     divheight=divheight+Math.round(9*1.1);</script></div><div id='tabs-10013-2' m='Mobile' style='position:relative; top:-5em;' class='listtext-noprint'>
+
+
+
+<script type='text/javascript'><!-- 
+LMSlinks();
+CDBSlinks();
+Maplinks(); 
+PIFlinks(); 
+ULSlinks();
+radiusSearch();
+FMpreliminaryStudy();
+toAtlas();
+--></script>
+</div><script> $('#tabs-10013-2').css('height', divheight*1.0);</script>
+</div></pre><br><script type='text/javascript'><!-- 
+  omit = 0;
+  recordcount = '10013';
+  facility_id = '1164';
+  c_application_id = '201310281';
+  hostname = 'transition';
+  c_callsign = 'KYZK';
+  c_facility_callsign = 'KYZK';
+  four_letter_callsign = 'KYZK';
+  c_service = 'FM';
+  c_station_class = 'C1';
+
+  c_dom_status = 'LIC';
+  c_filenumber = 'BLH-20131028AAV';
+  c_comm_city_app = "SUN VALLEY";
+  c_comm_state_app = 'ID';
+  c_country = 'US';
+  var c_nad = '83';
+  c_lat_deg = '43';
+  c_lat_min = '38';
+  c_lat_sec = '36.60';
+  c_lat_dir = 'N';
+  c_lon_deg = '114';
+  c_lon_min = '23';
+  c_lon_sec = '53.10';
+  c_lon_dir = 'W';
+  freq = '107.5';
+  c_station_channel = '298';
+ p_haat_max = '583.0';
+ p_rcamsl_max = '2658.';
+ p_erp_max = '2.5';
+  alat83 = '43.643500';
+  alon83 = '-114.398083';
+  longstring = "";
+  service_contour  = 60;
+ lms_appid = '071fc0d896cf426893c6c1b6063ebeb7';
+  lms_histcard_id = '-';
+FirstLicensedDate = '-6-27-1978';
+HistoryCardsAt = 0;
+ ns = 1;
+ ew = -1;
+ terrdb = 7;
+ list = 0;
+ c_da_ind = '-';
+ c_antenna_type = ' ';
+ temp = 0;
+ initial = 0;
+ whitefill = 0;
+--></script>
+<div id='10014' class='listtext' style='page-break-before: always; margin-right:auto; margin-left:auto; left:0; right:0;' width='123'><pre>
+
+
+                                                                                            <span class='listtext-noprint;' style='top:20px;'><a href='#n10013' name='n10014'>Previous Record</A> -- <a href='#n10015'>Next Record</A></span>
+
+<span class='blue'>&nbsp;&nbsp;<b>KYZK                  <a target='_blank' style='text-decoration-color: blue; display: inline-block; width:300px;' title=' Community Information ' href='/fcc-bin/atlas?state=ID&city=SUN VALLEY&radius=100'>ID SUN VALLEY                                   </a>&nbsp;&nbsp;&nbsp;USA            </b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a style='background-color: #FF2700; color: white; font-weight: bold; border-style: solid; border-width: 1px; border-color: black;' href='https://enterpriseefiling.fcc.gov/dataentry/public/tv/publicFacilitySearch.html' title='To LMS Facility Search'>&nbsp;FM&nbsp;</a>&nbsp;<a style='background-color: #FFBF44; color: black; font-weight: bold; border-style: solid; border-width: 1px; border-color: black;' href='https://enterpriseefiling.fcc.gov/dataentry/public/tv/publicAppSearch.html' title='To LMS Application Search'>&nbsp;LIC&nbsp;</a></span>
+<font style='position:relative; top:15px; float:right; right:-85px;'><a class='listtext' target='_blank' href='https://publicfiles.fcc.gov/fm-profile/KYZK'>To KYZK Public Files</a></font></span>
+<div style='z-index:2; max-width:300pt; position:relative; top:25px; margin-left:auto; margin-right:auto; float:right; right:-85px; '><a target='_blank' load='lazy' href='https://publicfiles.fcc.gov/fm-profile/KYZK'><img id='Station Logo' style='max-height:140px; max-width:140px; border-color:white;' src="https://publicfiles.fcc.gov/api/manager/download/entity/logo/1164/fm" onerror='this.parentNode.removeChild(this);' title=' Logo from FCC Public Inspection Files, publicfiles.fcc.gov .
+ A click will take you to the public file info submitted by KYZK. 
+
+ Any reference to programming format is supplied by the licensee, 
+ the FCC does not collect programming format information. 
+'></a></div><span class='listtext'>  Licensee: <b>MAGIC VALLEY MEDIA, LLC</b></span><p><span class='listtext' >  <nobr>Service Designation: <b class='red'>FM</b>   'Full Service' FM station or application
+</nobr></span>
+<span class='listtext'>  <nobr>Channel/Class: <b>298 C1</b>  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Frequency: <b>107.5 MHz</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font class='red'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Licensed</font></nobr></span>
+<span class='listtext'>  Digital operation not reported -- analog only</span>
+<br><span class='listtext'>  <nobr><b>LMS File No.: BLH-20131028AAV&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Facility ID number: 1164</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</nobr><br><br><span class='listtext'>  <nobr>LMS Application ID:  071fc0d896cf426893c6c1b6063ebeb7 &nbsp;&nbsp;&nbsp;</nobr></span><br><span class='listtext'>  <nobr>Licensed date: 2013-12-06</nobr></span>
+</td></tr></table>
+<span class='listtext'>  <script type='text/javascript'><!--
+ associatedTranslators(); 
+//--></script></span>
+<script type='text/javascript'><!--
+  $( function() { 
+    $( "#tabs-10014" ).tabs().addClass( "ui-tabs-10014 " );
+  } ); 
+</script>
+<style type='text/css'>
+ .ui-tabs-10014 .ui-tabs-nav li a       { display:block; color: #886F00; }
+  .ui-tabs-10014 .ui-tabs-nav li a.hover { display:block; color: font-weight:bold; }
+  .ui-tabs-10014 .ui-tabs-nav li.ui-tabs-active { padding-bottom: 0; padding-left: .1em; border-left-width: 1px; background-color: #EFDFEF; border-color: #F28927; color: #000000; } 
+ </style>
+
+<div id='tabs-10014' style='width:70em; margin-right:auto; margin-left:auto; border:1; background-color:white;' >    <ul class='ul-button' style='top:-4em; z-index:1; height:0; width:25em;' ><li style='color:white;' class='li-button'><a href='#tabs-10014-1'>Technical Data</a></li><li style='color:white;' class='li-button'><a href='#tabs-10014-2'>Links & Maps</a></li></ul>  <div id='tabs-10014-1' style='position:relative; top:-5em;' m='Mobile'>
+
+
+<table><tr><td align='left' class='listtext' width='300' style='background-color:#EAE6DF;'><nobr>&nbsp;&nbsp; 43&#176; 38' 36.60" N Latitude&nbsp;&nbsp;</nobr><br><nobr>&nbsp;&nbsp;114&#176; 23' 53.10" W Longitude (NAD 83)&nbsp;&nbsp;<br><br><nobr class='smalltext;' style='color:red;'>&nbsp;&nbsp;&nbsp;Use NAD83 for FM filings in LMS.</nobr></nobr></td><td class='listtext' width='150' align='right' valign='top' style='background-color:#EAE6DF;'> &nbsp;43.643500&nbsp;&nbsp;&nbsp; -114.398083&nbsp;&nbsp;&nbsp;</td><td class='listtext' width='300' valign='top'><nobr>&nbsp;&nbsp;Previous NAD27 coordinates:<br> &nbsp;&nbsp;&nbsp;43&#176; 38' 37"<br>&nbsp;&nbsp;114&#176; 23' 50"&nbsp;&nbsp;&nbsp;</nobr><br></td><script type='text/javascript'><!--
+ FirstLicensedBanner(); 
+--></script>
+</tr></table>
+
+<span class='listtext'><table border='0' class='listtext' cellpadding='1' cellspacing='1' width='100%'><tr><td class='listtext' summary=''>&nbsp;&nbsp;</td><td class='black' align='right'>Polarization:&nbsp;&nbsp;&nbsp;&nbsp;</td><td class='black'>Horizontal</td><td class='black'>Vertical </td><td></td></tr><tr><td class='listtext' summary=''>&nbsp;&nbsp;</td><td class='listtext' align='left' style='background-color: #FFEFEE;' >Effective Radiated Power (ERP):</td><td class='listtext' align='center' style='background-color: #FFEFFE;' >2.5</td><td class='listtext' align='center' style='background-color: #FFEFFE;' >2.5</td><td class='listtext' align='left'   style='background-color: #FFEFFE;' >kW ERP</td></tr><tr><td class='listtext' summary='' >&nbsp;&nbsp;</td><td class='listtext' align='left' style='background-color: #FFEFFE;' >ERP with Beam Tilt:</td><td class='listtext' align='center' style='background-color: #FFEFFE;' >2.5</td><td class='listtext' align='center' style='background-color: #FFEFFE;' >2.5</td><td class='listtext' align='left'   style='background-color: #FFEFFE;' >kW ERP</td></tr><tr><td class='listtext' summary=''>&nbsp;&nbsp;</td><td class='listtext' align='left' style='background-color: #FFEFEE;' >Antenna&nbsp;radiation&nbsp;center&nbsp;Height&nbsp;Above&nbsp;Average&nbsp;Terrain:&nbsp;&nbsp;</td><td class='listtext' align='center' style='background-color: #FFEFFE;' >583.</td><td class='listtext' align='center' style='background-color: #FFEFFE;' >583.</td><td class='listtext' align='left'  style='background-color: #FFEFFE;' width='30%' ><nobr>meters HAAT</nobr> - <u style='color: #FF7800;'><script type='text/javascript'><!-- 
+calculateHAAT();
+--></script>
+</u></td></tr><tr><td class='listtext' summary=''>&nbsp;&nbsp;</td><td class='listtext' align='left' style='background-color: #FFFFFF;' ><nobr>Antenna radiation Center Height Above Mean&nbsp;Sea&nbsp;Level:&nbsp;&nbsp;&nbsp;&nbsp;</nobr></td><td class='listtext' align='center' style='background-color: #FFFFFF;' >2658.</td><td class='listtext' align='center' style='background-color: #FFFFFF;' >2658.</td><td class='listtext' align='left'   style='background-color: #FFFFFF;' >meters AMSL</td></tr><tr><td class='listtext' summary=''>&nbsp;&nbsp;</td><td class='listtext' align='left' style='background-color: #FFFFFF;'><nobr>Antenna radiation center Height Above Ground&nbsp;Level:&nbsp;&nbsp;&nbsp;&nbsp;</nobr></td><td class='listtext' align='center' style='background-color: #FFFFFF;' >24.</td><td class='listtext' align='center' style='background-color: #FFFFFF;' >24.</td><td class='listtext' align='left'  style='background-color: #FFFFFF;'  >meters AGL</td></tr></table></span>
+
+<span class='ltyellow'>   2.00      km (1.24      miles) </span><span class="listtext"> distant from 43&#176; 39' 40.00" N Lat 114&#176; 24' 11.00" W Lon,
+    at a bearing of </span><span class="ltyellow">168.45&#176;</span><span class="listtext"> using the method in <a href="http://www.ecfr.gov/cgi-bin/text-idx?node=se47.5.73_1208">Section 73.208</a> of calculating distance. 
+    <span class="listtext">(Reverse bearing 348.46&#176;.)</span>
+
+<span class='listtext'>   Non-Directional    </span> <span class='listtext'>      &nbsp;Antenna ID: &nbsp;<font class='smalltext' title='LMS aant_antenna_record_id'>898c4b59a329497ea391c1b6063ebeb7</font>&nbsp;&nbsp;<span class='listtext'>
+   Antenna Make: JAM     Antenna Model: JCPB-4H-R (RFR 0.5), 4 SECTION, 0.5 WAVELENGTH</span>
+<span class='listtext'>   No. of antenna sections: 4</span>
+
+</div><div style='height:0; width:0;' ><script> var divheight = $("#tabs-10014-1").height();     divheight=divheight+Math.round(9*1.1);</script></div><div id='tabs-10014-2' m='Mobile' style='position:relative; top:-5em;' class='listtext-noprint'>
+
+
+
+<script type='text/javascript'><!-- 
+LMSlinks();
+CDBSlinks();
+Maplinks(); 
+PIFlinks(); 
+HistoryCardsLink();
+ULSlinks();
+radiusSearch();
+FMpreliminaryStudy();
+ClassAallotmentChannelFinder();
+
+toAtlas();
+--></script>
+</div><script> $('#tabs-10014-2').css('height', divheight*1.0);</script>
+</div></pre><br>
+
+                                                                                                          <span class='listtext-noprint' ><nobr>                     <A HREF='#10000' style='top:3em;' name='10015' tabindex='10016'>First Record</A></nobr></span><br><br>
+
+<center>*** 15    FM Records within 10.00   km distance of  43&#176; 39' 40.00" N, 114&#176; 24  ' 11.00" W ***</center>
+
+
+
+</pre></div><P>
+<center><H3><a href='https://www.fcc.gov/media/radio/fm-query'>Return to FM Query Data Entry screen</a></H3><P>
+<hr style='color: #FF7F00' width='700'></center><center style='position:relative; left:-35;'><script> queryfooter(); </script></center></body>
+<script type='text/javascript' ><!--
+ HistoryCardsAt        = function(){};
+ FirstLicensedDate     = function(){};
+machine = function(){};
+omit = function(){};
+recordcount = function(){};
+facility_id = function(){};
+c_application_id = function(){};
+c_callsign = function(){};
+four_letter_callsign = function(){};
+c_service = function(){};
+c_station_class = function(){};
+c_dom_status = function(){};
+c_filenumber = function(){};
+c_comm_city_app = function(){};
+c_comm_state_app = function(){};
+c_country = function(){};
+c_lat_deg = function(){};
+c_lat_min = function(){};
+c_lat_sec = function(){};
+c_lat_dir = function(){};
+c_lon_deg = function(){};
+c_lon_min = function(){};
+c_lon_sec = function(){};
+c_lon_dir = function(){};
+freq = function(){};
+c_station_channel = function(){};
+p_haat_max = function(){};
+p_rcamsl_max = function(){};
+p_erp_max = function(){};
+alat83 = function(){};
+alon83 = function(){};
+service_contour = function(){};
+ns = function(){};
+ew = function(){};
+terrdb = function(){};
+list = function(){};
+c_da_ind = function(){};
+c_antenna_type = function(){};
+temp = function(){};
+initial = function(){};
+whitefill = function(){};
+
+ LazyLoaderForImages();
+--></script>
+</html>

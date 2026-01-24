@@ -70,5 +70,29 @@
     "type": "Omni",
     "notes": "Band: FM\nDescription: Description:  FM Sidemount Antenna Free Space Azimuth Pattern   Notes:  Blue=H -Pol ; Red=V -Pol Values in Relative Field...",
     "import_date": "2026-01-16 07:21:46"
+  },
+  "Default_Omni_0_dBi_6": {
+    "name": "Default Omni (0 dBi)",
+    "xml_file": "Default_Omni_0_dBi_6.xml",
+    "manufacturer": "Generic",
+    "part_number": "N/A",
+    "gain": 0.0,
+    "band": "FM",
+    "frequency_range": "88-108 MHz",
+    "type": "Omni",
+    "notes": "Default omnidirectional antenna pattern",
+    "import_date": ""
+  },
+  "Default_Directional_7": {
+    "name": "Default Directional",
+    "xml_file": "Default_Directional_7.xml",
+    "manufacturer": "Generic",
+    "part_number": "N/A",
+    "gain": 0.0,
+    "band": "FM",
+    "frequency_range": "88-108 MHz",
+    "type": "Directional",
+    "notes": "Default directional antenna pattern",
+    "import_date": ""
   }
 }

@@ -38,7 +38,7 @@ class Toolbar:
         self.propagation_model_var = tk.StringVar(value='default')  # Propagation model selector
         self.azimuth_var = tk.StringVar()
         self.dist_points_var = tk.StringVar()
-        self.transparency_var = tk.DoubleVar(value=0.65)  # 🔥 NEW: Default 65% transparency
+        self.transparency_var = tk.DoubleVar(value=0.3)  # 🔥 NEW: Default 30% transparency
         self.status_var = tk.StringVar(value="Ready - Right-click on map for options")
         
         # Custom controls frame (shown/hidden based on quality)
@@ -115,7 +115,7 @@ class Toolbar:
             command=self._on_transparency_change
         )
         self.transparency_slider.pack(side=tk.LEFT, padx=5)
-        self.transparency_label = ttk.Label(self.frame, text="65%", width=4)
+        self.transparency_label = ttk.Label(self.frame, text="30%", width=4)
         self.transparency_label.pack(side=tk.LEFT, padx=2)
         ttk.Button(self.frame, text="Apply",
                   command=self._apply_transparency).pack(side=tk.LEFT, padx=2)
@@ -167,9 +167,9 @@ class Toolbar:
             self.callbacks['on_transparency_change']()
 
     def _reset_transparency(self):
-        """Reset transparency to default 65% (doesn't apply automatically)"""
-        self.transparency_var.set(0.65)
-        self.transparency_label.config(text="65%")
+        """Reset transparency to default 30% (doesn't apply automatically)"""
+        self.transparency_var.set(0.3)
+        self.transparency_label.config(text="30%")
         # Note: Doesn't automatically apply - use Apply button
 
     def _toggle_live_probe(self):

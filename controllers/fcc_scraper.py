@@ -2,7 +2,7 @@
 FCC Scraper Module
 ==================
 Scrapes FCC FM Query database using Selenium when API is unavailable.
-Based on WebScraperMain.py by alethea, modified for VetRender.
+Based on WebScraperMain.py by alethea, modified for Cellfire RF Studio.
 """
 
 import os
@@ -301,14 +301,16 @@ class FCCScraper:
             elif 'Latitude:' in line:
                 try:
                     lat_str = line.split('Latitude:')[1].strip().split()[0]
-                    data['latitude'] = lat_str
+                    # Convert to float for consistency
+                    data['latitude'] = float(lat_str)
                 except:
                     pass
 
             elif 'Longitude:' in line:
                 try:
                     lon_str = line.split('Longitude:')[1].strip().split()[0]
-                    data['longitude'] = lon_str
+                    # Convert to float for consistency
+                    data['longitude'] = float(lon_str)
                 except:
                     pass
 
@@ -326,6 +328,44 @@ class FCCScraper:
                 except:
                     pass
 
+            elif 'Height Above Ground Level' in line or 'AGL' in line:
+                try:
+                    # Extract AGL value - could be in various formats
+                    if ':' in line:
+                        agl_str = line.split(':')[1].strip().split()[0]
+                        agl_meters = float(agl_str)
+                        data['agl'] = agl_meters
+                        data['aglUnit'] = 'm'
+                        # Convert to feet (1 meter = 3.28084 feet)
+                        data['aglFeet'] = agl_meters * 3.28084
+                except:
+                    pass
+
+            # License status fields
+            elif 'LMS File No' in line or 'File Number' in line:
+                try:
+                    file_num = line.split(':')[1].strip().split()[0]
+                    data['lmsFileNumber'] = file_num
+                except:
+                    pass
+
+            elif 'Licensed date' in line or 'License Date' in line:
+                try:
+                    lic_date = line.split(':')[1].strip().split()[0]
+                    data['licensedDate'] = lic_date
+                except:
+                    pass
+
+            elif 'Application ID' in line:
+                try:
+                    app_id = line.split(':')[1].strip().split()[0]
+                    data['lmsApplicationId'] = app_id
+                except:
+                    pass
+
+        # Add FCC URL (lowercase callsign)
+        data['fccUrl'] = f"https://publicfiles.fcc.gov/fm-profile/{call_sign.lower()}"
+
         return data
 
     def _parse_javascript_vars(self, text):
@@ -335,6 +375,8 @@ class FCCScraper:
         c_callsign = 'KDPI';
         freq = '88.5';
         etc.
+
+        For coordinate searches, multiple stations are returned, each starting with 'facility_id = '
 
         Args:
             text: Page text containing JavaScript variables
@@ -346,83 +388,114 @@ class FCCScraper:
 
         results = []
 
-        # Extract all variable assignments
-        station_data = {}
+        # Split text by facility_id assignments to get individual stations
+        # Each station block starts with "facility_id = 'xxxxx';"
+        station_blocks = re.split(r'\s*facility_id\s*=', text)
 
-        # Match patterns like: var_name = 'value'; or var_name = "value"; or var_name = value;
-        # Use two separate patterns to avoid matching function declarations
+        for block_idx, block in enumerate(station_blocks):
+            if block_idx == 0:
+                # Skip the first block (before first facility_id)
+                continue
 
-        # Pattern 1: Quoted strings - var_name = 'value' or "value"
-        quoted_pattern = r"(\w+)\s*=\s*['\"]([^'\"]*)['\"]"
-        quoted_matches = re.findall(quoted_pattern, text)
+            station_data = {}
 
-        for var_name, value in quoted_matches:
-            value = value.strip()
-            if value and value != '-':
-                station_data[var_name] = value
+            # Pattern 1: Quoted strings - var_name = 'value' or "value"
+            quoted_pattern = r"(\w+)\s*=\s*['\"]([^'\"]*)['\"]"
+            quoted_matches = re.findall(quoted_pattern, block)
 
-        # Pattern 2: Numeric values - var_name = 123.45;
-        numeric_pattern = r"(\w+)\s*=\s*([0-9.\-]+)\s*;"
-        numeric_matches = re.findall(numeric_pattern, text)
+            for var_name, value in quoted_matches:
+                value = value.strip()
+                if value and value != '-':
+                    station_data[var_name] = value
 
-        for var_name, value in numeric_matches:
-            value = value.strip()
-            if value and value != '-':
-                station_data[var_name] = value
+            # Pattern 2: Numeric values - var_name = 123.45;
+            numeric_pattern = r"(\w+)\s*=\s*([0-9.\-]+)\s*;"
+            numeric_matches = re.findall(numeric_pattern, block)
 
-        # Convert to our standard format if we found data
-        if station_data:
-            station = {
-                'query_time': datetime.now().isoformat(),
-                'source': 'FCC FM Query (Scraped - Coordinates)'
-            }
+            for var_name, value in numeric_matches:
+                value = value.strip()
+                if value and value != '-':
+                    station_data[var_name] = value
 
-            # Map FCC variable names to our field names
-            if 'c_callsign' in station_data or 'c_facility_callsign' in station_data:
-                station['callSign'] = station_data.get('c_callsign') or station_data.get('c_facility_callsign')
+            # Also capture the facility_id from the split point
+            facility_id_match = re.match(r"\s*['\"]?(\d+)['\"]?", block)
+            if facility_id_match:
+                station_data['facility_id'] = facility_id_match.group(1)
 
-            if 'freq' in station_data:
-                station['frequency'] = station_data['freq']
+            # Convert to our standard format if we found data
+            if station_data and ('c_callsign' in station_data or 'c_facility_callsign' in station_data):
+                station = {
+                    'query_time': datetime.now().isoformat(),
+                    'source': 'FCC FM Query (Scraped - Coordinates)'
+                }
 
-            if 'c_comm_city_app' in station_data:
-                station['city'] = station_data['c_comm_city_app']
+                # Map FCC variable names to our field names
+                if 'c_callsign' in station_data or 'c_facility_callsign' in station_data:
+                    station['callSign'] = station_data.get('c_callsign') or station_data.get('c_facility_callsign')
 
-            if 'c_comm_state_app' in station_data:
-                station['state'] = station_data['c_comm_state_app']
+                if 'freq' in station_data:
+                    station['frequency'] = station_data['freq']
 
-            if 'facility_id' in station_data:
-                station['facilityId'] = station_data['facility_id']
+                if 'c_comm_city_app' in station_data:
+                    station['city'] = station_data['c_comm_city_app']
 
-            if 'c_service' in station_data:
-                station['service'] = station_data['c_service']
+                if 'c_comm_state_app' in station_data:
+                    station['state'] = station_data['c_comm_state_app']
 
-            if 'c_station_class' in station_data:
-                station['stationClass'] = station_data['c_station_class']
+                if 'facility_id' in station_data:
+                    station['facilityId'] = station_data['facility_id']
 
-            # Coordinates
-            if 'alat83' in station_data and 'alon83' in station_data:
-                station['latitude'] = station_data['alat83']
-                station['longitude'] = station_data['alon83']
+                if 'c_service' in station_data:
+                    station['service'] = station_data['c_service']
 
-            # Technical parameters
-            if 'p_erp_max' in station_data:
-                erp_kw = float(station_data['p_erp_max'])
-                station['erp'] = station_data['p_erp_max']  # in kW
-                station['erpUnit'] = 'kW'
-                station['erpWatts'] = erp_kw * 1000  # Convert to Watts
-                # Convert to dBm: dBm = 10 * log10(P_watts * 1000)
-                station['erpDbm'] = 10 * __import__('math').log10(erp_kw * 1000 * 1000)
+                if 'c_station_class' in station_data:
+                    station['stationClass'] = station_data['c_station_class']
 
-            if 'p_haat_max' in station_data:
-                station['haat'] = station_data['p_haat_max']  # in meters
-                station['haatUnit'] = 'm'
+                # License status information
+                if 'c_filenumber' in station_data:
+                    station['lmsFileNumber'] = station_data['c_filenumber']
 
-            # Add link to FCC public files
-            if 'c_callsign' in station_data or 'c_facility_callsign' in station_data:
-                callsign = station_data.get('c_callsign') or station_data.get('c_facility_callsign')
-                station['fccUrl'] = f"https://publicfiles.fcc.gov/fm-profile/{callsign}"
+                if 'lms_appid' in station_data:
+                    station['lmsApplicationId'] = station_data['lms_appid']
 
-            results.append(station)
+                if 'FirstLicensedDate' in station_data:
+                    station['licensedDate'] = station_data['FirstLicensedDate']
+
+                if 'c_dom_status' in station_data:
+                    station['licenseStatus'] = station_data['c_dom_status']
+
+                # Coordinates - convert to float
+                if 'alat83' in station_data and 'alon83' in station_data:
+                    try:
+                        station['latitude'] = float(station_data['alat83'])
+                        station['longitude'] = float(station_data['alon83'])
+                    except (ValueError, TypeError):
+                        station['latitude'] = station_data['alat83']
+                        station['longitude'] = station_data['alon83']
+
+                # Technical parameters
+                if 'p_erp_max' in station_data:
+                    try:
+                        erp_kw = float(station_data['p_erp_max'])
+                        station['erp'] = station_data['p_erp_max']  # in kW
+                        station['erpUnit'] = 'kW'
+                        station['erpWatts'] = erp_kw * 1000  # Convert to Watts
+                        # Convert to dBm: dBm = 10 * log10(P_watts * 1000)
+                        station['erpDbm'] = 10 * __import__('math').log10(erp_kw * 1000 * 1000)
+                    except (ValueError, TypeError):
+                        station['erp'] = station_data['p_erp_max']
+                        station['erpUnit'] = 'kW'
+
+                if 'p_haat_max' in station_data:
+                    station['haat'] = station_data['p_haat_max']  # in meters
+                    station['haatUnit'] = 'm'
+
+                # Add link to FCC public files (use lowercase callsign)
+                if 'c_callsign' in station_data or 'c_facility_callsign' in station_data:
+                    callsign = station_data.get('c_callsign') or station_data.get('c_facility_callsign')
+                    station['fccUrl'] = f"https://publicfiles.fcc.gov/fm-profile/{callsign.lower()}"
+
+                results.append(station)
 
         return results
 

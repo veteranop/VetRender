@@ -88,25 +88,26 @@
         "component_type": "antenna",
         "source": "cached",
         "custom": true,
-        "model": "Tram-Browning Model 6157",
-        "description": "A great antenna at a great price! If you're looking for an antenna EASY button, you'll have no worries with a BR 6157 WIDE BAND UHF Omni.\n\nPre Tuned\nNo Ground Plane\nHeavy-Duty Fiberglass\nN Female Connector\n150 Watts\nMounting Bracket and Hardware included",
-        "gain_dbi": 4.5,
+        "model": "UHF Default Omni- +4.2 DB",
+        "description": "Brief description",
+        "gain_dbi": 4.2,
         "pattern": "e.g., Omnidirectional, Directional",
         "freq_min": 400.0,
         "freq_max": 450.0,
-        "vswr": 1.89,
+        "vswr": 1.5,
         "power_rating_watts": 150.0,
-        "manufacturer": "Tram-Browning",
-        "part_number": "6157",
+        "manufacturer": "VeteranOp",
+        "part_number": "VO1234",
         "notes": "Additional notes or specifications",
         "frequency_range_mhz": [
           400.0,
           450.0
-        ]
+        ],
+        "antenna_id": "UHF_Default_Omni-_42_DB_8"
       },
       0
     ]
   ],
   "system_loss_db": 0.9208695652173913,
-  "system_gain_db": 4.5
+  "system_gain_db": 4.2
 }

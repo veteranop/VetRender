@@ -139,10 +139,10 @@ class StationBuilderDialog:
         else:
             self.antenna_var.set(antenna_list[0])
 
-        antenna_combo = ttk.Combobox(antenna_frame, textvariable=self.antenna_var,
-                                     values=antenna_list, width=50, state='readonly')
-        antenna_combo.grid(row=0, column=1, sticky=(tk.W, tk.E), padx=5)
-        antenna_combo.bind('<<ComboboxSelected>>', self._on_antenna_selected)
+        self.antenna_combo = ttk.Combobox(antenna_frame, textvariable=self.antenna_var,
+                                          values=antenna_list, width=50, state='readonly')
+        self.antenna_combo.grid(row=0, column=1, sticky=(tk.W, tk.E), padx=5)
+        self.antenna_combo.bind('<<ComboboxSelected>>', self._on_antenna_selected)
 
         antenna_frame.columnconfigure(1, weight=1)
 
@@ -869,23 +869,21 @@ IMPORTANT:
             antenna_list.append(f"{name} ({gain:+.1f} dBi)")
             self.antenna_ids.append(antenna_id)
 
-        # Get the antenna combobox widget
-        # Find it in the antenna_frame
-        for widget in self.dialog.winfo_children():
-            if isinstance(widget, ttk.LabelFrame) and "Antenna" in str(widget.cget('text')):
-                for child in widget.winfo_children():
-                    if isinstance(child, ttk.Combobox):
-                        child['values'] = antenna_list
+        # Update the combobox with new values
+        self.antenna_combo['values'] = antenna_list
 
-                        # Auto-select the new antenna if ID provided
-                        if select_antenna_id and select_antenna_id in self.antenna_ids:
-                            idx = self.antenna_ids.index(select_antenna_id)
-                            child.set(antenna_list[idx])
-                            self.selected_antenna_id = select_antenna_id
-                            self._update_chain_display()
-                            self._calculate_totals()
-                        break
-                break
+        # Auto-select the new antenna if ID provided
+        if select_antenna_id and select_antenna_id in self.antenna_ids:
+            idx = self.antenna_ids.index(select_antenna_id)
+            self.antenna_combo.set(antenna_list[idx])
+            self.selected_antenna_id = select_antenna_id
+            self._update_chain_display()
+            self._calculate_totals()
+        else:
+            # If antenna list changed, reselect current selection if still valid
+            if self.selected_antenna_id and self.selected_antenna_id in self.antenna_ids:
+                idx = self.antenna_ids.index(self.selected_antenna_id)
+                self.antenna_combo.set(antenna_list[idx])
 
     def _quick_add_component(self):
         """Quick add component dialog - easy manual entry"""

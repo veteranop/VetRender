@@ -421,7 +421,7 @@ class CellfireRFStudio:
             'on_ai_assistant': self.ai_antenna_assistant,
             'on_ai_import_antenna': self.import_antenna_pattern,
             'on_manual_import': self.manual_import_antenna,
-            'on_create_manual_antenna': self.create_manual_antenna,
+            'on_create_manual': self.create_manual_antenna,  # Fixed: menu uses on_create_manual
             'on_view_antennas': self.view_antennas,
             'on_export_antenna': self.export_antenna,
             'on_station_builder': self.open_station_builder,

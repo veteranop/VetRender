@@ -94,5 +94,17 @@
     "type": "Directional",
     "notes": "Default directional antenna pattern",
     "import_date": ""
+  },
+  "UHF_Default_Omni-_42_DB_8": {
+    "name": "UHF Default Omni- +4.2 DB",
+    "xml_file": "UHF_Default_Omni-_42_DB_8.xml",
+    "manufacturer": "VeteranOp",
+    "part_number": "VO1234",
+    "gain": 4.2,
+    "band": "UHF",
+    "frequency_range": "400.0-450.0 MHz",
+    "type": "Omni",
+    "notes": "Additional notes or specifications",
+    "import_date": "2026-01-24 12:59:41"
   }
 }

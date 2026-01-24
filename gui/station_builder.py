@@ -851,14 +851,56 @@ IMPORTANT:
         else:
             self.net_label.config(foreground='black')
 
+    def _refresh_antenna_list(self, select_antenna_id=None):
+        """Refresh antenna dropdown list
+
+        Args:
+            select_antenna_id: Optional antenna ID to auto-select
+        """
+        # Reload antenna library
+        self.antenna_library = AntennaLibrary()
+
+        # Rebuild antenna list
+        antenna_list = ["None (Use ERP directly)"]
+        self.antenna_ids = [None]
+        for antenna_id, antenna_data in self.antenna_library.antennas.items():
+            name = antenna_data.get('name', antenna_id)
+            gain = antenna_data.get('gain', 0)
+            antenna_list.append(f"{name} ({gain:+.1f} dBi)")
+            self.antenna_ids.append(antenna_id)
+
+        # Get the antenna combobox widget
+        # Find it in the antenna_frame
+        for widget in self.dialog.winfo_children():
+            if isinstance(widget, ttk.LabelFrame) and "Antenna" in str(widget.cget('text')):
+                for child in widget.winfo_children():
+                    if isinstance(child, ttk.Combobox):
+                        child['values'] = antenna_list
+
+                        # Auto-select the new antenna if ID provided
+                        if select_antenna_id and select_antenna_id in self.antenna_ids:
+                            idx = self.antenna_ids.index(select_antenna_id)
+                            child.set(antenna_list[idx])
+                            self.selected_antenna_id = select_antenna_id
+                            self._update_chain_display()
+                            self._calculate_totals()
+                        break
+                break
+
     def _quick_add_component(self):
         """Quick add component dialog - easy manual entry"""
         from gui.quick_add_component_dialog import QuickAddComponentDialog
 
         def on_component_created(component_data):
             """Callback when component is created"""
+            comp_type = component_data.get('component_type')
+
             # Add to component library
             self.component_library.add_custom_component(component_data)
+
+            # If antenna was created, refresh the antenna dropdown
+            if comp_type == 'antenna':
+                self._refresh_antenna_list(component_data.get('antenna_id'))
 
             # Refresh search results
             self._search_components()

@@ -1,0 +1,112 @@
+{
+  "version": "3.0",
+  "callsign": "WF7JC",
+  "tx_type": "HAM Radio",
+  "transmission_mode": "AM",
+  "tx_lat": 43.4964,
+  "tx_lon": -112.045,
+  "erp": 35.0,
+  "frequency": 443.0,
+  "height": 33.0,
+  "max_distance": 50.0,
+  "signal_threshold": -110,
+  "terrain_quality": "Medium",
+  "pattern_name": "Default Omni (0 dBi)",
+  "zoom": 11,
+  "basemap": "Esri WorldImagery",
+  "use_terrain": false,
+  "rf_chain": [
+    [
+      {
+        "component_type": "transmitter",
+        "source": "cached",
+        "custom": true,
+        "model": "BDR-4550 (UHF) Analog/NXDN Repeater",
+        "description": "Professional Part 90\u2013Compliant Repeater with Slim 1U Rack Design and IP Connectivity\n\nThe BDR-4550 (UHF) is a professional-grade Analog/NXDN repeater built for organizations that require reliable, flexible, and network-ready communications. Its slim 1U rack-mount design conserves rack space while delivering dependable performance, long-term durability, and modern IP connectivity.\n\nDesigned to support digital NXDN networks, legacy analog systems, or IP-linked repeater deployments, the BDR-4550 ensures clear audio, consistent uptime, and full compliance with FCC Part 90 standards.",
+        "power_output_watts": 30.0,
+        "freq_min": 400.0,
+        "freq_max": 470.0,
+        "efficiency_percent": 65.0,
+        "manufacturer": "BDR",
+        "part_number": "BDR-4550",
+        "notes": "Frequency Band: UHF\nOperating Modes: Analog / NXDN\nCompliance: FCC Part 90, Part 15\nForm Factor: Slim 1U rack mount\nPower: AC primary with DC battery backup support\nAudio Monitoring: Built-in front-panel speaker\nControls: Keypad with digital display\nAccessory Interface: Standard 25-pin female connector\nConnectivity: IP-enabled for network linking",
+        "frequency_range_mhz": [
+          400.0,
+          470.0
+        ],
+        "power_output_dbm": 44.771212547196626,
+        "power_output_dbw": 14.771212547196624,
+        "transmit_power_watts": 30.0
+      },
+      0
+    ],
+    [
+      {
+        "component_type": "cable",
+        "model": "LDF4-50A",
+        "part_number": "LDF4-50A",
+        "description": "1/2\" HELIAX foam dielectric coaxial cable, aluminum sheath",
+        "impedance_ohms": 50,
+        "velocity_factor": 0.88,
+        "outer_diameter_inches": 0.63,
+        "loss_db_per_100ft": {
+          "30": 0.2,
+          "50": 0.27,
+          "150": 0.51,
+          "220": 0.63,
+          "450": 0.93,
+          "512": 1.03,
+          "806": 1.3,
+          "900": 1.36,
+          "960": 1.43,
+          "1800": 2.0,
+          "1900": 2.07,
+          "2400": 2.37
+        },
+        "power_rating_watts": {
+          "50_mhz": 3800,
+          "150_mhz": 3200,
+          "450_mhz": 2000,
+          "900_mhz": 1400,
+          "1800_mhz": 990
+        },
+        "weight_lbs_per_100ft": 13.6,
+        "minimum_bend_radius_inches": 5.0,
+        "datasheet_url": "https://www.commscope.com/globalassets/digizuite/2256-ldf4-50a.pdf",
+        "common_uses": [
+          "VHF/UHF repeater feedline",
+          "Base station",
+          "Tower runs"
+        ],
+        "notes": "Industry standard 1/2\" coax, good balance of loss and flexibility",
+        "source": "Andrew / CommScope"
+      },
+      100.0
+    ],
+    [
+      {
+        "component_type": "antenna",
+        "source": "cached",
+        "custom": true,
+        "model": "Tram-Browning Model 6157",
+        "description": "A great antenna at a great price! If you're looking for an antenna EASY button, you'll have no worries with a BR 6157 WIDE BAND UHF Omni.\n\nPre Tuned\nNo Ground Plane\nHeavy-Duty Fiberglass\nN Female Connector\n150 Watts\nMounting Bracket and Hardware included",
+        "gain_dbi": 4.5,
+        "pattern": "e.g., Omnidirectional, Directional",
+        "freq_min": 400.0,
+        "freq_max": 450.0,
+        "vswr": 1.89,
+        "power_rating_watts": 150.0,
+        "manufacturer": "Tram-Browning",
+        "part_number": "6157",
+        "notes": "Additional notes or specifications",
+        "frequency_range_mhz": [
+          400.0,
+          450.0
+        ]
+      },
+      0
+    ]
+  ],
+  "system_loss_db": 0.9208695652173913,
+  "system_gain_db": 4.5
+}

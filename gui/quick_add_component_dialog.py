@@ -194,6 +194,140 @@ class QuickAddComponentDialog:
             entry.pack(side=tk.LEFT, fill=tk.X, expand=True)
             self.fields[key] = ('var', var)
 
+    def _create_antenna_xml(self, component_data):
+        """Create antenna XML file and add to antenna library
+
+        Args:
+            component_data: Component data dict with antenna specs
+
+        Returns:
+            bool: Success status
+        """
+        from models.antenna_library import AntennaLibrary
+        from datetime import datetime
+
+        # Get antenna parameters
+        name = component_data.get('model', 'Custom Antenna')
+        gain_dbi = component_data.get('gain_dbi', 0)
+        manufacturer = component_data.get('manufacturer', 'Custom')
+        part_number = component_data.get('part_number', 'N/A')
+
+        # Get frequency range
+        freq_min = component_data.get('freq_min', 0)
+        freq_max = component_data.get('freq_max', 0)
+        if freq_min and freq_max:
+            freq_range = f"{freq_min}-{freq_max} MHz"
+            band = self._determine_band(freq_min, freq_max)
+        else:
+            freq_range = "N/A"
+            band = "N/A"
+
+        # Determine antenna type (omni or directional)
+        antenna_type = component_data.get('type', 'Omni' if gain_dbi < 6 else 'Directional')
+
+        # Create simple omnidirectional or directional pattern
+        # For now, create a simple pattern based on gain
+        xml_content = self._generate_antenna_pattern_xml(name, gain_dbi, antenna_type)
+
+        # Create metadata
+        metadata = {
+            'manufacturer': manufacturer,
+            'part_number': part_number,
+            'gain': gain_dbi,
+            'band': band,
+            'frequency_range': freq_range,
+            'type': antenna_type,
+            'notes': component_data.get('notes', 'Created via Station Builder'),
+            'import_date': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        }
+
+        # Add to antenna library
+        antenna_lib = AntennaLibrary()
+        success = antenna_lib.add_antenna(name, xml_content, metadata)
+
+        if not success:
+            messagebox.showerror("Error", "Failed to create antenna XML file")
+            return False
+
+        # Store the antenna_id in component data for later reference
+        # Find the ID that was just created
+        for antenna_id, antenna_data in antenna_lib.antennas.items():
+            if antenna_data.get('name') == name and antenna_data.get('import_date') == metadata['import_date']:
+                component_data['antenna_id'] = antenna_id
+                break
+
+        return True
+
+    def _determine_band(self, freq_min, freq_max):
+        """Determine frequency band from range"""
+        freq_mid = (freq_min + freq_max) / 2
+
+        if 50 <= freq_mid <= 54:
+            return "6m"
+        elif 88 <= freq_mid <= 108:
+            return "FM Broadcast"
+        elif 136 <= freq_mid <= 174:
+            return "VHF"
+        elif 420 <= freq_mid <= 470:
+            return "UHF"
+        elif 700 <= freq_mid <= 800:
+            return "700MHz"
+        elif 800 <= freq_mid <= 900:
+            return "800MHz"
+        elif 1700 <= freq_mid <= 2700:
+            return "Cellular"
+        else:
+            return "Other"
+
+    def _generate_antenna_pattern_xml(self, name, gain_dbi, antenna_type):
+        """Generate simple antenna pattern XML
+
+        Args:
+            name: Antenna name
+            gain_dbi: Gain in dBi
+            antenna_type: 'Omni' or 'Directional'
+
+        Returns:
+            str: XML content
+        """
+        if antenna_type == 'Omni':
+            # Omnidirectional pattern - equal gain in all directions
+            azimuth_pattern = "\n".join([f"    <Point azimuth=\"{az}\" gain=\"{gain_dbi:.1f}\"/>"
+                                        for az in range(0, 360, 10)])
+        else:
+            # Directional pattern - higher gain in front, lower in back
+            import math
+            azimuth_pattern = []
+            for az in range(0, 360, 10):
+                # Calculate gain based on angle (max gain at 0°, min at 180°)
+                angle_rad = math.radians(az)
+                # Use cosine pattern for simplicity
+                pattern_factor = (math.cos(angle_rad) + 1) / 2  # 0 to 1
+                az_gain = gain_dbi * pattern_factor
+                azimuth_pattern.append(f"    <Point azimuth=\"{az}\" gain=\"{az_gain:.1f}\"/>")
+            azimuth_pattern = "\n".join(azimuth_pattern)
+
+        # Create XML
+        xml_content = f"""<?xml version="1.0" encoding="UTF-8"?>
+<AntennaPattern>
+  <Name>{name}</Name>
+  <Manufacturer>Custom</Manufacturer>
+  <Gain>{gain_dbi:.1f}</Gain>
+  <Type>{antenna_type}</Type>
+  <AzimuthPattern>
+{azimuth_pattern}
+  </AzimuthPattern>
+  <ElevationPattern>
+    <Point elevation=\"-90\" gain=\"{gain_dbi * 0.5:.1f}\"/>
+    <Point elevation=\"-45\" gain=\"{gain_dbi * 0.8:.1f}\"/>
+    <Point elevation=\"0\" gain=\"{gain_dbi:.1f}\"/>
+    <Point elevation=\"45\" gain=\"{gain_dbi * 0.8:.1f}\"/>
+    <Point elevation=\"90\" gain=\"{gain_dbi * 0.5:.1f}\"/>
+  </ElevationPattern>
+</AntennaPattern>
+"""
+        return xml_content
+
     def _create_component(self):
         """Create component from form data"""
         comp_type = self.comp_type_var.get()
@@ -246,6 +380,11 @@ class QuickAddComponentDialog:
             watts = component_data['power_output_watts']
             component_data['power_output_dbm'] = 10 * math.log10(watts * 1000)
             component_data['power_output_dbw'] = 10 * math.log10(watts)
+
+        # Special handling for antennas - create XML and add to antenna library
+        if comp_type == 'antenna':
+            if not self._create_antenna_xml(component_data):
+                return  # Error already shown
 
         # Success message
         messagebox.showinfo("Component Created",

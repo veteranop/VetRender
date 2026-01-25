@@ -11,24 +11,40 @@ from models.propagation import PropagationModel
 
 class InfoPanel:
     """Station information display panel"""
-    
+
+    # Dark theme colors
+    COLORS = {
+        'bg': '#252526',
+        'fg': '#cccccc',
+        'accent': '#4fc3f7',
+        'border': '#3f3f46'
+    }
+
     def __init__(self, parent):
         """Initialize info panel
-        
+
         Args:
             parent: Parent tkinter widget
         """
-        self.frame = ttk.Frame(parent, padding="10", relief="solid", borderwidth=1)
-        
-        # Title
-        ttk.Label(self.frame, text="Station Information", 
-                 font=('Arial', 12, 'bold')).pack(pady=(0, 10))
-        
-        # Info text display
-        self.info_text = tk.Text(self.frame, width=30, height=30, state='disabled',
-                                bg='#f0f0f0', relief='flat', font=('Courier', 9))
+        self.frame = ttk.Frame(parent, padding="10")
+
+        # Title with modern styling
+        title_label = ttk.Label(self.frame, text="Station Information",
+                               style='Header.TLabel')
+        title_label.pack(pady=(0, 10))
+
+        # Info text display with dark theme colors
+        self.info_text = tk.Text(self.frame, width=32, height=30, state='disabled',
+                                bg=self.COLORS['bg'], fg=self.COLORS['fg'],
+                                relief='flat', font=('Consolas', 9),
+                                insertbackground=self.COLORS['fg'],
+                                selectbackground='#0078d4',
+                                selectforeground='#ffffff',
+                                borderwidth=0, highlightthickness=1,
+                                highlightbackground=self.COLORS['border'],
+                                highlightcolor=self.COLORS['border'])
         self.info_text.pack(fill=tk.BOTH, expand=True)
-        
+
         # Button frame at bottom
         self.button_frame = ttk.Frame(self.frame)
         self.button_frame.pack(fill=tk.X, pady=(10, 0))

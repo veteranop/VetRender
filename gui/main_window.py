@@ -156,10 +156,11 @@ class CellfireRFStudio:
     
     def setup_ui(self):
         """Setup user interface with all modules"""
-        # Create matplotlib figure
-        self.fig = Figure(dpi=100, frameon=False)
+        # Create matplotlib figure with dark theme
+        self.fig = Figure(dpi=100, frameon=False, facecolor='#1e1e1e')
         self.fig.subplots_adjust(left=0, right=0.98, top=1, bottom=0, wspace=0, hspace=0)
         self.ax = self.fig.add_subplot(111)
+        self.ax.set_facecolor('#1e1e1e')
         
         # Initialize display modules
         self.map_display = MapDisplay(self.ax, None)  # Canvas set below

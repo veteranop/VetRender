@@ -3,7 +3,7 @@ Cellfire RF Studio - Professional RF Propagation Analysis
 Main entry point
 """
 import tkinter as tk
-from gui.main_window import CellfireRFStudio
+from tkinter import ttk
 import sys
 import os
 
@@ -37,6 +37,16 @@ if __name__ == "__main__":
     # Check for updates
     check_for_updates()
 
+    # Create root window
     root = tk.Tk()
+
+    # Apply modern dark theme
+    from gui.theme import apply_theme
+    print("Applying modern dark theme...")
+    apply_theme(root)
+    print("Theme applied successfully")
+
+    # Import and create main application
+    from gui.main_window import CellfireRFStudio
     app = CellfireRFStudio(root)
     root.mainloop()

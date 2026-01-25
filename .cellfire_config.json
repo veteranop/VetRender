@@ -12,7 +12,7 @@
   "signal_threshold": -115.0,
   "terrain_quality": "Low",
   "pattern_name": "DS7A12P90U-N",
-  "zoom": 10,
+  "zoom": 9,
   "basemap": "Esri WorldImagery",
   "use_terrain": true,
   "rf_chain": [

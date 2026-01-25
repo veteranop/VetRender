@@ -134,20 +134,21 @@ class Toolbar:
         
         ttk.Separator(self.frame, orient='vertical').pack(side=tk.LEFT, fill=tk.Y, padx=10)
         
-        # Calculate button
+        # Calculate button - use accent style for primary action
         ttk.Button(self.frame, text="Calculate Coverage",
-                  command=self.callbacks['on_calculate']).pack(side=tk.LEFT, padx=10)
+                  command=self.callbacks['on_calculate'],
+                  style='Accent.TButton').pack(side=tk.LEFT, padx=10)
         
         ttk.Separator(self.frame, orient='vertical').pack(side=tk.LEFT, fill=tk.Y, padx=10)
 
-        # Live probe checkbox
+        # Live probe checkbox - use ttk for consistent theming
         self.live_probe_var = tk.BooleanVar(value=False)
-        tk.Checkbutton(self.frame, text="Live Probe", variable=self.live_probe_var,
-                      command=self._toggle_live_probe).pack(side=tk.LEFT, padx=5)
+        ttk.Checkbutton(self.frame, text="Live Probe", variable=self.live_probe_var,
+                       command=self._toggle_live_probe).pack(side=tk.LEFT, padx=5)
 
-        # Signal level display
+        # Signal level display - use ttk for consistent theming
         self.signal_var = tk.StringVar(value="")
-        tk.Label(self.frame, textvariable=self.signal_var, width=15).pack(side=tk.LEFT, padx=5)
+        ttk.Label(self.frame, textvariable=self.signal_var, width=15).pack(side=tk.LEFT, padx=5)
 
         # Status label
         ttk.Label(self.frame, textvariable=self.status_var).pack(side=tk.LEFT, padx=5)

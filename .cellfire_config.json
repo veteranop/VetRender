@@ -95,8 +95,36 @@
         "source": "Andrew / CommScope"
       },
       100.0
+    ],
+    [
+      {
+        "component_type": "antenna",
+        "model": "DB408",
+        "part_number": "DB408",
+        "description": "UHF 8-bay folded dipole array, 380-512 MHz",
+        "gain_dbi": 11.5,
+        "frequency_range_mhz": [
+          380,
+          512
+        ],
+        "polarization": "vertical",
+        "vswr": 1.5,
+        "impedance_ohms": 50,
+        "connector_type": "N-Female",
+        "power_rating_watts": 500,
+        "wind_survival_mph": 125,
+        "pattern": "omni-directional",
+        "datasheet_url": "https://www.decibelproducts.com/product/db408/",
+        "common_uses": [
+          "High-gain UHF base station",
+          "Wide-area coverage"
+        ],
+        "notes": "8-bay design for maximum gain, 20+ feet tall",
+        "source": "Decibel Products"
+      },
+      0
     ]
   ],
   "system_loss_db": 0.9208695652173913,
-  "system_gain_db": 0
+  "system_gain_db": 11.5
 }

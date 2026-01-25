@@ -11,7 +11,13 @@ from models.antenna_library import AntennaLibrary
 
 
 class StationBuilderDialog:
-    """Dialog for building station RF chain"""
+    """Dialog for building station RF chain
+
+    Features:
+    - Hierarchical component browser (Vendor > Type > Model)
+    - Right-click context menu on RF chain
+    - AI import and manual add support
+    """
 
     def __init__(self, parent, frequency_mhz: float, callback: Optional[Callable] = None,
                  initial_chain: Optional[List] = None, initial_antenna: Optional[str] = None,
@@ -57,77 +63,104 @@ class StationBuilderDialog:
         main_frame = ttk.Frame(self.dialog, padding=10)
         main_frame.pack(fill=tk.BOTH, expand=True)
 
-        # Top section: Add components
+        # Top section: Add components with browse buttons
         add_frame = ttk.LabelFrame(main_frame, text="Add Component", padding=10)
         add_frame.pack(fill=tk.X, pady=(0, 10))
 
-        # Component type selector
-        ttk.Label(add_frame, text="Type:").grid(row=0, column=0, sticky=tk.W, padx=5)
+        # Row of component type browse buttons
+        ttk.Label(add_frame, text="Browse by Type:",
+                 font=('Segoe UI', 9, 'bold')).grid(row=0, column=0, sticky=tk.W, padx=5, pady=5)
+
+        btn_frame = ttk.Frame(add_frame)
+        btn_frame.grid(row=0, column=1, columnspan=4, sticky=tk.W, padx=5, pady=5)
+
+        ttk.Button(btn_frame, text="Cables",
+                  command=lambda: self._browse_components('cable')).pack(side=tk.LEFT, padx=3)
+        ttk.Button(btn_frame, text="Transmitters",
+                  command=lambda: self._browse_components('transmitter')).pack(side=tk.LEFT, padx=3)
+        ttk.Button(btn_frame, text="Amplifiers",
+                  command=lambda: self._browse_components('amplifier')).pack(side=tk.LEFT, padx=3)
+        ttk.Button(btn_frame, text="Filters",
+                  command=lambda: self._browse_components('filter')).pack(side=tk.LEFT, padx=3)
+        ttk.Button(btn_frame, text="Isolators",
+                  command=lambda: self._browse_components('isolator')).pack(side=tk.LEFT, padx=3)
+        ttk.Button(btn_frame, text="Other...",
+                  command=self._browse_other_components).pack(side=tk.LEFT, padx=3)
+
+        # Quick search row
+        ttk.Separator(add_frame, orient='horizontal').grid(row=1, column=0, columnspan=5, sticky=(tk.W, tk.E), pady=8)
+
+        ttk.Label(add_frame, text="Quick Search:").grid(row=2, column=0, sticky=tk.W, padx=5, pady=5)
+        self.search_var = tk.StringVar()
+        self.search_var.trace('w', lambda *args: self._search_components())
+        search_entry = ttk.Entry(add_frame, textvariable=self.search_var, width=40)
+        search_entry.grid(row=2, column=1, columnspan=2, sticky=tk.W, padx=5, pady=5)
+
+        # Component type filter for quick search
         self.comp_type_var = tk.StringVar(value="all")
         comp_types = ['all'] + self.component_library.get_component_types()
         type_combo = ttk.Combobox(add_frame, textvariable=self.comp_type_var,
-                                   values=comp_types, width=15, state='readonly')
-        type_combo.grid(row=0, column=1, sticky=tk.W, padx=5)
+                                   values=comp_types, width=12, state='readonly')
+        type_combo.grid(row=2, column=3, sticky=tk.W, padx=5, pady=5)
         type_combo.bind('<<ComboboxSelected>>', lambda e: self._search_components())
 
-        # Search box
-        ttk.Label(add_frame, text="Search:").grid(row=0, column=2, sticky=tk.W, padx=5)
-        self.search_var = tk.StringVar()
-        self.search_var.trace('w', lambda *args: self._search_components())
-        search_entry = ttk.Entry(add_frame, textvariable=self.search_var, width=30)
-        search_entry.grid(row=0, column=3, sticky=tk.W, padx=5)
-
-        # Results list
-        ttk.Label(add_frame, text="Results:").grid(row=1, column=0, sticky=tk.NW, padx=5, pady=5)
-
+        # Results list (compact)
         results_frame = ttk.Frame(add_frame)
-        results_frame.grid(row=1, column=1, columnspan=3, sticky=(tk.W, tk.E), padx=5, pady=5)
+        results_frame.grid(row=3, column=0, columnspan=5, sticky=(tk.W, tk.E), padx=5, pady=5)
 
-        self.results_listbox = tk.Listbox(results_frame, height=5, width=70)
+        self.results_listbox = tk.Listbox(results_frame, height=4, width=80,
+                                          bg='#252526', fg='#cccccc',
+                                          selectbackground='#0078d4',
+                                          font=('Consolas', 9))
         scrollbar = ttk.Scrollbar(results_frame, orient=tk.VERTICAL, command=self.results_listbox.yview)
         self.results_listbox.config(yscrollcommand=scrollbar.set)
         self.results_listbox.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
         scrollbar.grid(row=0, column=1, sticky=(tk.N, tk.S))
 
-        # Length entry (for cables)
-        ttk.Label(add_frame, text="Length (ft):").grid(row=2, column=0, sticky=tk.W, padx=5, pady=5)
+        # Add controls row
+        controls_frame = ttk.Frame(add_frame)
+        controls_frame.grid(row=4, column=0, columnspan=5, sticky=(tk.W, tk.E), padx=5, pady=5)
+
+        ttk.Label(controls_frame, text="Length (ft):").pack(side=tk.LEFT, padx=5)
         self.length_var = tk.StringVar(value="100")
-        length_entry = ttk.Entry(add_frame, textvariable=self.length_var, width=10)
-        length_entry.grid(row=2, column=1, sticky=tk.W, padx=5, pady=5)
+        ttk.Entry(controls_frame, textvariable=self.length_var, width=8).pack(side=tk.LEFT, padx=5)
 
-        # Add button
-        add_btn = ttk.Button(add_frame, text="Add to Chain", command=self._add_to_chain)
-        add_btn.grid(row=2, column=2, sticky=tk.W, padx=5, pady=5)
+        ttk.Button(controls_frame, text="Add to Chain",
+                  command=self._add_to_chain).pack(side=tk.LEFT, padx=10)
 
-        # AI Search section
-        ttk.Label(add_frame, text="AI Search:").grid(row=3, column=0, sticky=tk.W, padx=5, pady=5)
+        ttk.Button(controls_frame, text="Apply to Station",
+                  command=self._apply_changes,
+                  style='Accent.TButton').pack(side=tk.LEFT, padx=5)
+
+        # Separator
+        ttk.Separator(controls_frame, orient='vertical').pack(side=tk.LEFT, fill=tk.Y, padx=15)
+
+        # AI and Manual add buttons
+        ttk.Button(controls_frame, text="AI Import...",
+                  command=self._ai_search_component).pack(side=tk.LEFT, padx=3)
+        ttk.Button(controls_frame, text="Upload PDF...",
+                  command=self._upload_datasheet).pack(side=tk.LEFT, padx=3)
+        ttk.Button(controls_frame, text="Add Manual...",
+                  command=self._quick_add_component).pack(side=tk.LEFT, padx=3)
+
+        # Hidden AI search var for compatibility
         self.ai_search_var = tk.StringVar()
-        ai_search_entry = ttk.Entry(add_frame, textvariable=self.ai_search_var, width=30)
-        ai_search_entry.grid(row=3, column=1, columnspan=2, sticky=(tk.W, tk.E), padx=5, pady=5)
-
-        ai_btn = ttk.Button(add_frame, text="Search with Ollama", command=self._ai_search_component)
-        ai_btn.grid(row=3, column=3, sticky=tk.W, padx=5, pady=5)
-
-        upload_btn = ttk.Button(add_frame, text="Upload Datasheet", command=self._upload_datasheet)
-        upload_btn.grid(row=3, column=4, sticky=tk.W, padx=5, pady=5)
-
-        # Quick Add Component section
-        ttk.Separator(add_frame, orient='horizontal').grid(row=4, column=0, columnspan=5, sticky=(tk.W, tk.E), pady=10)
-
-        quick_add_btn = ttk.Button(add_frame, text="⚡ Quick Add Component", command=self._quick_add_component,
-                                   style='Accent.TButton')
-        quick_add_btn.grid(row=5, column=0, columnspan=2, sticky=tk.W, padx=5, pady=5)
-
-        ttk.Label(add_frame, text="Manually create a new component", font=('TkDefaultFont', 8, 'italic')).grid(
-            row=5, column=2, columnspan=3, sticky=tk.W, padx=5)
 
         # Antenna selection section
         antenna_frame = ttk.LabelFrame(main_frame, text="Antenna Selection", padding=10)
         antenna_frame.pack(fill=tk.X, pady=(0, 10))
 
-        ttk.Label(antenna_frame, text="Select Antenna:").grid(row=0, column=0, sticky=tk.W, padx=5)
+        # Browse button and current selection display
+        ttk.Button(antenna_frame, text="Browse Antennas...",
+                  command=self._browse_antennas).grid(row=0, column=0, sticky=tk.W, padx=5)
 
-        # Build antenna list
+        # Current antenna label
+        self.antenna_display_var = tk.StringVar(value="None selected")
+        self._update_antenna_display()
+        ttk.Label(antenna_frame, textvariable=self.antenna_display_var,
+                 font=('Segoe UI', 10, 'bold')).grid(row=0, column=1, sticky=tk.W, padx=10)
+
+        # Quick dropdown for changing (still available)
         antenna_list = ["None (Use ERP directly)"]
         self.antenna_ids = [None]
         for antenna_id, antenna_data in self.antenna_library.antennas.items():
@@ -137,7 +170,6 @@ class StationBuilderDialog:
             self.antenna_ids.append(antenna_id)
 
         self.antenna_var = tk.StringVar()
-        # Set initial selection
         if self.selected_antenna_id and self.selected_antenna_id in self.antenna_ids:
             idx = self.antenna_ids.index(self.selected_antenna_id)
             self.antenna_var.set(antenna_list[idx])
@@ -145,35 +177,35 @@ class StationBuilderDialog:
             self.antenna_var.set(antenna_list[0])
 
         self.antenna_combo = ttk.Combobox(antenna_frame, textvariable=self.antenna_var,
-                                          values=antenna_list, width=50, state='readonly')
-        self.antenna_combo.grid(row=0, column=1, sticky=(tk.W, tk.E), padx=5)
+                                          values=antenna_list, width=40, state='readonly')
+        self.antenna_combo.grid(row=0, column=2, sticky=(tk.W, tk.E), padx=5)
         self.antenna_combo.bind('<<ComboboxSelected>>', self._on_antenna_selected)
 
-        # Antenna bearing input (for directional antennas)
-        ttk.Label(antenna_frame, text="Bearing (°):").grid(row=0, column=2, sticky=tk.W, padx=(15, 5))
+        # Second row: orientation controls
+        orient_frame = ttk.Frame(antenna_frame)
+        orient_frame.grid(row=1, column=0, columnspan=3, sticky=tk.W, pady=(10, 0))
+
+        ttk.Label(orient_frame, text="Bearing:").pack(side=tk.LEFT, padx=5)
         self.bearing_var = tk.StringVar(value=str(self.antenna_bearing))
-        self.bearing_entry = ttk.Entry(antenna_frame, textvariable=self.bearing_var, width=8)
-        self.bearing_entry.grid(row=0, column=3, sticky=tk.W, padx=5)
+        self.bearing_entry = ttk.Entry(orient_frame, textvariable=self.bearing_var, width=8)
+        self.bearing_entry.pack(side=tk.LEFT, padx=5)
         self.bearing_entry.bind('<FocusOut>', self._on_bearing_changed)
         self.bearing_entry.bind('<Return>', self._on_bearing_changed)
+        ttk.Label(orient_frame, text="° (0=N)", font=('Segoe UI', 8)).pack(side=tk.LEFT, padx=(0, 15))
 
-        # Bearing help label
-        ttk.Label(antenna_frame, text="(0°=N)", font=('TkDefaultFont', 8)).grid(
-            row=0, column=4, sticky=tk.W, padx=(0, 10))
-
-        # Antenna downtilt input
-        ttk.Label(antenna_frame, text="Downtilt (°):").grid(row=0, column=5, sticky=tk.W, padx=(5, 5))
+        ttk.Label(orient_frame, text="Downtilt:").pack(side=tk.LEFT, padx=5)
         self.downtilt_var = tk.StringVar(value=str(self.antenna_downtilt))
-        self.downtilt_entry = ttk.Entry(antenna_frame, textvariable=self.downtilt_var, width=8)
-        self.downtilt_entry.grid(row=0, column=6, sticky=tk.W, padx=5)
+        self.downtilt_entry = ttk.Entry(orient_frame, textvariable=self.downtilt_var, width=8)
+        self.downtilt_entry.pack(side=tk.LEFT, padx=5)
         self.downtilt_entry.bind('<FocusOut>', self._on_downtilt_changed)
         self.downtilt_entry.bind('<Return>', self._on_downtilt_changed)
+        ttk.Label(orient_frame, text="° (+down)", font=('Segoe UI', 8)).pack(side=tk.LEFT, padx=(0, 15))
 
-        # Downtilt help label
-        ttk.Label(antenna_frame, text="(+down)", font=('TkDefaultFont', 8)).grid(
-            row=0, column=7, sticky=tk.W, padx=5)
+        # AI Import antenna button
+        ttk.Button(orient_frame, text="AI Import Antenna...",
+                  command=self._ai_import_antenna).pack(side=tk.LEFT, padx=15)
 
-        antenna_frame.columnconfigure(1, weight=1)
+        antenna_frame.columnconfigure(2, weight=1)
 
         # Middle section: RF Chain display
         chain_frame = ttk.LabelFrame(main_frame, text="RF Chain (TX → Antenna)", padding=10)
@@ -204,7 +236,20 @@ class StationBuilderDialog:
         self.chain_tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         chain_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
-        # Chain controls
+        # Create context menu for RF chain
+        self.chain_context_menu = tk.Menu(self.dialog, tearoff=0)
+        self.chain_context_menu.add_command(label="Move Up", command=self._move_up)
+        self.chain_context_menu.add_command(label="Move Down", command=self._move_down)
+        self.chain_context_menu.add_separator()
+        self.chain_context_menu.add_command(label="Edit...", command=self._edit_component)
+        self.chain_context_menu.add_command(label="Remove", command=self._remove_component)
+        self.chain_context_menu.add_separator()
+        self.chain_context_menu.add_command(label="Clear All", command=self._clear_chain)
+
+        # Bind right-click to show context menu
+        self.chain_tree.bind('<Button-3>', self._show_chain_context_menu)
+
+        # Chain controls (simplified - main actions in context menu)
         chain_controls = ttk.Frame(chain_frame)
         chain_controls.pack(fill=tk.X, pady=(10, 0))
 
@@ -213,6 +258,9 @@ class StationBuilderDialog:
         ttk.Button(chain_controls, text="Edit", command=self._edit_component).pack(side=tk.LEFT, padx=5)
         ttk.Button(chain_controls, text="Remove", command=self._remove_component).pack(side=tk.LEFT, padx=5)
         ttk.Button(chain_controls, text="Clear All", command=self._clear_chain).pack(side=tk.LEFT, padx=5)
+
+        ttk.Label(chain_controls, text="(Right-click for menu)",
+                 font=('Segoe UI', 8, 'italic')).pack(side=tk.RIGHT, padx=10)
 
         # Bottom section: Totals
         totals_frame = ttk.LabelFrame(main_frame, text="System Totals", padding=10)
@@ -231,12 +279,195 @@ class StationBuilderDialog:
         self.net_label = ttk.Label(totals_frame, textvariable=self.net_change_var, font=('TkDefaultFont', 10, 'bold'))
         self.net_label.grid(row=0, column=5, sticky=tk.W, padx=5)
 
-        # Buttons
+        # Buttons (Apply moved to Add Component section)
         button_frame = ttk.Frame(main_frame)
         button_frame.pack(fill=tk.X)
 
-        ttk.Button(button_frame, text="Apply to Station", command=self._apply_changes).pack(side=tk.RIGHT, padx=5)
         ttk.Button(button_frame, text="Close", command=self.dialog.destroy).pack(side=tk.RIGHT, padx=5)
+
+    def _browse_components(self, component_type: str):
+        """Open component browser for a specific type"""
+        from gui.component_browser import ComponentBrowserDialog
+
+        def on_component_selected(component, length_ft):
+            """Handle component selection from browser"""
+            comp_type = component.get('component_type', component_type)
+
+            # Handle transmitters specially (need power input)
+            if comp_type == 'transmitter':
+                self._add_transmitter_with_power(component)
+            else:
+                self.rf_chain.append((component, length_ft))
+                self._update_chain_display()
+                self._calculate_totals()
+
+        ComponentBrowserDialog(
+            self.dialog,
+            component_type,
+            self.frequency_mhz,
+            on_select=on_component_selected,
+            on_ai_import=self._ai_search_component,
+            on_manual_add=self._quick_add_component
+        )
+
+    def _browse_other_components(self):
+        """Show dialog to select other component types"""
+        # Get all available types
+        all_types = self.component_library.get_component_types()
+        common_types = ['cable', 'transmitter', 'amplifier', 'filter', 'isolator']
+        other_types = [t for t in all_types if t not in common_types]
+
+        if not other_types:
+            messagebox.showinfo("No Other Types", "No additional component types available")
+            return
+
+        # Create selection dialog
+        select_dialog = tk.Toplevel(self.dialog)
+        select_dialog.title("Select Component Type")
+        select_dialog.geometry("300x200")
+        select_dialog.transient(self.dialog)
+
+        ttk.Label(select_dialog, text="Select component type:",
+                 font=('Segoe UI', 10, 'bold')).pack(pady=10)
+
+        type_var = tk.StringVar()
+        type_listbox = tk.Listbox(select_dialog, height=6,
+                                  bg='#252526', fg='#cccccc',
+                                  selectbackground='#0078d4')
+        for t in other_types:
+            type_listbox.insert(tk.END, t.replace('_', ' ').title())
+        type_listbox.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
+
+        def on_select():
+            sel = type_listbox.curselection()
+            if sel:
+                selected_type = other_types[sel[0]]
+                select_dialog.destroy()
+                self._browse_components(selected_type)
+
+        ttk.Button(select_dialog, text="Browse",
+                  command=on_select, style='Accent.TButton').pack(pady=10)
+
+    def _browse_antennas(self):
+        """Open antenna browser dialog"""
+        from gui.component_browser import ComponentBrowserDialog
+
+        def on_antenna_selected(antenna_data, _):
+            """Handle antenna selection from browser"""
+            antenna_id = antenna_data.get('antenna_id')
+            if antenna_id and antenna_id in self.antenna_ids:
+                idx = self.antenna_ids.index(antenna_id)
+                self.antenna_combo.current(idx)
+                self.selected_antenna_id = antenna_id
+
+                # Update bearing/downtilt if provided
+                if 'bearing' in antenna_data:
+                    self.antenna_bearing = antenna_data['bearing']
+                    self.bearing_var.set(f"{self.antenna_bearing:.1f}")
+                if 'downtilt' in antenna_data:
+                    self.antenna_downtilt = antenna_data['downtilt']
+                    self.downtilt_var.set(f"{self.antenna_downtilt:.1f}")
+
+                self._update_antenna_display()
+                self._update_chain_display()
+                self._calculate_totals()
+
+        ComponentBrowserDialog(
+            self.dialog,
+            'antenna',
+            self.frequency_mhz,
+            on_select=on_antenna_selected,
+            on_ai_import=self._ai_import_antenna,
+            on_manual_add=self._quick_add_component
+        )
+
+    def _update_antenna_display(self):
+        """Update the antenna display label"""
+        if not hasattr(self, 'antenna_display_var'):
+            return
+
+        if self.selected_antenna_id:
+            antenna_data = self.antenna_library.antennas.get(self.selected_antenna_id, {})
+            name = antenna_data.get('name', self.selected_antenna_id)
+            gain = antenna_data.get('gain', 0)
+            self.antenna_display_var.set(f"{name} ({gain:+.1f} dBi)")
+        else:
+            self.antenna_display_var.set("None selected")
+
+    def _ai_import_antenna(self):
+        """Open AI antenna import dialog"""
+        # Use existing antenna import functionality from main window
+        try:
+            from gui.dialogs import AntennaImportDialog
+
+            def on_antenna_imported(antenna_id):
+                """Callback when antenna is imported"""
+                self._refresh_antenna_list(antenna_id)
+
+            AntennaImportDialog(self.dialog, on_antenna_imported)
+        except ImportError:
+            messagebox.showerror("Error", "Antenna import dialog not available")
+
+    def _add_transmitter_with_power(self, component):
+        """Add transmitter with power input dialog"""
+        max_power = component.get('power_output_watts', 1000)
+
+        power_dialog = tk.Toplevel(self.dialog)
+        power_dialog.title("Set Transmitter Power")
+        power_dialog.geometry("350x150")
+        power_dialog.transient(self.dialog)
+        power_dialog.grab_set()
+
+        ttk.Label(power_dialog, text=f"Transmitter: {component.get('model', 'Unknown')}",
+                 font=('Segoe UI', 10, 'bold')).pack(pady=10)
+        ttk.Label(power_dialog, text=f"Max Rated Power: {max_power} W").pack(pady=5)
+
+        power_frame = ttk.Frame(power_dialog)
+        power_frame.pack(pady=10)
+
+        ttk.Label(power_frame, text="Transmit Power (W):").pack(side=tk.LEFT, padx=5)
+        power_var = tk.StringVar(value=str(max_power))
+        power_entry = ttk.Entry(power_frame, textvariable=power_var, width=10)
+        power_entry.pack(side=tk.LEFT, padx=5)
+
+        def on_ok():
+            try:
+                transmit_power = float(power_var.get())
+                if transmit_power <= 0:
+                    raise ValueError("Must be positive")
+                if transmit_power > max_power * 1.1:
+                    if not messagebox.askyesno("Power Warning",
+                                             f"Transmit power ({transmit_power}W) exceeds rated maximum ({max_power}W).\nContinue anyway?"):
+                        return
+                component_copy = component.copy()
+                component_copy['transmit_power_watts'] = transmit_power
+                self.rf_chain.append((component_copy, 0))
+                power_dialog.destroy()
+                self._update_chain_display()
+                self._calculate_totals()
+            except ValueError:
+                messagebox.showerror("Invalid Power", "Please enter a valid positive number")
+
+        button_frame = ttk.Frame(power_dialog)
+        button_frame.pack(pady=10)
+        ttk.Button(button_frame, text="OK", command=on_ok).pack(side=tk.LEFT, padx=5)
+        ttk.Button(button_frame, text="Cancel", command=power_dialog.destroy).pack(side=tk.LEFT, padx=5)
+
+        power_entry.focus()
+        power_dialog.bind('<Return>', lambda e: on_ok())
+
+    def _show_chain_context_menu(self, event):
+        """Show context menu for RF chain treeview"""
+        # Select item under cursor
+        item = self.chain_tree.identify_row(event.y)
+        if item:
+            self.chain_tree.selection_set(item)
+
+        # Show context menu
+        try:
+            self.chain_context_menu.tk_popup(event.x_root, event.y_root)
+        finally:
+            self.chain_context_menu.grab_release()
 
     def _search_components(self):
         """Search for components based on filters"""

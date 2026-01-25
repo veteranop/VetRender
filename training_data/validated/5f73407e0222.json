@@ -1,0 +1,29 @@
+{
+  "entry": {
+    "id": "5f73407e0222",
+    "source_type": "webpage",
+    "source_path": "https://www.repeater-builder.com/antenna/andrew/andrew-ldf4-50a-spec-sheet.pdf",
+    "component_type": "cable",
+    "model": "LDF4-50A",
+    "manufacturer": "Andrew/CommScope",
+    "validated": true,
+    "created": "2026-01-24T20:04:01.810224",
+    "notes": "Web-scraped Coaxial cable",
+    "validated_date": "2026-01-24T20:04:01.812999"
+  },
+  "source_text": "Andrew/CommScope LDF4-50A HELIAX Cable\nModel: LDF4-50A\nImpedance: 50 ohms\nVelocity Factor: 88%\nOuter Diameter: 0.5 inches\nMax Frequency: 8.8 GHz\nPeak Power: 40 kW\nAttenuation:\n  100 MHz: 0.661 dB/100ft\n  500 MHz: 1.53 dB/100ft\n  800 MHz: 1.97 dB/100ft\n  1000 MHz: 2.22 dB/100ft\nInner Conductor: Copper-clad aluminum\nOuter Conductor: Corrugated copper\nJacket: Black PE\nTemperature: -55C to +85C",
+  "expected_json": {
+    "component_type": "cable",
+    "manufacturer": "Andrew/CommScope",
+    "model": "LDF4-50A",
+    "impedance_ohms": 50,
+    "velocity_factor": 0.88,
+    "outer_diameter_inches": 0.5,
+    "loss_db_per_100ft": {
+      "100": 0.661,
+      "500": 1.53,
+      "800": 1.97,
+      "1000": 2.22
+    }
+  }
+}

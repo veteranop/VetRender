@@ -1,0 +1,40 @@
+{
+  "entry": {
+    "id": "4cd1dd5b89a3",
+    "source_type": "catalog",
+    "source_path": "C:\\Users\\markd\\VetRender\\components\\catalogs\\jampro.json",
+    "component_type": "antenna",
+    "model": "JHDV",
+    "manufacturer": "unknown",
+    "validated": true,
+    "created": "2026-01-24T13:47:16.878313",
+    "notes": "Imported from Jampro Antennas catalog",
+    "validated_date": "2026-01-24T13:47:16.880081"
+  },
+  "source_text": "Jampro Antennas JHDV\nModel: JHDV\nType: antenna\nFM broadcast antenna, 1-bay, horizontal polarization only\nGain: 0.0 dBi\nFrequency: 88-108 MHz\nPolarization: horizontal\nVSWR: 1.08:1",
+  "expected_json": {
+    "component_type": "antenna",
+    "model": "JHDV",
+    "part_number": "JHDV-1",
+    "description": "FM broadcast antenna, 1-bay, horizontal polarization only",
+    "gain_dbi": 0.0,
+    "gain_relative_dipole": 1.0,
+    "frequency_range_mhz": [
+      88,
+      108
+    ],
+    "polarization": "horizontal",
+    "vswr": 1.08,
+    "impedance_ohms": 50,
+    "connector_type": "EIA 1-5/8\" flange",
+    "power_rating_watts": 20000,
+    "wind_survival_mph": 125,
+    "pattern": "omni-directional",
+    "datasheet_url": "https://www.jampro.com/jhdv/",
+    "common_uses": [
+      "Horizontal-only FM broadcast",
+      "Translator stations"
+    ],
+    "notes": "Horizontal polarization only, lower cost than circular"
+  }
+}

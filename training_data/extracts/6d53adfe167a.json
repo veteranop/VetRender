@@ -1,0 +1,35 @@
+{
+  "entry": {
+    "id": "6d53adfe167a",
+    "source_type": "catalog",
+    "source_path": "C:\\Users\\markd\\VetRender\\components\\catalogs\\bird_technologies.json",
+    "component_type": "coupler",
+    "model": "4240-020",
+    "manufacturer": "unknown",
+    "validated": false,
+    "created": "2026-01-24T13:47:16.787254",
+    "notes": "Imported from Bird Technologies catalog"
+  },
+  "source_text": "Bird Technologies 4240-020\nModel: 4240-020\nType: coupler\nDirectional coupler, 20dB coupling, 25-1000 MHz",
+  "expected_json": {
+    "component_type": "coupler",
+    "model": "4240-020",
+    "part_number": "4240-020",
+    "description": "Directional coupler, 20dB coupling, 25-1000 MHz",
+    "insertion_loss_db": 0.15,
+    "coupling_db": 20,
+    "directivity_db": 25,
+    "frequency_range_mhz": [
+      25,
+      1000
+    ],
+    "power_rating_watts": 1000,
+    "connector_type": "N-Female",
+    "datasheet_url": "https://www.bird-technologies.com/products/couplers/",
+    "common_uses": [
+      "Light sampling",
+      "Spectrum analyzer monitoring"
+    ],
+    "notes": "Less coupling = less power extracted from main line"
+  }
+}

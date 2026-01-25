@@ -1,0 +1,39 @@
+{
+  "entry": {
+    "id": "09a1c7b9e8aa",
+    "source_type": "catalog",
+    "source_path": "C:\\Users\\markd\\VetRender\\components\\catalogs\\decibel_products.json",
+    "component_type": "antenna",
+    "model": "DB404",
+    "manufacturer": "unknown",
+    "validated": true,
+    "created": "2026-01-24T13:47:16.821552",
+    "notes": "Imported from Decibel Products catalog",
+    "validated_date": "2026-01-24T13:47:16.822984"
+  },
+  "source_text": "Decibel Products DB404\nModel: DB404\nType: antenna\nUHF 4-bay folded dipole array, 380-512 MHz\nGain: 8.5 dBi\nFrequency: 380-512 MHz\nPolarization: vertical\nVSWR: 1.5:1",
+  "expected_json": {
+    "component_type": "antenna",
+    "model": "DB404",
+    "part_number": "DB404",
+    "description": "UHF 4-bay folded dipole array, 380-512 MHz",
+    "gain_dbi": 8.5,
+    "frequency_range_mhz": [
+      380,
+      512
+    ],
+    "polarization": "vertical",
+    "vswr": 1.5,
+    "impedance_ohms": 50,
+    "connector_type": "N-Female",
+    "power_rating_watts": 500,
+    "wind_survival_mph": 125,
+    "pattern": "omni-directional",
+    "datasheet_url": "https://www.decibelproducts.com/product/db404/",
+    "common_uses": [
+      "UHF land mobile base station",
+      "Public safety repeater"
+    ],
+    "notes": "4-bay design for higher gain than DB408"
+  }
+}

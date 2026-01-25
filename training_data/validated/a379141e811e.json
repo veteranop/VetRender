@@ -1,0 +1,28 @@
+{
+  "entry": {
+    "id": "a379141e811e",
+    "source_type": "webpage",
+    "source_path": "https://www.pcs-electronics.com/shop/rf-accesories-for-transmitters/rf-filters-for-transmitters/coaxial-cavity-fm-band-filters/",
+    "component_type": "filter",
+    "model": "CAVFM2N",
+    "manufacturer": "PCS Electronics",
+    "validated": true,
+    "created": "2026-01-24T20:04:01.859692",
+    "notes": "Web-scraped Filter",
+    "validated_date": "2026-01-24T20:04:01.862872"
+  },
+  "source_text": "ECOMAX CAVFM2N Double Cavity Filter\nModel: CAVFM2N\nFrequency: 87.5-108 MHz\nPower: 1000W\n-3dB Bandwidth: 800 kHz - 1.5 MHz\nAttenuation +/-2MHz: 22 dB\nAttenuation +/-6MHz: 40 dB\nInsertion Loss: 0.3 dB\nConnectors: N female",
+  "expected_json": {
+    "component_type": "filter",
+    "manufacturer": "PCS Electronics",
+    "model": "CAVFM2N",
+    "frequency_range_mhz": [
+      87.5,
+      108
+    ],
+    "power_rating_watts": 1000,
+    "rejection_db": 40,
+    "insertion_loss_db": 0.3,
+    "connector_type": "N-Female"
+  }
+}

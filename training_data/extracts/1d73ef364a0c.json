@@ -1,0 +1,46 @@
+{
+  "entry": {
+    "id": "1d73ef364a0c",
+    "source_type": "catalog",
+    "source_path": "C:\\Users\\markd\\VetRender\\components\\catalogs\\harris_broadcast.json",
+    "component_type": "transmitter",
+    "model": "Flexiva FAX250",
+    "manufacturer": "unknown",
+    "validated": false,
+    "created": "2026-01-24T13:47:16.836105",
+    "notes": "Imported from Harris Broadcast (Imagine Communications / GatesAir) catalog"
+  },
+  "source_text": "Harris Broadcast (Imagine Communications / GatesAir) Flexiva FAX250\nModel: Flexiva FAX250\nType: transmitter\nFM broadcast transmitter, 250W, solid state, air-cooled",
+  "expected_json": {
+    "component_type": "transmitter",
+    "model": "Flexiva FAX250",
+    "part_number": "FAX250",
+    "description": "FM broadcast transmitter, 250W, solid state, air-cooled",
+    "frequency_range_mhz": [
+      87.5,
+      108
+    ],
+    "power_output_watts": 250,
+    "power_output_dbm": 53.98,
+    "power_output_dbw": 23.98,
+    "efficiency_percent": 68,
+    "mains_voltage": "120VAC or 230VAC",
+    "power_consumption_watts": 370,
+    "output_impedance_ohms": 50,
+    "connector_type": "N-Female",
+    "harmonic_suppression_dbc": -75,
+    "spurious_suppression_dbc": -75,
+    "audio_input": [
+      "AES/EBU",
+      "Analog balanced",
+      "Composite MPX"
+    ],
+    "datasheet_url": "https://www.gatesair.com/flexiva/",
+    "common_uses": [
+      "LPFM stations",
+      "Translators",
+      "Small market FM"
+    ],
+    "notes": "Compact 1RU design, built-in exciter"
+  }
+}

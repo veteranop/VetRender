@@ -1,0 +1,35 @@
+{
+  "entry": {
+    "id": "b46f2f542007",
+    "source_type": "catalog",
+    "source_path": "C:\\Users\\markd\\VetRender\\components\\catalogs\\polyphaser.json",
+    "component_type": "lightning_arrestor",
+    "model": "IS-B50HN-C0",
+    "manufacturer": "unknown",
+    "validated": false,
+    "created": "2026-01-24T13:47:16.911600",
+    "notes": "Imported from PolyPhaser (Transtector) catalog"
+  },
+  "source_text": "PolyPhaser (Transtector) IS-B50HN-C0\nModel: IS-B50HN-C0\nType: lightning_arrestor\nHigh power bulkhead arrestor, DC pass, N-Female to N-Female\nInsertion Loss: 0.15 dB\nSurge Voltage: 10 kV\nDC: Pass",
+  "expected_json": {
+    "component_type": "lightning_arrestor",
+    "model": "IS-B50HN-C0",
+    "part_number": "IS-B50HN-C0",
+    "description": "High power bulkhead arrestor, DC pass, N-Female to N-Female",
+    "insertion_loss_db": 0.15,
+    "frequency_range_mhz": [
+      0,
+      1000
+    ],
+    "connector_type": "N-Female both ends",
+    "voltage_rating_kv": 10,
+    "dc_pass": true,
+    "power_rating_watts": 1000,
+    "datasheet_url": "https://www.polyphaser.com/wp-content/uploads/IS-B50HN-C0.pdf",
+    "common_uses": [
+      "High power transmitters",
+      "Broadcast applications"
+    ],
+    "notes": "Higher power handling than standard IS-B50LN series"
+  }
+}

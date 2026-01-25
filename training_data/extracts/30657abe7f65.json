@@ -1,0 +1,44 @@
+{
+  "entry": {
+    "id": "30657abe7f65",
+    "source_type": "catalog",
+    "source_path": "C:\\Users\\markd\\VetRender\\components\\catalogs\\bw_broadcast.json",
+    "component_type": "transmitter",
+    "model": "TX600 V2",
+    "manufacturer": "unknown",
+    "validated": false,
+    "created": "2026-01-24T13:47:16.798584",
+    "notes": "Imported from BW Broadcast catalog"
+  },
+  "source_text": "BW Broadcast TX600 V2\nModel: TX600 V2\nType: transmitter\nFM broadcast transmitter, 600W, solid state",
+  "expected_json": {
+    "component_type": "transmitter",
+    "model": "TX600 V2",
+    "part_number": "TX600-V2",
+    "description": "FM broadcast transmitter, 600W, solid state",
+    "frequency_range_mhz": [
+      87.5,
+      108
+    ],
+    "power_output_watts": 600,
+    "power_output_dbm": 57.78,
+    "power_output_dbw": 27.78,
+    "efficiency_percent": 65,
+    "mains_voltage": "230VAC",
+    "power_consumption_watts": 920,
+    "output_impedance_ohms": 50,
+    "connector_type": "N-Female or 7/16 DIN",
+    "harmonic_suppression_dbc": -70,
+    "spurious_suppression_dbc": -70,
+    "audio_input": [
+      "AES/EBU",
+      "Analog balanced"
+    ],
+    "datasheet_url": "https://www.bwbroadcast.com/products/tx600-v2/",
+    "common_uses": [
+      "Community FM stations",
+      "Regional coverage"
+    ],
+    "notes": "1RU design, hot-swappable PA modules"
+  }
+}

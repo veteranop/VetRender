@@ -1,0 +1,35 @@
+{
+  "entry": {
+    "id": "1227cfbf2133",
+    "source_type": "catalog",
+    "source_path": "C:\\Users\\markd\\VetRender\\components\\catalogs\\rell.json",
+    "component_type": "connector",
+    "model": "EIA Flange Connector 1-5/8\"",
+    "manufacturer": "unknown",
+    "validated": true,
+    "created": "2026-01-24T13:47:16.935809",
+    "notes": "Imported from Radial Eletromagnetics Inc (RELL) catalog",
+    "validated_date": "2026-01-24T13:47:16.937929"
+  },
+  "source_text": "Radial Eletromagnetics Inc (RELL) EIA Flange Connector 1-5/8\"\nModel: EIA Flange Connector 1-5/8\"\nType: connector\nEIA 1-5/8\" flange connector for transmission line",
+  "expected_json": {
+    "component_type": "connector",
+    "model": "EIA Flange Connector 1-5/8\"",
+    "part_number": "EIA-158-F",
+    "description": "EIA 1-5/8\" flange connector for transmission line",
+    "insertion_loss_db": 0.05,
+    "frequency_range_mhz": [
+      0,
+      1000
+    ],
+    "connector_type": "EIA 1-5/8\" flange",
+    "vswr": 1.05,
+    "power_rating_watts": 30000,
+    "datasheet_url": "https://www.rell.com/connectors/",
+    "common_uses": [
+      "Transmission line connections",
+      "Combiner/transmitter/antenna interface"
+    ],
+    "notes": "Standard EIA flange, field-installable with proper tools"
+  }
+}

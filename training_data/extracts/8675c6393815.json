@@ -1,0 +1,29 @@
+{
+  "entry": {
+    "id": "8675c6393815",
+    "source_type": "webpage",
+    "source_path": "https://www.rfiamericas.com/product/vhf-3-element-yagi-6dbd-100-250mhz/",
+    "component_type": "antenna",
+    "model": "YH03",
+    "manufacturer": "RFI Americas",
+    "validated": false,
+    "created": "2026-01-24T20:04:01.799530",
+    "notes": "Web-scraped Yagi antenna"
+  },
+  "source_text": "RFI Americas YH03 VHF 3-Element Yagi\nModel: YH03\nFrequency: 100-250 MHz (custom tuned)\nGain: 6 dBd\nVSWR: <1.5:1\nConnector: N female with RG213 cable tail\nPower: 250 watts\nVertical Beamwidth: 60 degrees\nHorizontal Beamwidth: 75 degrees\nFront-to-Back Ratio: 15 dB typical\nTunable Bandwidth: 9 MHz\nLength: 70.9 inches\nWeight: 5.7 pounds\nConstruction: Thick-walled aluminum boom\nDC grounding for lightning protection",
+  "expected_json": {
+    "component_type": "antenna",
+    "manufacturer": "RFI Americas",
+    "model": "YH03",
+    "frequency_range_mhz": [
+      100,
+      250
+    ],
+    "gain_dbd": 6.0,
+    "vswr": 1.5,
+    "connector_type": "N-Female",
+    "power_rating_watts": 250,
+    "front_to_back_db": 15,
+    "pattern": "directional"
+  }
+}

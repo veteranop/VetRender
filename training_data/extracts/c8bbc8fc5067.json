@@ -1,0 +1,35 @@
+{
+  "entry": {
+    "id": "c8bbc8fc5067",
+    "source_type": "catalog",
+    "source_path": "C:\\Users\\markd\\VetRender\\components\\catalogs\\bird_technologies.json",
+    "component_type": "attenuator",
+    "model": "ATTEN-10-50",
+    "manufacturer": "unknown",
+    "validated": false,
+    "created": "2026-01-24T13:47:16.791360",
+    "notes": "Imported from Bird Technologies catalog"
+  },
+  "source_text": "Bird Technologies ATTEN-10-50\nModel: ATTEN-10-50\nType: attenuator\nFixed attenuator, 10dB, 50W, DC-4 GHz",
+  "expected_json": {
+    "component_type": "attenuator",
+    "model": "ATTEN-10-50",
+    "part_number": "ATTEN-10-50",
+    "description": "Fixed attenuator, 10dB, 50W, DC-4 GHz",
+    "attenuation_db": 10,
+    "frequency_range_mhz": [
+      0,
+      4000
+    ],
+    "power_rating_watts": 50,
+    "connector_type": "N-Male to N-Female",
+    "vswr": 1.2,
+    "datasheet_url": "https://www.bird-technologies.com/products/attenuators/",
+    "common_uses": [
+      "Reducing transmitter power",
+      "Impedance matching",
+      "Test setups"
+    ],
+    "notes": "Fixed 10dB reduction"
+  }
+}

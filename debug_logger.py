@@ -15,14 +15,40 @@ class DebugLogger:
         timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
         self.log_file = self.log_dir / f"coordinate_debug_{timestamp}.log"
 
-        # Write header
-        self.log("="*80)
-        self.log("Cellfire RF Studio Coordinate Debug Log")
-        self.log(f"Started: {datetime.datetime.now()}")
-        self.log("="*80)
+        # Logging enabled state (default: disabled to reduce noise)
+        self._enabled = False
+
+        # Write header (always, to indicate log file was created)
+        self._write_to_file("="*80)
+        self._write_to_file("Cellfire RF Studio Coordinate Debug Log")
+        self._write_to_file(f"Started: {datetime.datetime.now()}")
+        self._write_to_file("="*80)
+
+    @property
+    def enabled(self):
+        """Check if logging is enabled"""
+        return self._enabled
+
+    @enabled.setter
+    def enabled(self, value):
+        """Enable or disable logging"""
+        self._enabled = value
+        status = "ENABLED" if value else "DISABLED"
+        self._write_to_file(f">>> Debug logging {status} at {datetime.datetime.now()}")
+        print(f"Debug logging {status}")
+
+    def _write_to_file(self, message):
+        """Write message to log file (always, regardless of enabled state)"""
+        timestamp = datetime.datetime.now().strftime("%H:%M:%S.%f")[:-3]
+        log_line = f"[{timestamp}] {message}"
+        with open(self.log_file, 'a', encoding='utf-8') as f:
+            f.write(log_line + "\n")
 
     def log(self, message):
-        """Write message to log file and print to console"""
+        """Write message to log file and print to console (only if enabled)"""
+        if not self._enabled:
+            return
+
         timestamp = datetime.datetime.now().strftime("%H:%M:%S.%f")[:-3]
         log_line = f"[{timestamp}] {message}"
 

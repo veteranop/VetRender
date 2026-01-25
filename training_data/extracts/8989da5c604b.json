@@ -1,0 +1,49 @@
+{
+  "entry": {
+    "id": "8989da5c604b",
+    "source_type": "catalog",
+    "source_path": "C:\\Users\\markd\\VetRender\\components\\catalogs\\times_microwave.json",
+    "component_type": "cable",
+    "model": "LMR-400",
+    "manufacturer": "unknown",
+    "validated": false,
+    "created": "2026-01-24T13:47:16.999040",
+    "notes": "Imported from Times Microwave Systems catalog"
+  },
+  "source_text": "Times Microwave Systems LMR-400\nModel: LMR-400\nType: cable\n0.405\" diameter flexible coaxial cable, PE jacket\nImpedance: 50 ohms\nVelocity: 85.0%\nAttenuation at 50 MHz: 0.4 dB/100ft\nAttenuation at 150 MHz: 0.7 dB/100ft\nAttenuation at 220 MHz: 0.9 dB/100ft\nAttenuation at 450 MHz: 1.3 dB/100ft\nAttenuation at 900 MHz: 1.9 dB/100ft\nAttenuation at 1800 MHz: 2.8 dB/100ft\nAttenuation at 1900 MHz: 2.9 dB/100ft\nAttenuation at 2400 MHz: 3.3 dB/100ft\nAttenuation at 5800 MHz: 5.8 dB/100ft",
+  "expected_json": {
+    "component_type": "cable",
+    "model": "LMR-400",
+    "part_number": "LMR-400",
+    "description": "0.405\" diameter flexible coaxial cable, PE jacket",
+    "impedance_ohms": 50,
+    "velocity_factor": 0.85,
+    "outer_diameter_inches": 0.405,
+    "loss_db_per_100ft": {
+      "50": 0.4,
+      "150": 0.7,
+      "220": 0.9,
+      "450": 1.3,
+      "900": 1.9,
+      "1800": 2.8,
+      "1900": 2.9,
+      "2400": 3.3,
+      "5800": 5.8
+    },
+    "power_rating_watts": {
+      "150_mhz": 1800,
+      "450_mhz": 1100,
+      "900_mhz": 750,
+      "2400_mhz": 450
+    },
+    "weight_lbs_per_100ft": 11.5,
+    "minimum_bend_radius_inches": 2.5,
+    "datasheet_url": "https://www.timesmicrowave.com/documents/resources/LMR-400.pdf",
+    "common_uses": [
+      "Base station jumpers",
+      "Flexible tower runs",
+      "Mobile installations"
+    ],
+    "notes": "Most popular LMR cable, good balance of loss, flexibility, and power handling"
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "entry": {
+    "id": "4c815ec32c4d",
+    "source_type": "catalog",
+    "source_path": "C:\\Users\\markd\\VetRender\\components\\catalogs\\times_microwave.json",
+    "component_type": "cable",
+    "model": "LMR-900",
+    "manufacturer": "unknown",
+    "validated": false,
+    "created": "2026-01-24T13:47:17.008764",
+    "notes": "Imported from Times Microwave Systems catalog"
+  },
+  "source_text": "Times Microwave Systems LMR-900\nModel: LMR-900\nType: cable\n0.870\" diameter flexible coaxial cable, PE jacket\nImpedance: 50 ohms\nVelocity: 87.0%\nAttenuation at 50 MHz: 0.18 dB/100ft\nAttenuation at 150 MHz: 0.32 dB/100ft\nAttenuation at 220 MHz: 0.4 dB/100ft\nAttenuation at 450 MHz: 0.58 dB/100ft\nAttenuation at 900 MHz: 0.85 dB/100ft\nAttenuation at 1800 MHz: 1.24 dB/100ft\nAttenuation at 1900 MHz: 1.28 dB/100ft\nAttenuation at 2400 MHz: 1.45 dB/100ft\nAttenuation at 5800 MHz: 2.55 dB/100ft",
+  "expected_json": {
+    "component_type": "cable",
+    "model": "LMR-900",
+    "part_number": "LMR-900",
+    "description": "0.870\" diameter flexible coaxial cable, PE jacket",
+    "impedance_ohms": 50,
+    "velocity_factor": 0.87,
+    "outer_diameter_inches": 0.87,
+    "loss_db_per_100ft": {
+      "50": 0.18,
+      "150": 0.32,
+      "220": 0.4,
+      "450": 0.58,
+      "900": 0.85,
+      "1800": 1.24,
+      "1900": 1.28,
+      "2400": 1.45,
+      "5800": 2.55
+    },
+    "power_rating_watts": {
+      "150_mhz": 6000,
+      "450_mhz": 3700,
+      "900_mhz": 2600,
+      "2400_mhz": 1550
+    },
+    "weight_lbs_per_100ft": 49.0,
+    "minimum_bend_radius_inches": 6.0,
+    "datasheet_url": "https://www.timesmicrowave.com/documents/resources/LMR-900.pdf",
+    "common_uses": [
+      "High power broadcast",
+      "Long flexible runs with low loss"
+    ],
+    "notes": "Comparable to LDF5-50A but flexible"
+  }
+}

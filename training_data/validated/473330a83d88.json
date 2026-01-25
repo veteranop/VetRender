@@ -1,0 +1,53 @@
+{
+  "entry": {
+    "id": "473330a83d88",
+    "source_type": "catalog",
+    "source_path": "C:\\Users\\markd\\VetRender\\components\\catalogs\\andrew_commscope.json",
+    "component_type": "cable",
+    "model": "LDF4.5-50",
+    "manufacturer": "unknown",
+    "validated": true,
+    "created": "2026-01-24T13:47:16.769866",
+    "notes": "Imported from Andrew / CommScope catalog",
+    "validated_date": "2026-01-24T13:47:16.770781"
+  },
+  "source_text": "Andrew / CommScope LDF4.5-50\nModel: LDF4.5-50\nType: cable\n1/2\" HELIAX air dielectric coaxial cable, aluminum sheath\nImpedance: 50 ohms\nVelocity: 95.0%\nAttenuation at 30 MHz: 0.19 dB/100ft\nAttenuation at 50 MHz: 0.26 dB/100ft\nAttenuation at 150 MHz: 0.47 dB/100ft\nAttenuation at 220 MHz: 0.58 dB/100ft\nAttenuation at 450 MHz: 0.86 dB/100ft\nAttenuation at 512 MHz: 0.95 dB/100ft\nAttenuation at 806 MHz: 1.2 dB/100ft\nAttenuation at 900 MHz: 1.26 dB/100ft\nAttenuation at 960 MHz: 1.32 dB/100ft\nAttenuation at 1800 MHz: 1.86 dB/100ft\nAttenuation at 1900 MHz: 1.92 dB/100ft\nAttenuation at 2400 MHz: 2.2 dB/100ft",
+  "expected_json": {
+    "component_type": "cable",
+    "model": "LDF4.5-50",
+    "part_number": "LDF4.5-50",
+    "description": "1/2\" HELIAX air dielectric coaxial cable, aluminum sheath",
+    "impedance_ohms": 50,
+    "velocity_factor": 0.95,
+    "outer_diameter_inches": 0.63,
+    "loss_db_per_100ft": {
+      "30": 0.19,
+      "50": 0.26,
+      "150": 0.47,
+      "220": 0.58,
+      "450": 0.86,
+      "512": 0.95,
+      "806": 1.2,
+      "900": 1.26,
+      "960": 1.32,
+      "1800": 1.86,
+      "1900": 1.92,
+      "2400": 2.2
+    },
+    "power_rating_watts": {
+      "50_mhz": 4200,
+      "150_mhz": 3500,
+      "450_mhz": 2200,
+      "900_mhz": 1500,
+      "1800_mhz": 1100
+    },
+    "weight_lbs_per_100ft": 12.5,
+    "minimum_bend_radius_inches": 5.0,
+    "datasheet_url": "https://www.commscope.com/globalassets/digizuite/ldf4-5-50.pdf",
+    "common_uses": [
+      "Applications requiring air dielectric",
+      "Lower weight alternative to LDF4-50A"
+    ],
+    "notes": "Air dielectric provides higher velocity factor and slightly lower loss than foam"
+  }
+}

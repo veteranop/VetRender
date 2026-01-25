@@ -1,0 +1,34 @@
+{
+  "entry": {
+    "id": "69232fa2090c",
+    "source_type": "catalog",
+    "source_path": "C:\\Users\\markd\\VetRender\\components\\catalogs\\rell.json",
+    "component_type": "connector",
+    "model": "EIA Flange Connector 3-1/8\"",
+    "manufacturer": "unknown",
+    "validated": false,
+    "created": "2026-01-24T13:47:16.939665",
+    "notes": "Imported from Radial Eletromagnetics Inc (RELL) catalog"
+  },
+  "source_text": "Radial Eletromagnetics Inc (RELL) EIA Flange Connector 3-1/8\"\nModel: EIA Flange Connector 3-1/8\"\nType: connector\nEIA 3-1/8\" flange connector for transmission line",
+  "expected_json": {
+    "component_type": "connector",
+    "model": "EIA Flange Connector 3-1/8\"",
+    "part_number": "EIA-318-F",
+    "description": "EIA 3-1/8\" flange connector for transmission line",
+    "insertion_loss_db": 0.03,
+    "frequency_range_mhz": [
+      0,
+      1000
+    ],
+    "connector_type": "EIA 3-1/8\" flange",
+    "vswr": 1.03,
+    "power_rating_watts": 75000,
+    "datasheet_url": "https://www.rell.com/connectors/",
+    "common_uses": [
+      "High-power transmission line connections",
+      "Multi-transmitter combining"
+    ],
+    "notes": "Large flange for highest power applications"
+  }
+}

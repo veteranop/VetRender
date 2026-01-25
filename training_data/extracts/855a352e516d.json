@@ -1,0 +1,25 @@
+{
+  "entry": {
+    "id": "855a352e516d",
+    "source_type": "webpage",
+    "source_path": "https://www.bwbroadcast.com/tx1000v3",
+    "component_type": "transmitter",
+    "model": "TX1000 V3",
+    "manufacturer": "BW Broadcast",
+    "validated": false,
+    "created": "2026-01-24T20:04:01.842676",
+    "notes": "Web-scraped FM transmitter"
+  },
+  "source_text": "BW Broadcast TX1000 V3 FM Transmitter\nModel: TX1000 V3\nPower Output: 10-1100 watts\nFrequency: 87.5-108 MHz\nPower Supply Efficiency: 96%\nFeatures: Direct to channel digital modulation\nGPS inputs for SFN\nXLR analog & digital inputs\nDual MPX/SCA in and outs\nDSP stereo generator\nRDS generator\nDSPX multi-band processor\nForm Factor: 2U rack mount",
+  "expected_json": {
+    "component_type": "transmitter",
+    "manufacturer": "BW Broadcast",
+    "model": "TX1000 V3",
+    "power_output_watts": 1100,
+    "frequency_range_mhz": [
+      87.5,
+      108
+    ],
+    "efficiency_percent": 96
+  }
+}

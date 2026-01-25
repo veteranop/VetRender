@@ -1,0 +1,50 @@
+{
+  "entry": {
+    "id": "f2e804e45afc",
+    "source_type": "catalog",
+    "source_path": "C:\\Users\\markd\\VetRender\\components\\catalogs\\times_microwave.json",
+    "component_type": "cable",
+    "model": "LMR-400-UF",
+    "manufacturer": "unknown",
+    "validated": true,
+    "created": "2026-01-24T13:47:17.018252",
+    "notes": "Imported from Times Microwave Systems catalog",
+    "validated_date": "2026-01-24T13:47:17.020536"
+  },
+  "source_text": "Times Microwave Systems LMR-400-UF\nModel: LMR-400-UF\nType: cable\n0.405\" diameter ultra-flexible coaxial cable, PE jacket\nImpedance: 50 ohms\nVelocity: 84.0%\nAttenuation at 50 MHz: 0.5 dB/100ft\nAttenuation at 150 MHz: 0.8 dB/100ft\nAttenuation at 220 MHz: 1.0 dB/100ft\nAttenuation at 450 MHz: 1.5 dB/100ft\nAttenuation at 900 MHz: 2.2 dB/100ft\nAttenuation at 1800 MHz: 3.2 dB/100ft\nAttenuation at 1900 MHz: 3.3 dB/100ft\nAttenuation at 2400 MHz: 3.8 dB/100ft\nAttenuation at 5800 MHz: 6.6 dB/100ft",
+  "expected_json": {
+    "component_type": "cable",
+    "model": "LMR-400-UF",
+    "part_number": "LMR-400-UF",
+    "description": "0.405\" diameter ultra-flexible coaxial cable, PE jacket",
+    "impedance_ohms": 50,
+    "velocity_factor": 0.84,
+    "outer_diameter_inches": 0.405,
+    "loss_db_per_100ft": {
+      "50": 0.5,
+      "150": 0.8,
+      "220": 1.0,
+      "450": 1.5,
+      "900": 2.2,
+      "1800": 3.2,
+      "1900": 3.3,
+      "2400": 3.8,
+      "5800": 6.6
+    },
+    "power_rating_watts": {
+      "150_mhz": 1500,
+      "450_mhz": 950,
+      "900_mhz": 650,
+      "2400_mhz": 390
+    },
+    "weight_lbs_per_100ft": 11.0,
+    "minimum_bend_radius_inches": 1.5,
+    "datasheet_url": "https://www.timesmicrowave.com/documents/resources/LMR-400-UF.pdf",
+    "common_uses": [
+      "Jumpers requiring tight bends",
+      "Mobile antennas",
+      "Portable operations"
+    ],
+    "notes": "Ultra-flexible version of LMR-400, slightly higher loss but much easier to route"
+  }
+}

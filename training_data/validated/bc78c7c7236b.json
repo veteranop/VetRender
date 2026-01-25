@@ -1,0 +1,43 @@
+{
+  "entry": {
+    "id": "bc78c7c7236b",
+    "source_type": "catalog",
+    "source_path": "C:\\Users\\markd\\VetRender\\components\\catalogs\\harris_broadcast.json",
+    "component_type": "transmitter",
+    "model": "HT20 (Legacy)",
+    "manufacturer": "unknown",
+    "validated": true,
+    "created": "2026-01-24T13:47:16.857321",
+    "notes": "Imported from Harris Broadcast (Imagine Communications / GatesAir) catalog",
+    "validated_date": "2026-01-24T13:47:16.859087"
+  },
+  "source_text": "Harris Broadcast (Imagine Communications / GatesAir) HT20 (Legacy)\nModel: HT20 (Legacy)\nType: transmitter\nFM broadcast transmitter, 20kW, solid state (legacy model)",
+  "expected_json": {
+    "component_type": "transmitter",
+    "model": "HT20 (Legacy)",
+    "part_number": "HT20",
+    "description": "FM broadcast transmitter, 20kW, solid state (legacy model)",
+    "frequency_range_mhz": [
+      87.5,
+      108
+    ],
+    "power_output_watts": 20000,
+    "power_output_dbm": 73.01,
+    "power_output_dbw": 43.01,
+    "efficiency_percent": 68,
+    "mains_voltage": "400VAC 3-phase",
+    "power_consumption_watts": 29410,
+    "output_impedance_ohms": 50,
+    "connector_type": "EIA 3-1/8\" flange",
+    "harmonic_suppression_dbc": -75,
+    "audio_input": [
+      "Analog balanced",
+      "Composite MPX"
+    ],
+    "datasheet_url": "https://www.gatesair.com/legacy/",
+    "common_uses": [
+      "Legacy high-power FM installations"
+    ],
+    "notes": "Older model, many still in service at major stations"
+  }
+}

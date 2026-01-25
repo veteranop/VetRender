@@ -1,0 +1,39 @@
+{
+  "entry": {
+    "id": "8768b5f4f575",
+    "source_type": "catalog",
+    "source_path": "C:\\Users\\markd\\VetRender\\components\\catalogs\\decibel_products.json",
+    "component_type": "antenna",
+    "model": "DB224",
+    "manufacturer": "unknown",
+    "validated": false,
+    "created": "2026-01-24T13:47:16.818912",
+    "notes": "Imported from Decibel Products catalog"
+  },
+  "source_text": "Decibel Products DB224\nModel: DB224\nType: antenna\nVHF 2-bay folded dipole array, 136-174 MHz\nGain: 6.0 dBi\nFrequency: 136-174 MHz\nPolarization: vertical\nVSWR: 1.5:1",
+  "expected_json": {
+    "component_type": "antenna",
+    "model": "DB224",
+    "part_number": "DB224",
+    "description": "VHF 2-bay folded dipole array, 136-174 MHz",
+    "gain_dbi": 6.0,
+    "frequency_range_mhz": [
+      136,
+      174
+    ],
+    "polarization": "vertical",
+    "vswr": 1.5,
+    "impedance_ohms": 50,
+    "connector_type": "N-Female",
+    "power_rating_watts": 500,
+    "wind_survival_mph": 125,
+    "pattern": "omni-directional",
+    "datasheet_url": "https://www.decibelproducts.com/product/db224/",
+    "common_uses": [
+      "VHF land mobile base station",
+      "Repeater antenna",
+      "Public safety"
+    ],
+    "notes": "Industry standard VHF base antenna, excellent gain and pattern"
+  }
+}

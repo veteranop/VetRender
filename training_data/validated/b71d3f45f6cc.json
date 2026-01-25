@@ -1,0 +1,47 @@
+{
+  "entry": {
+    "id": "b71d3f45f6cc",
+    "source_type": "catalog",
+    "source_path": "C:\\Users\\markd\\VetRender\\components\\catalogs\\harris_broadcast.json",
+    "component_type": "transmitter",
+    "model": "Flexiva FAX20",
+    "manufacturer": "unknown",
+    "validated": true,
+    "created": "2026-01-24T13:47:16.848135",
+    "notes": "Imported from Harris Broadcast (Imagine Communications / GatesAir) catalog",
+    "validated_date": "2026-01-24T13:47:16.849867"
+  },
+  "source_text": "Harris Broadcast (Imagine Communications / GatesAir) Flexiva FAX20\nModel: Flexiva FAX20\nType: transmitter\nFM broadcast transmitter, 20kW, solid state",
+  "expected_json": {
+    "component_type": "transmitter",
+    "model": "Flexiva FAX20",
+    "part_number": "FAX20",
+    "description": "FM broadcast transmitter, 20kW, solid state",
+    "frequency_range_mhz": [
+      87.5,
+      108
+    ],
+    "power_output_watts": 20000,
+    "power_output_dbm": 73.01,
+    "power_output_dbw": 43.01,
+    "efficiency_percent": 75,
+    "mains_voltage": "400VAC 3-phase",
+    "power_consumption_watts": 26670,
+    "output_impedance_ohms": 50,
+    "connector_type": "EIA 3-1/8\" flange",
+    "harmonic_suppression_dbc": -85,
+    "spurious_suppression_dbc": -85,
+    "audio_input": [
+      "AES/EBU",
+      "Analog balanced",
+      "Composite MPX",
+      "IP Audio"
+    ],
+    "datasheet_url": "https://www.gatesair.com/flexiva/",
+    "common_uses": [
+      "Major market FM broadcast",
+      "Maximum legal power (with antenna gain)"
+    ],
+    "notes": "Flagship model, fully redundant, network control"
+  }
+}

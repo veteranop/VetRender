@@ -1,0 +1,29 @@
+{
+  "entry": {
+    "id": "559f37767151",
+    "source_type": "webpage",
+    "source_path": "https://www.tessco.com/product/35273",
+    "component_type": "antenna",
+    "model": "MBX150",
+    "manufacturer": "PCTEL",
+    "validated": true,
+    "created": "2026-01-24T20:04:01.742514",
+    "notes": "Web-scraped VHF antenna",
+    "validated_date": "2026-01-24T20:04:01.745444"
+  },
+  "source_text": "PCTEL MAXRAD 144-174 MHz Base Station Antenna\nModel: MBX150\nFrequency: 144-174 MHz\nGain: 3.0 dB\nPower: 250 watts\nConnector: UHF female\nType: Vertical collinear omni\nFeatures: Phasing stub eliminating radials",
+  "expected_json": {
+    "component_type": "antenna",
+    "manufacturer": "PCTEL",
+    "model": "MBX150",
+    "frequency_range_mhz": [
+      144,
+      174
+    ],
+    "gain_dbd": 3.0,
+    "power_rating_watts": 250,
+    "connector_type": "UHF-Female",
+    "polarization": "vertical",
+    "pattern": "omni-directional"
+  }
+}

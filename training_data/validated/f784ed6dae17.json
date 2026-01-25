@@ -1,0 +1,48 @@
+{
+  "entry": {
+    "id": "f784ed6dae17",
+    "source_type": "catalog",
+    "source_path": "C:\\Users\\markd\\VetRender\\components\\catalogs\\rell.json",
+    "component_type": "cable",
+    "model": "EFX3-50",
+    "manufacturer": "unknown",
+    "validated": true,
+    "created": "2026-01-24T13:47:16.928018",
+    "notes": "Imported from Radial Eletromagnetics Inc (RELL) catalog",
+    "validated_date": "2026-01-24T13:47:16.929975"
+  },
+  "source_text": "Radial Eletromagnetics Inc (RELL) EFX3-50\nModel: EFX3-50\nType: cable\n3-1/8\" flexible foam dielectric transmission line, 50 ohm\nImpedance: 50 ohms\nVelocity: 89.0%\nAttenuation at 50 MHz: 0.05 dB/100ft\nAttenuation at 88 MHz: 0.07 dB/100ft\nAttenuation at 108 MHz: 0.08 dB/100ft\nAttenuation at 150 MHz: 0.09 dB/100ft\nAttenuation at 220 MHz: 0.11 dB/100ft\nAttenuation at 450 MHz: 0.16 dB/100ft\nAttenuation at 900 MHz: 0.24 dB/100ft\nAttenuation at 1800 MHz: 0.35 dB/100ft",
+  "expected_json": {
+    "component_type": "cable",
+    "model": "EFX3-50",
+    "part_number": "EFX3-50",
+    "description": "3-1/8\" flexible foam dielectric transmission line, 50 ohm",
+    "impedance_ohms": 50,
+    "velocity_factor": 0.89,
+    "outer_diameter_inches": 3.125,
+    "loss_db_per_100ft": {
+      "50": 0.05,
+      "88": 0.07,
+      "108": 0.08,
+      "150": 0.09,
+      "220": 0.11,
+      "450": 0.16,
+      "900": 0.24,
+      "1800": 0.35
+    },
+    "power_rating_watts": {
+      "50_mhz": 55000,
+      "100_mhz": 45000,
+      "500_mhz": 25000,
+      "1000_mhz": 18000
+    },
+    "weight_lbs_per_100ft": 185.0,
+    "minimum_bend_radius_inches": 36.0,
+    "datasheet_url": "https://www.rell.com/efx3-50/",
+    "common_uses": [
+      "High-power FM broadcast",
+      "Multiple transmitter combining"
+    ],
+    "notes": "Very low loss, very high power, large and heavy"
+  }
+}

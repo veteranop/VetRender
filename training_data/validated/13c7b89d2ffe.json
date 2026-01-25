@@ -1,0 +1,32 @@
+{
+  "entry": {
+    "id": "13c7b89d2ffe",
+    "source_type": "webpage",
+    "source_path": "https://www.arcantenna.com/products/laird-antenex-fg4505w",
+    "component_type": "antenna",
+    "model": "FG4505W",
+    "manufacturer": "TE Connectivity",
+    "validated": true,
+    "created": "2026-01-24T20:04:01.748070",
+    "notes": "Web-scraped UHF antenna",
+    "validated_date": "2026-01-24T20:04:01.750647"
+  },
+  "source_text": "TE Connectivity FG4505W UHF Antenna\nModel: FG4505W\nFrequency Range: 450-470 MHz\nGain: 5 dBd / 7.15 dBi\nPolarization: Vertical\nVSWR: <2:1\nImpedance: 50 ohms\nConnector Type: N-Female\nPower Rating: 200 W\nLength: 76 inches\nDiameter: 1.31 inches\nWeight: 6 lbs\nTemperature: -40C to +85C\nNo ground plane required\nFiberglass construction with UV coating",
+  "expected_json": {
+    "component_type": "antenna",
+    "manufacturer": "TE Connectivity",
+    "model": "FG4505W",
+    "frequency_range_mhz": [
+      450,
+      470
+    ],
+    "gain_dbi": 7.15,
+    "gain_dbd": 5.0,
+    "polarization": "vertical",
+    "vswr": 2.0,
+    "impedance_ohms": 50,
+    "connector_type": "N-Female",
+    "power_rating_watts": 200,
+    "pattern": "omni-directional"
+  }
+}

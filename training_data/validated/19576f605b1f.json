@@ -1,0 +1,44 @@
+{
+  "entry": {
+    "id": "19576f605b1f",
+    "source_type": "catalog",
+    "source_path": "C:\\Users\\markd\\VetRender\\components\\catalogs\\harris_broadcast.json",
+    "component_type": "exciter",
+    "model": "FlexStar HDx",
+    "manufacturer": "unknown",
+    "validated": true,
+    "created": "2026-01-24T13:47:16.860527",
+    "notes": "Imported from Harris Broadcast (Imagine Communications / GatesAir) catalog",
+    "validated_date": "2026-01-24T13:47:16.862262"
+  },
+  "source_text": "Harris Broadcast (Imagine Communications / GatesAir) FlexStar HDx\nModel: FlexStar HDx\nType: exciter\nFM exciter with HD Radio capability, 100W output",
+  "expected_json": {
+    "component_type": "exciter",
+    "model": "FlexStar HDx",
+    "part_number": "FlexStar-HDx",
+    "description": "FM exciter with HD Radio capability, 100W output",
+    "frequency_range_mhz": [
+      87.5,
+      108
+    ],
+    "power_output_watts": 100,
+    "power_output_dbm": 50.0,
+    "output_impedance_ohms": 50,
+    "connector_type": "N-Female",
+    "harmonic_suppression_dbc": -80,
+    "audio_input": [
+      "AES/EBU",
+      "Analog balanced",
+      "Composite MPX",
+      "IP Audio",
+      "HD Radio"
+    ],
+    "datasheet_url": "https://www.gatesair.com/flexstar/",
+    "common_uses": [
+      "Exciter for PA systems",
+      "HD Radio broadcasts",
+      "Standalone low-power"
+    ],
+    "notes": "Supports HD Radio, RDS, GPS sync, network streaming"
+  }
+}

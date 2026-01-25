@@ -1,0 +1,27 @@
+{
+  "entry": {
+    "id": "2a101ef98b96",
+    "source_type": "webpage",
+    "source_path": "https://www.polyphaser.com/Images/Downloadables/Datasheets/IS-B50_Series.pdf",
+    "component_type": "lightning_arrestor",
+    "model": "IS-B50LN-C2",
+    "manufacturer": "PolyPhaser",
+    "validated": false,
+    "created": "2026-01-24T20:04:01.815396",
+    "notes": "Web-scraped Lightning arrestor"
+  },
+  "source_text": "PolyPhaser IS-B50LN-C2 Lightning Arrestor\nModel: IS-B50LN-C2\nType: N F/F Bulkhead Coaxial RF Surge Protector\nFrequency: 10 MHz to 1 GHz\nPower: 1.5 kW maximum\nLet-Through Energy: 120uJ\nSurge Current: 20kA\nConnector: N-Female both ends\nMounting: Bulkhead\nDC: Block\nTechnology: Blocking cap and gas tube",
+  "expected_json": {
+    "component_type": "lightning_arrestor",
+    "manufacturer": "PolyPhaser",
+    "model": "IS-B50LN-C2",
+    "frequency_range_mhz": [
+      10,
+      1000
+    ],
+    "power_rating_watts": 1500,
+    "surge_current_ka": 20,
+    "connector_type": "N-Female both ends",
+    "dc_pass": false
+  }
+}

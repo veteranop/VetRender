@@ -1,0 +1,35 @@
+{
+  "entry": {
+    "id": "e988b2f3064b",
+    "source_type": "catalog",
+    "source_path": "C:\\Users\\markd\\VetRender\\components\\catalogs\\bird_technologies.json",
+    "component_type": "combiner",
+    "model": "APR-2",
+    "manufacturer": "unknown",
+    "validated": false,
+    "created": "2026-01-24T13:47:16.781120",
+    "notes": "Imported from Bird Technologies catalog"
+  },
+  "source_text": "Bird Technologies APR-2\nModel: APR-2\nType: combiner\n2-port cavity combiner, tunable, 25-1000 MHz",
+  "expected_json": {
+    "component_type": "combiner",
+    "model": "APR-2",
+    "part_number": "APR-2",
+    "description": "2-port cavity combiner, tunable, 25-1000 MHz",
+    "insertion_loss_db": 1.5,
+    "isolation_db": 80,
+    "frequency_range_mhz": [
+      25,
+      1000
+    ],
+    "power_rating_watts": 200,
+    "number_of_ports": 2,
+    "connector_type": "N-Female",
+    "datasheet_url": "https://www.bird-technologies.com/products/combiners/",
+    "common_uses": [
+      "Combining two transmitters to single antenna",
+      "Repeater systems"
+    ],
+    "notes": "Field-tunable cavities, high isolation between ports"
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "entry": {
+    "id": "23f135f8f21f",
+    "source_type": "webpage",
+    "source_path": "https://www.tessco.com/product/380-400-mhz-unity-gain-omni-antenna-619157",
+    "component_type": "antenna",
+    "model": "ATC-GC4V1O-1-D4",
+    "manufacturer": "Alive Telecom",
+    "validated": false,
+    "created": "2026-01-24T20:04:01.773228",
+    "notes": "Web-scraped 700/800 MHz antenna"
+  },
+  "source_text": "Alive Telecom UHF Omni Antenna\nModel: ATC-GC4V1O-1-D4\nSKU: 619157\nFrequency: 380-400 MHz\nGain: 0.0 dBd (unity gain)\nPolarization: Vertical\nConnector: 4.3-10 DIN Female\nPower: 250 Watts\nPIM: -150 dBc\nIP Rating: IP66\nType: Omnidirectional base station",
+  "expected_json": {
+    "component_type": "antenna",
+    "manufacturer": "Alive Telecom",
+    "model": "ATC-GC4V1O-1-D4",
+    "frequency_range_mhz": [
+      380,
+      400
+    ],
+    "gain_dbd": 0.0,
+    "gain_dbi": 2.15,
+    "polarization": "vertical",
+    "connector_type": "4.3-10 DIN Female",
+    "power_rating_watts": 250,
+    "pim_dbc": -150,
+    "pattern": "omni-directional"
+  }
+}

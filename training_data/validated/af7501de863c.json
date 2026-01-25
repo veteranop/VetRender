@@ -1,0 +1,39 @@
+{
+  "entry": {
+    "id": "af7501de863c",
+    "source_type": "catalog",
+    "source_path": "C:\\Users\\markd\\VetRender\\components\\catalogs\\jampro.json",
+    "component_type": "antenna",
+    "model": "JCPV-2",
+    "manufacturer": "unknown",
+    "validated": true,
+    "created": "2026-01-24T13:47:16.871431",
+    "notes": "Imported from Jampro Antennas catalog",
+    "validated_date": "2026-01-24T13:47:16.873189"
+  },
+  "source_text": "Jampro Antennas JCPV-2\nModel: JCPV-2\nType: antenna\nFM broadcast antenna, 2-bay, circular polarization, panel design\nGain: 3.0 dBi\nFrequency: 88-108 MHz\nPolarization: circular\nVSWR: 1.08:1",
+  "expected_json": {
+    "component_type": "antenna",
+    "model": "JCPV-2",
+    "part_number": "JCPV-2",
+    "description": "FM broadcast antenna, 2-bay, circular polarization, panel design",
+    "gain_dbi": 3.0,
+    "gain_relative_dipole": 2.0,
+    "frequency_range_mhz": [
+      88,
+      108
+    ],
+    "polarization": "circular",
+    "vswr": 1.08,
+    "impedance_ohms": 50,
+    "connector_type": "EIA 1-5/8\" flange",
+    "power_rating_watts": 30000,
+    "wind_survival_mph": 125,
+    "pattern": "omni-directional",
+    "datasheet_url": "https://www.jampro.com/jcpv/",
+    "common_uses": [
+      "Medium-gain FM broadcast"
+    ],
+    "notes": "2-bay panel design"
+  }
+}

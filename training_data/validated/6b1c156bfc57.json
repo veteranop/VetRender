@@ -1,0 +1,41 @@
+{
+  "entry": {
+    "id": "6b1c156bfc57",
+    "source_type": "catalog",
+    "source_path": "C:\\Users\\markd\\VetRender\\components\\catalogs\\shively_labs.json",
+    "component_type": "antenna",
+    "model": "6810",
+    "manufacturer": "unknown",
+    "validated": true,
+    "created": "2026-01-24T13:47:16.955489",
+    "notes": "Imported from Shively Labs catalog",
+    "validated_date": "2026-01-24T13:47:16.957725"
+  },
+  "source_text": "Shively Labs 6810\nModel: 6810\nType: antenna\nFM broadcast antenna, 1-bay, circular polarization\nGain: 0.0 dBi\nFrequency: 88-108 MHz\nPolarization: circular\nVSWR: 1.05:1",
+  "expected_json": {
+    "component_type": "antenna",
+    "model": "6810",
+    "part_number": "6810",
+    "description": "FM broadcast antenna, 1-bay, circular polarization",
+    "gain_dbi": 0.0,
+    "gain_relative_dipole": 1.0,
+    "frequency_range_mhz": [
+      88,
+      108
+    ],
+    "polarization": "circular",
+    "vswr": 1.05,
+    "impedance_ohms": 50,
+    "connector_type": "EIA 1-5/8\" flange",
+    "power_rating_watts": 10000,
+    "wind_survival_mph": 150,
+    "pattern": "omni-directional",
+    "azimuth_pattern": "omni",
+    "datasheet_url": "https://www.shively.com/6810/",
+    "common_uses": [
+      "Low-gain FM broadcast",
+      "Standby antenna"
+    ],
+    "notes": "Single bay, unity gain, excellent VSWR"
+  }
+}

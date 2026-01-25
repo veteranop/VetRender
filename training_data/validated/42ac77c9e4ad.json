@@ -1,0 +1,39 @@
+{
+  "entry": {
+    "id": "42ac77c9e4ad",
+    "source_type": "catalog",
+    "source_path": "C:\\Users\\markd\\VetRender\\components\\catalogs\\decibel_products.json",
+    "component_type": "antenna",
+    "model": "DB220",
+    "manufacturer": "unknown",
+    "validated": true,
+    "created": "2026-01-24T13:47:16.829661",
+    "notes": "Imported from Decibel Products catalog",
+    "validated_date": "2026-01-24T13:47:16.831013"
+  },
+  "source_text": "Decibel Products DB220\nModel: DB220\nType: antenna\nVHF single-bay folded dipole, 136-174 MHz\nGain: 3.0 dBi\nFrequency: 136-174 MHz\nPolarization: vertical\nVSWR: 1.5:1",
+  "expected_json": {
+    "component_type": "antenna",
+    "model": "DB220",
+    "part_number": "DB220",
+    "description": "VHF single-bay folded dipole, 136-174 MHz",
+    "gain_dbi": 3.0,
+    "frequency_range_mhz": [
+      136,
+      174
+    ],
+    "polarization": "vertical",
+    "vswr": 1.5,
+    "impedance_ohms": 50,
+    "connector_type": "N-Female",
+    "power_rating_watts": 500,
+    "wind_survival_mph": 125,
+    "pattern": "omni-directional",
+    "datasheet_url": "https://www.decibelproducts.com/product/db220/",
+    "common_uses": [
+      "Budget VHF base station",
+      "Portable repeater"
+    ],
+    "notes": "Lower cost single-bay version"
+  }
+}

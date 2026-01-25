@@ -1,79 +1,7 @@
 {
-  "Imported_Antenna_0": {
-    "name": "Imported Antenna",
-    "xml_file": "Imported_Antenna_0.xml",
-    "manufacturer": "Sinclair",
-    "part_number": "SC46A-HL",
-    "gain": 10.0,
-    "band": "700",
-    "frequency_range": "746-869",
-    "type": "Omni",
-    "notes": "",
-    "import_date": "2026-01-14 15:27:05"
-  },
-  "CMD1106-1_1": {
-    "name": "CMD1106-1",
-    "xml_file": "CMD1106-1_1.xml",
-    "manufacturer": "Commander",
-    "part_number": "1106-1",
-    "gain": 6.1,
-    "band": "800 Mhz",
-    "frequency_range": "806-866 Mhz",
-    "type": "Omni",
-    "notes": "This collinear antenna provides consistent gain and impedance across the operating frequency band\nand is designed to meet various omnidirectional requirements for repeated control stations.\nThis antenna utilizes copper radiating elements and is encased in small diameter fiberglass to reduce\nwind resistance. Commander Antennas incorporate design enhancements not normally\navailable in other fiberglass collinear antennas of comparable size.",
-    "import_date": "2026-01-15 16:03:13"
-  },
-  "JLCP_LOW_POWER_ANTENNA_2": {
-    "name": "JLCP LOW POWER ANTENNA",
-    "xml_file": "JLCP_LOW_POWER_ANTENNA_2.xml",
-    "manufacturer": "Jampro",
-    "part_number": "N/A",
-    "gain": 0.0,
-    "band": "FM",
-    "frequency_range": "88-108 MHz",
-    "type": "Omni",
-    "notes": "Manufacturer: A stacking \nharness is\nPart Number: 7-16\nBand: FM\nFrequency Range: 88-108 MHz\nOmnidirectional antenna\nDescription: JLCP LOW POWER ANTENNA The JAMPRO JLCP is a low power antenna designed specifically for Omni-Directional low power applications such as LPFM, Trans-...",
-    "import_date": "2026-01-15 16:21:43"
-  },
-  "FM_Educational_Series_3": {
-    "name": "FM Educational Series",
-    "xml_file": "FM_Educational_Series_3.xml",
-    "manufacturer": "ERI",
-    "part_number": "FM-11",
-    "gain": -1.0,
-    "band": "FM",
-    "frequency_range": "88-108 MHz",
-    "type": "Omni",
-    "notes": "Manufacturer: an ERI representative\nPart Number: FM-11\nBand: FM\nFrequency Range: 88-108 MHz\nOmnidirectional antenna\nDescription: FM Educational Series Low Power Horizontally Polarized FM Antenna Educational FM antennas are specifically designed for...",
-    "import_date": "2026-01-15 16:29:52"
-  },
-  "SDC010926B_4": {
-    "name": "SDC010926B",
-    "xml_file": "SDC010926B_4.xml",
-    "manufacturer": "Jampro",
-    "part_number": "SDC010926B",
-    "gain": 0.0,
-    "band": "FM",
-    "frequency_range": "N/A",
-    "type": "Directional",
-    "notes": "Band: FM\nDescription: Description:  FM Sidemount Antenna Free Space Azimuth Pattern   Notes:  Blue=H -Pol ; Red=V -Pol Values in Relative Field...",
-    "import_date": "2026-01-16 07:14:48"
-  },
-  "Jampro_low_power_FM_5": {
-    "name": "Jampro low power FM",
-    "xml_file": "Jampro_low_power_FM_5.xml",
-    "manufacturer": "Jampro",
-    "part_number": "SDC010926B",
-    "gain": 0.0,
-    "band": "FM",
-    "frequency_range": "88-108 MHz",
-    "type": "Omni",
-    "notes": "Band: FM\nDescription: Description:  FM Sidemount Antenna Free Space Azimuth Pattern   Notes:  Blue=H -Pol ; Red=V -Pol Values in Relative Field...",
-    "import_date": "2026-01-16 07:21:46"
-  },
-  "Default_Omni_0_dBi_6": {
+  "Default_Omni_0_dBi_0": {
     "name": "Default Omni (0 dBi)",
-    "xml_file": "Default_Omni_0_dBi_6.xml",
+    "xml_file": "Default_Omni_0_dBi_0.xml",
     "manufacturer": "Generic",
     "part_number": "N/A",
     "gain": 0.0,
@@ -83,9 +11,9 @@
     "notes": "Default omnidirectional antenna pattern",
     "import_date": ""
   },
-  "Default_Directional_7": {
+  "Default_Directional_1": {
     "name": "Default Directional",
-    "xml_file": "Default_Directional_7.xml",
+    "xml_file": "Default_Directional_1.xml",
     "manufacturer": "Generic",
     "part_number": "N/A",
     "gain": 0.0,
@@ -95,16 +23,100 @@
     "notes": "Default directional antenna pattern",
     "import_date": ""
   },
-  "UHF_Default_Omni-_42_DB_8": {
-    "name": "UHF Default Omni- +4.2 DB",
-    "xml_file": "UHF_Default_Omni-_42_DB_8.xml",
-    "manufacturer": "VeteranOp",
-    "part_number": "VO1234",
-    "gain": 4.2,
-    "band": "UHF",
-    "frequency_range": "400.0-450.0 MHz",
-    "type": "Omni",
-    "notes": "Additional notes or specifications",
-    "import_date": "2026-01-24 12:59:41"
+  "DS7A12P90U-N_2": {
+    "name": "DS7A12P90U-N",
+    "xml_file": "DS7A12P90U-N_2.xml",
+    "manufacturer": "dbSpectra",
+    "part_number": "322-0080",
+    "gain": 12.0,
+    "band": "RF",
+    "frequency_range": "N/A",
+    "type": "Directional",
+    "notes": "Part Number: 322-0080\nBand: RF\nFrequency Range: 406-512 MHz\nDirectional antenna\nDescription: Specifications are subject to change. Please visit www.dbspectra.com for the latest information on our products, including new product offerings. Antennas 1590 E Hwy 121 Bldg A Ste 100, Lewisville, TX...",
+    "import_date": ""
+  },
+  "DS7A12P90U-N_3": {
+    "name": "DS7A12P90U-N",
+    "xml_file": "DS7A12P90U-N_3.xml",
+    "manufacturer": "dbSpectra",
+    "part_number": "322-0080",
+    "gain": 12.0,
+    "band": "RF",
+    "frequency_range": "N/A",
+    "type": "Directional",
+    "notes": "Part Number: 322-0080\nBand: RF\nFrequency Range: 406-512 MHz\nDirectional antenna\nDescription: Specifications are subject to change. Please visit www.dbspectra.com for the latest information on our products, including new product offerings. Antennas 1590 E Hwy 121 Bldg A Ste 100, Lewisville, TX...",
+    "import_date": ""
+  },
+  "DS7A12P90U-N_4": {
+    "name": "DS7A12P90U-N",
+    "xml_file": "DS7A12P90U-N_4.xml",
+    "manufacturer": "dbSpectra",
+    "part_number": "322-0080",
+    "gain": 12.0,
+    "band": "RF",
+    "frequency_range": "N/A",
+    "type": "Directional",
+    "notes": "Part Number: 322-0080\nBand: RF\nFrequency Range: 406-512 MHz\nDirectional antenna\nDescription: Specifications are subject to change. Please visit www.dbspectra.com for the latest information on our products, including new product offerings. Antennas 1590 E Hwy 121 Bldg A Ste 100, Lewisville, TX...",
+    "import_date": ""
+  },
+  "DS7A12P90U-N_5": {
+    "name": "DS7A12P90U-N",
+    "xml_file": "DS7A12P90U-N_5.xml",
+    "manufacturer": "dbSpectra",
+    "part_number": "322-0080",
+    "gain": 12.0,
+    "band": "RF",
+    "frequency_range": "N/A",
+    "type": "Directional",
+    "notes": "Part Number: 322-0080\nBand: RF\nFrequency Range: 406-512 MHz\nDirectional antenna\nDescription: Specifications are subject to change. Please visit www.dbspectra.com for the latest information on our products, including new product offerings. Antennas 1590 E Hwy 121 Bldg A Ste 100, Lewisville, TX...",
+    "import_date": ""
+  },
+  "DS7A12P90U-N_6": {
+    "name": "DS7A12P90U-N",
+    "xml_file": "DS7A12P90U-N_6.xml",
+    "manufacturer": "dbSpectra",
+    "part_number": "322-0080",
+    "gain": 12.0,
+    "band": "RF",
+    "frequency_range": "N/A",
+    "type": "Directional",
+    "notes": "Part Number: 322-0080\nBand: RF\nFrequency Range: 406-512 MHz\nDirectional antenna\nDescription: Specifications are subject to change. Please visit www.dbspectra.com for the latest information on our products, including new product offerings. Antennas 1590 E Hwy 121 Bldg A Ste 100, Lewisville, TX...",
+    "import_date": ""
+  },
+  "DS7A12P90U-N_7": {
+    "name": "DS7A12P90U-N",
+    "xml_file": "DS7A12P90U-N_7.xml",
+    "manufacturer": "dbSpectra",
+    "part_number": "322-0080",
+    "gain": 12.0,
+    "band": "RF",
+    "frequency_range": "N/A",
+    "type": "Directional",
+    "notes": "Part Number: 322-0080\nBand: RF\nFrequency Range: 406-512 MHz\nDirectional antenna\nDescription: Specifications are subject to change. Please visit www.dbspectra.com for the latest information on our products, including new product offerings. Antennas 1590 E Hwy 121 Bldg A Ste 100, Lewisville, TX...",
+    "import_date": ""
+  },
+  "DS7A12P90U-N_8": {
+    "name": "DS7A12P90U-N",
+    "xml_file": "DS7A12P90U-N_8.xml",
+    "manufacturer": "dbSpectra",
+    "part_number": "322-0080",
+    "gain": 12.0,
+    "band": "RF",
+    "frequency_range": "N/A",
+    "type": "Directional",
+    "notes": "Part Number: 322-0080\nBand: RF\nFrequency Range: 406-512 MHz\nDirectional antenna\nDescription: Specifications are subject to change. Please visit www.dbspectra.com for the latest information on our products, including new product offerings. Antennas 1590 E Hwy 121 Bldg A Ste 100, Lewisville, TX...",
+    "import_date": ""
+  },
+  "DS7A12P90U-N_9": {
+    "name": "DS7A12P90U-N",
+    "xml_file": "DS7A12P90U-N_9.xml",
+    "manufacturer": "dbSpectra",
+    "part_number": "322-0080",
+    "gain": 12.0,
+    "band": "RF",
+    "frequency_range": "N/A",
+    "type": "Directional",
+    "notes": "Part Number: 322-0080\nBand: RF\nFrequency Range: 406-512 MHz\nDirectional antenna\nDescription: Specifications are subject to change. Please visit www.dbspectra.com for the latest information on our products, including new product offerings. Antennas 1590 E Hwy 121 Bldg A Ste 100, Lewisville, TX...",
+    "import_date": ""
   }
 }

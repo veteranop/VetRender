@@ -1,0 +1,47 @@
+{
+  "entry": {
+    "id": "1f42abb5da86",
+    "source_type": "catalog",
+    "source_path": "C:\\Users\\markd\\VetRender\\components\\catalogs\\rell.json",
+    "component_type": "cable",
+    "model": "EFX1-50A",
+    "manufacturer": "unknown",
+    "validated": false,
+    "created": "2026-01-24T13:47:16.924210",
+    "notes": "Imported from Radial Eletromagnetics Inc (RELL) catalog"
+  },
+  "source_text": "Radial Eletromagnetics Inc (RELL) EFX1-50A\nModel: EFX1-50A\nType: cable\n1-5/8\" flexible foam dielectric transmission line, 50 ohm\nImpedance: 50 ohms\nVelocity: 88.0%\nAttenuation at 50 MHz: 0.1 dB/100ft\nAttenuation at 88 MHz: 0.14 dB/100ft\nAttenuation at 108 MHz: 0.16 dB/100ft\nAttenuation at 150 MHz: 0.18 dB/100ft\nAttenuation at 220 MHz: 0.22 dB/100ft\nAttenuation at 450 MHz: 0.32 dB/100ft\nAttenuation at 900 MHz: 0.47 dB/100ft\nAttenuation at 1800 MHz: 0.69 dB/100ft",
+  "expected_json": {
+    "component_type": "cable",
+    "model": "EFX1-50A",
+    "part_number": "EFX1-50A",
+    "description": "1-5/8\" flexible foam dielectric transmission line, 50 ohm",
+    "impedance_ohms": 50,
+    "velocity_factor": 0.88,
+    "outer_diameter_inches": 1.625,
+    "loss_db_per_100ft": {
+      "50": 0.1,
+      "88": 0.14,
+      "108": 0.16,
+      "150": 0.18,
+      "220": 0.22,
+      "450": 0.32,
+      "900": 0.47,
+      "1800": 0.69
+    },
+    "power_rating_watts": {
+      "50_mhz": 18000,
+      "100_mhz": 15000,
+      "500_mhz": 8500,
+      "1000_mhz": 6000
+    },
+    "weight_lbs_per_100ft": 68.0,
+    "minimum_bend_radius_inches": 18.0,
+    "datasheet_url": "https://www.rell.com/efx1-50a/",
+    "common_uses": [
+      "FM broadcast transmitter to antenna",
+      "High-power VHF/UHF"
+    ],
+    "notes": "Standard size for FM broadcast, low loss, high power"
+  }
+}

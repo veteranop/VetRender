@@ -1,0 +1,35 @@
+{
+  "entry": {
+    "id": "a0a4f5fa7205",
+    "source_type": "catalog",
+    "source_path": "C:\\Users\\markd\\VetRender\\components\\catalogs\\bird_technologies.json",
+    "component_type": "isolator",
+    "model": "CX-300U",
+    "manufacturer": "unknown",
+    "validated": false,
+    "created": "2026-01-24T13:47:16.779368",
+    "notes": "Imported from Bird Technologies catalog"
+  },
+  "source_text": "Bird Technologies CX-300U\nModel: CX-300U\nType: isolator\nUHF circulator/isolator, 380-512 MHz, 300W",
+  "expected_json": {
+    "component_type": "isolator",
+    "model": "CX-300U",
+    "part_number": "CX-300U",
+    "description": "UHF circulator/isolator, 380-512 MHz, 300W",
+    "insertion_loss_db": 0.3,
+    "isolation_db": 20,
+    "frequency_range_mhz": [
+      380,
+      512
+    ],
+    "power_rating_watts": 300,
+    "connector_type": "N-Female",
+    "vswr": 1.2,
+    "datasheet_url": "https://www.bird-technologies.com/products/circulators-isolators/",
+    "common_uses": [
+      "UHF transmitter protection",
+      "Combiner systems"
+    ],
+    "notes": "UHF version of CX series"
+  }
+}

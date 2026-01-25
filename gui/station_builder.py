@@ -14,15 +14,18 @@ class StationBuilderDialog:
     """Dialog for building station RF chain"""
 
     def __init__(self, parent, frequency_mhz: float, callback: Optional[Callable] = None,
-                 initial_chain: Optional[List] = None, initial_antenna: Optional[str] = None):
+                 initial_chain: Optional[List] = None, initial_antenna: Optional[str] = None,
+                 initial_bearing: float = 0.0, initial_downtilt: float = 0.0):
         """Initialize station builder
 
         Args:
             parent: Parent window
             frequency_mhz: Operating frequency
-            callback: Callback function(total_loss_db, total_gain_db, erp_change_db, rf_chain, antenna_id)
+            callback: Callback function(total_loss_db, total_gain_db, erp_change_db, rf_chain, antenna_id, antenna_bearing, antenna_downtilt)
             initial_chain: Optional initial RF chain to load
             initial_antenna: Optional initial antenna ID
+            initial_bearing: Optional initial antenna bearing (degrees, 0=North, clockwise)
+            initial_downtilt: Optional initial antenna downtilt (degrees, positive=down)
         """
         self.parent = parent
         self.frequency_mhz = frequency_mhz
@@ -33,6 +36,8 @@ class StationBuilderDialog:
         # RF chain components and antenna
         self.rf_chain = initial_chain if initial_chain else []  # List of (component, length_ft) tuples
         self.selected_antenna_id = initial_antenna
+        self.antenna_bearing = initial_bearing  # Antenna bearing in degrees (0=North, clockwise)
+        self.antenna_downtilt = initial_downtilt  # Antenna downtilt in degrees (positive=down)
         self.search_results = []  # Initialize search results list
 
         self._create_dialog()
@@ -143,6 +148,30 @@ class StationBuilderDialog:
                                           values=antenna_list, width=50, state='readonly')
         self.antenna_combo.grid(row=0, column=1, sticky=(tk.W, tk.E), padx=5)
         self.antenna_combo.bind('<<ComboboxSelected>>', self._on_antenna_selected)
+
+        # Antenna bearing input (for directional antennas)
+        ttk.Label(antenna_frame, text="Bearing (°):").grid(row=0, column=2, sticky=tk.W, padx=(15, 5))
+        self.bearing_var = tk.StringVar(value=str(self.antenna_bearing))
+        self.bearing_entry = ttk.Entry(antenna_frame, textvariable=self.bearing_var, width=8)
+        self.bearing_entry.grid(row=0, column=3, sticky=tk.W, padx=5)
+        self.bearing_entry.bind('<FocusOut>', self._on_bearing_changed)
+        self.bearing_entry.bind('<Return>', self._on_bearing_changed)
+
+        # Bearing help label
+        ttk.Label(antenna_frame, text="(0°=N)", font=('TkDefaultFont', 8)).grid(
+            row=0, column=4, sticky=tk.W, padx=(0, 10))
+
+        # Antenna downtilt input
+        ttk.Label(antenna_frame, text="Downtilt (°):").grid(row=0, column=5, sticky=tk.W, padx=(5, 5))
+        self.downtilt_var = tk.StringVar(value=str(self.antenna_downtilt))
+        self.downtilt_entry = ttk.Entry(antenna_frame, textvariable=self.downtilt_var, width=8)
+        self.downtilt_entry.grid(row=0, column=6, sticky=tk.W, padx=5)
+        self.downtilt_entry.bind('<FocusOut>', self._on_downtilt_changed)
+        self.downtilt_entry.bind('<Return>', self._on_downtilt_changed)
+
+        # Downtilt help label
+        ttk.Label(antenna_frame, text="(+down)", font=('TkDefaultFont', 8)).grid(
+            row=0, column=7, sticky=tk.W, padx=5)
 
         antenna_frame.columnconfigure(1, weight=1)
 
@@ -450,6 +479,30 @@ class StationBuilderDialog:
         self._update_chain_display()
         self._calculate_totals()
 
+    def _on_bearing_changed(self, event=None):
+        """Handle antenna bearing change"""
+        try:
+            bearing = float(self.bearing_var.get())
+            # Normalize to 0-360
+            bearing = bearing % 360
+            self.antenna_bearing = bearing
+            self.bearing_var.set(f"{bearing:.1f}")
+        except ValueError:
+            # Reset to current value if invalid
+            self.bearing_var.set(f"{self.antenna_bearing:.1f}")
+
+    def _on_downtilt_changed(self, event=None):
+        """Handle antenna downtilt change"""
+        try:
+            downtilt = float(self.downtilt_var.get())
+            # Clamp to reasonable range (-90 to 90)
+            downtilt = max(-90, min(90, downtilt))
+            self.antenna_downtilt = downtilt
+            self.downtilt_var.set(f"{downtilt:.1f}")
+        except ValueError:
+            # Reset to current value if invalid
+            self.downtilt_var.set(f"{self.antenna_downtilt:.1f}")
+
     def _ai_search_component(self):
         """Search for component using Ollama AI"""
         query = self.ai_search_var.get().strip()
@@ -598,59 +651,42 @@ class StationBuilderDialog:
 
         prompt = f"""You are an RF component specification extraction expert. Extract detailed specifications from this datasheet.
 
-Datasheet content:
+## EXAMPLE 1 - Cable:
+INPUT: "Times Microwave LMR-400, 50 ohm, Velocity 85%, OD 0.405in, Loss: 0.7dB/100ft@150MHz, 1.3dB@450MHz, 1.9dB@900MHz, Power: 1800W@150MHz"
+OUTPUT: {{"component_type":"cable","manufacturer":"Times Microwave Systems","model":"LMR-400","impedance_ohms":50,"velocity_factor":0.85,"outer_diameter_inches":0.405,"loss_db_per_100ft":{{"150":0.7,"450":1.3,"900":1.9}},"power_rating_watts":{{"150_mhz":1800}}}}
+
+## EXAMPLE 2 - Antenna:
+INPUT: "Jampro JCPV-4, FM Broadcast 88-108MHz, Gain 6dBi (4x dipole), Circular polarization, VSWR 1.08:1, 60kW, 1-5/8 EIA"
+OUTPUT: {{"component_type":"antenna","manufacturer":"Jampro Antennas","model":"JCPV-4","gain_dbi":6.0,"frequency_range_mhz":[88,108],"polarization":"circular","vswr":1.08,"power_rating_watts":60000,"connector_type":"EIA 1-5/8\\" flange"}}
+
+## EXAMPLE 3 - Lightning Arrestor:
+INPUT: "PolyPhaser IS-B50LN-C0, Bulkhead N-F to N-F, 0.2dB loss, DC-1GHz, 5kV, DC Pass"
+OUTPUT: {{"component_type":"lightning_arrestor","manufacturer":"PolyPhaser","model":"IS-B50LN-C0","insertion_loss_db":0.2,"frequency_range_mhz":[0,1000],"connector_type":"N-Female both ends","voltage_rating_kv":5,"dc_pass":true}}
+
+## EXAMPLE 4 - Transmitter:
+INPUT: "BW Broadcast TX1000, 1kW FM 87.5-108MHz, 75% efficiency, 230VAC 1800W, Harmonics -60dBc"
+OUTPUT: {{"component_type":"transmitter","manufacturer":"BW Broadcast","model":"TX1000","power_output_watts":1000,"frequency_range_mhz":[87.5,108],"efficiency_percent":75,"mains_voltage":"230VAC","power_consumption_watts":1800,"harmonic_suppression_dbc":-60}}
+
+## NOW EXTRACT FROM THIS DATASHEET:
 {datasheet_text[:8000]}
 
-Please provide the component specifications in VALID JSON format with the following structure:
-{{
-  "model": "exact model number",
-  "manufacturer": "manufacturer name",
-  "component_type": "cable|connector|isolator|combiner|amplifier|attenuator|filter|duplexer|transmitter",
-  "description": "brief description",
-  "part_number": "manufacturer part number",
-
-  // For cables only:
-  "loss_db_per_100ft": {{
-    "50": 1.0,
-    "150": 1.8,
-    "220": 2.2,
-    "450": 3.0,
-    "900": 4.5,
-    "1800": 7.0
-  }},
-  "impedance_ohms": 50,
-  "velocity_factor": 0.84,
-
-  // For components with loss:
-  "insertion_loss_db": 0.5,
-
-  // For amplifiers/transmitters:
-  "gain_dbi": 10.0,
-  "power_output_watts": 1000,
-
-  // General:
-  "frequency_range_mhz": [50, 1000],
-  "power_rating_watts": 100,
-  "connector_type": "N-type"
-}}
-
-IMPORTANT:
-1. Return ONLY valid JSON - no markdown, no code blocks, no explanations
-2. Use real specifications from the datasheet
-3. For cables, include loss_db_per_100ft with multiple frequency points
-4. If you cannot extract enough info, return: {{"error": "Insufficient data in datasheet"}}
+RULES:
+1. Return ONLY valid JSON - no markdown, no explanation
+2. Use exact values from the datasheet
+3. For gain: dBi = dBd + 2.15
+4. For cables: include loss_db_per_100ft at multiple frequencies
+5. If insufficient data, return: {{"error": "Insufficient data"}}
 """
 
         try:
             response = requests.post(
                 'http://localhost:11434/api/generate',
                 json={
-                    'model': 'llama3.2',
+                    'model': 'rf-component-extractor',
                     'prompt': prompt,
-                    'stream': False,
-                    'format': 'json'
+                    'stream': False
                 },
-                timeout=60
+                timeout=120
             )
 
             if response.status_code != 200:
@@ -662,9 +698,16 @@ IMPORTANT:
             if not response_text:
                 raise Exception("Ollama returned empty response")
 
-            # Parse JSON response
+            # Parse JSON response (handle markdown code blocks)
+            import re
             try:
-                component_data = json.loads(response_text)
+                # Try to extract JSON from markdown code blocks if present
+                json_match = re.search(r'```(?:json)?\s*([\s\S]*?)```', response_text)
+                if json_match:
+                    json_str = json_match.group(1).strip()
+                else:
+                    json_str = response_text.strip()
+                component_data = json.loads(json_str)
             except json.JSONDecodeError as e:
                 raise Exception(f"Failed to parse Ollama JSON response: {str(e)}\nResponse preview: {response_text[:200]}")
 
@@ -672,9 +715,13 @@ IMPORTANT:
             if 'error' in component_data:
                 raise Exception(f"Ollama could not extract specs: {component_data['error']}")
 
+            # Normalize field names (handle 'type' vs 'component_type')
+            if 'type' in component_data and 'component_type' not in component_data:
+                component_data['component_type'] = component_data.pop('type')
+
             # Validate required fields
-            if 'model' not in component_data or 'component_type' not in component_data:
-                raise Exception("Ollama response missing required fields (model or component_type)")
+            if 'component_type' not in component_data:
+                raise Exception("Ollama response missing required field (component_type)")
 
             return component_data
 
@@ -931,8 +978,10 @@ IMPORTANT:
                 total_gain += component['gain_dbi']
 
         if self.callback:
-            # Pass RF chain and antenna for saving to project
-            self.callback(total_loss, total_gain, total_gain - total_loss, self.rf_chain, self.selected_antenna_id)
+            # Pass RF chain, antenna, bearing, and downtilt for saving to project
+            self.callback(total_loss, total_gain, total_gain - total_loss,
+                         self.rf_chain, self.selected_antenna_id,
+                         self.antenna_bearing, self.antenna_downtilt)
 
         messagebox.showinfo("Applied", f"Station updated with {total_gain - total_loss:+.2f} dB system change")
         self.dialog.destroy()

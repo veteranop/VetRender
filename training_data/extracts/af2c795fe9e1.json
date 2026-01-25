@@ -1,0 +1,26 @@
+{
+  "entry": {
+    "id": "af2c795fe9e1",
+    "source_type": "webpage",
+    "source_path": "https://www.sinctech.com/collections/746-869-mhz",
+    "component_type": "antenna",
+    "model": "SC46A-HF1LDF",
+    "manufacturer": "Sinclair Technologies",
+    "validated": false,
+    "created": "2026-01-24T20:04:01.768165",
+    "notes": "Web-scraped 700/800 MHz antenna"
+  },
+  "source_text": "Sinclair SC46A-HF1LDF Aurora Collinear Omni\nModel: SC46A-HF1LDF(DXX-PIP)\nFrequency: 746-869 MHz\nGain: 10 dBd\nPattern: Omnidirectional collinear\nFeatures: HD, low PIM, PIP\nApplication: Public safety 700/800 MHz",
+  "expected_json": {
+    "component_type": "antenna",
+    "manufacturer": "Sinclair Technologies",
+    "model": "SC46A-HF1LDF",
+    "frequency_range_mhz": [
+      746,
+      869
+    ],
+    "gain_dbd": 10.0,
+    "pattern": "omni-directional",
+    "pim_certified": true
+  }
+}

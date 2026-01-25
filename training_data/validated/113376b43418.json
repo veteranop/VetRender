@@ -1,0 +1,54 @@
+{
+  "entry": {
+    "id": "113376b43418",
+    "source_type": "catalog",
+    "source_path": "C:\\Users\\markd\\VetRender\\components\\catalogs\\andrew_commscope.json",
+    "component_type": "cable",
+    "model": "LDF4-50A",
+    "manufacturer": "unknown",
+    "validated": true,
+    "created": "2026-01-24T13:47:16.761404",
+    "notes": "Imported from Andrew / CommScope catalog",
+    "validated_date": "2026-01-24T13:47:16.762596"
+  },
+  "source_text": "Andrew / CommScope LDF4-50A\nModel: LDF4-50A\nType: cable\n1/2\" HELIAX foam dielectric coaxial cable, aluminum sheath\nImpedance: 50 ohms\nVelocity: 88.0%\nAttenuation at 30 MHz: 0.2 dB/100ft\nAttenuation at 50 MHz: 0.27 dB/100ft\nAttenuation at 150 MHz: 0.51 dB/100ft\nAttenuation at 220 MHz: 0.63 dB/100ft\nAttenuation at 450 MHz: 0.93 dB/100ft\nAttenuation at 512 MHz: 1.03 dB/100ft\nAttenuation at 806 MHz: 1.3 dB/100ft\nAttenuation at 900 MHz: 1.36 dB/100ft\nAttenuation at 960 MHz: 1.43 dB/100ft\nAttenuation at 1800 MHz: 2.0 dB/100ft\nAttenuation at 1900 MHz: 2.07 dB/100ft\nAttenuation at 2400 MHz: 2.37 dB/100ft",
+  "expected_json": {
+    "component_type": "cable",
+    "model": "LDF4-50A",
+    "part_number": "LDF4-50A",
+    "description": "1/2\" HELIAX foam dielectric coaxial cable, aluminum sheath",
+    "impedance_ohms": 50,
+    "velocity_factor": 0.88,
+    "outer_diameter_inches": 0.63,
+    "loss_db_per_100ft": {
+      "30": 0.2,
+      "50": 0.27,
+      "150": 0.51,
+      "220": 0.63,
+      "450": 0.93,
+      "512": 1.03,
+      "806": 1.3,
+      "900": 1.36,
+      "960": 1.43,
+      "1800": 2.0,
+      "1900": 2.07,
+      "2400": 2.37
+    },
+    "power_rating_watts": {
+      "50_mhz": 3800,
+      "150_mhz": 3200,
+      "450_mhz": 2000,
+      "900_mhz": 1400,
+      "1800_mhz": 990
+    },
+    "weight_lbs_per_100ft": 13.6,
+    "minimum_bend_radius_inches": 5.0,
+    "datasheet_url": "https://www.commscope.com/globalassets/digizuite/2256-ldf4-50a.pdf",
+    "common_uses": [
+      "VHF/UHF repeater feedline",
+      "Base station",
+      "Tower runs"
+    ],
+    "notes": "Industry standard 1/2\" coax, good balance of loss and flexibility"
+  }
+}

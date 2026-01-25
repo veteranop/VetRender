@@ -1,0 +1,25 @@
+{
+  "entry": {
+    "id": "6117fd6f3c3c",
+    "source_type": "webpage",
+    "source_path": "https://www.bwbroadcast.com/tx600v3",
+    "component_type": "transmitter",
+    "model": "TX600 V3",
+    "manufacturer": "BW Broadcast",
+    "validated": false,
+    "created": "2026-01-24T20:04:01.848090",
+    "notes": "Web-scraped FM transmitter"
+  },
+  "source_text": "BW Broadcast TX600 V3 FM Transmitter\nModel: TX600 V3\nPower Output: 600 W\nFrequency: 87.5-108 MHz\nForm Factor: 2RU\nPower Supply Efficiency: 96%\nFeatures: 4-band DSP audio processing\nEthernet control\nRDS encoder\nFSK identifier\nGPS inputs for SFN\nHot-swappable power supply\nIntegrated DSPX audio processor",
+  "expected_json": {
+    "component_type": "transmitter",
+    "manufacturer": "BW Broadcast",
+    "model": "TX600 V3",
+    "power_output_watts": 600,
+    "frequency_range_mhz": [
+      87.5,
+      108
+    ],
+    "efficiency_percent": 96
+  }
+}

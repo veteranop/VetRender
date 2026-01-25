@@ -1,0 +1,39 @@
+{
+  "entry": {
+    "id": "6807ef7162b6",
+    "source_type": "catalog",
+    "source_path": "C:\\Users\\markd\\VetRender\\components\\catalogs\\jampro.json",
+    "component_type": "antenna",
+    "model": "JHPV",
+    "manufacturer": "unknown",
+    "validated": false,
+    "created": "2026-01-24T13:47:16.881851",
+    "notes": "Imported from Jampro Antennas catalog"
+  },
+  "source_text": "Jampro Antennas JHPV\nModel: JHPV\nType: antenna\nFM broadcast antenna, 1-bay, vertical polarization only, panel design\nGain: 0.0 dBi\nFrequency: 88-108 MHz\nPolarization: vertical\nVSWR: 1.08:1",
+  "expected_json": {
+    "component_type": "antenna",
+    "model": "JHPV",
+    "part_number": "JHPV-1",
+    "description": "FM broadcast antenna, 1-bay, vertical polarization only, panel design",
+    "gain_dbi": 0.0,
+    "gain_relative_dipole": 1.0,
+    "frequency_range_mhz": [
+      88,
+      108
+    ],
+    "polarization": "vertical",
+    "vswr": 1.08,
+    "impedance_ohms": 50,
+    "connector_type": "EIA 1-5/8\" flange",
+    "power_rating_watts": 10000,
+    "wind_survival_mph": 125,
+    "pattern": "omni-directional",
+    "datasheet_url": "https://www.jampro.com/jhpv/",
+    "common_uses": [
+      "Vertical-only FM",
+      "Mobile coverage emphasis"
+    ],
+    "notes": "Vertical polarization for mobile reception"
+  }
+}

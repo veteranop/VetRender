@@ -1,0 +1,34 @@
+{
+  "entry": {
+    "id": "3b737d2e187b",
+    "source_type": "catalog",
+    "source_path": "C:\\Users\\markd\\VetRender\\components\\catalogs\\polyphaser.json",
+    "component_type": "lightning_arrestor",
+    "model": "IS-B50LN-C2",
+    "manufacturer": "unknown",
+    "validated": false,
+    "created": "2026-01-24T13:47:16.900076",
+    "notes": "Imported from PolyPhaser (Transtector) catalog"
+  },
+  "source_text": "PolyPhaser (Transtector) IS-B50LN-C2\nModel: IS-B50LN-C2\nType: lightning_arrestor\nBulkhead lightning arrestor, DC block, N-Female to N-Female\nInsertion Loss: 0.2 dB\nSurge Voltage: 5 kV\nDC: Block",
+  "expected_json": {
+    "component_type": "lightning_arrestor",
+    "model": "IS-B50LN-C2",
+    "part_number": "IS-B50LN-C2",
+    "description": "Bulkhead lightning arrestor, DC block, N-Female to N-Female",
+    "insertion_loss_db": 0.2,
+    "frequency_range_mhz": [
+      30,
+      1000
+    ],
+    "connector_type": "N-Female both ends",
+    "voltage_rating_kv": 5,
+    "dc_pass": false,
+    "datasheet_url": "https://www.polyphaser.com/wp-content/uploads/IS-B50LN-C2.pdf",
+    "common_uses": [
+      "Tower base protection where DC block needed",
+      "Transmitter protection"
+    ],
+    "notes": "DC blocking version of IS-B50LN-C0"
+  }
+}

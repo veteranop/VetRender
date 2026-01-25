@@ -65,6 +65,8 @@ class CellfireRFStudio:
         self.antenna_pattern = AntennaPattern()
         self.antenna_library = AntennaLibrary()
         self.current_antenna_id = None  # Track current antenna from library
+        self.antenna_bearing = 0.0  # Antenna bearing in degrees (0=North, clockwise)
+        self.antenna_downtilt = 0.0  # Antenna downtilt in degrees (positive=down)
         self.pattern_name = "Default Omni (0 dBi)"
         self.cache = MapCache()
         self.logger = get_logger()
@@ -488,7 +490,9 @@ class CellfireRFStudio:
                 self.use_terrain.get(), self.terrain_quality,
                 custom_az, custom_dist, propagation_model=propagation_model,
                 progress_callback=progress_callback,
-                zoom_level=self.zoom
+                zoom_level=self.zoom,
+                antenna_bearing=self.antenna_bearing,
+                antenna_downtilt=self.antenna_downtilt
             )
             
             if result is None:
@@ -850,13 +854,22 @@ class CellfireRFStudio:
             self.save_auto_config()
     
     def edit_antenna_info(self):
-        """Edit antenna information"""
-        dialog = AntennaInfoDialog(self.root, self.pattern_name)
+        """Edit antenna information including bearing and downtilt"""
+        dialog = AntennaInfoDialog(self.root, self.pattern_name,
+                                   current_bearing=self.antenna_bearing,
+                                   current_downtilt=self.antenna_downtilt)
         self.root.wait_window(dialog.dialog)
-        
+
         if dialog.result:
             action, data = dialog.result
-            if action == 'load':
+            if action == 'settings':
+                # Update bearing and downtilt
+                self.antenna_bearing = data['bearing']
+                self.antenna_downtilt = data['downtilt']
+                self.toolbar.set_status(f"Antenna: bearing={self.antenna_bearing:.1f}°, downtilt={self.antenna_downtilt:.1f}°")
+                self.save_auto_config()
+                print(f"Antenna settings updated: bearing={self.antenna_bearing:.1f}°, downtilt={self.antenna_downtilt:.1f}°")
+            elif action == 'load':
                 if self.antenna_pattern.load_from_xml(data):
                     self.pattern_name = data.split('/')[-1].split('\\')[-1]
                     self.toolbar.set_status(f"Antenna pattern loaded: {self.pattern_name}")
@@ -866,6 +879,8 @@ class CellfireRFStudio:
             elif action == 'reset':
                 self.antenna_pattern.load_default_omni()
                 self.pattern_name = "Default Omni (0 dBi)"
+                self.antenna_bearing = 0.0
+                self.antenna_downtilt = 0.0
                 self.toolbar.set_status("Reset to default omnidirectional antenna")
                 self.save_auto_config()
     
@@ -920,11 +935,14 @@ class CellfireRFStudio:
         """Open Station Builder dialog"""
         from gui.station_builder import StationBuilderDialog
 
-        def update_system(total_loss, total_gain, net_change, rf_chain, antenna_id):
-            """Callback to update system loss/gain, RF chain, and antenna"""
+        def update_system(total_loss, total_gain, net_change, rf_chain, antenna_id,
+                          antenna_bearing=0.0, antenna_downtilt=0.0):
+            """Callback to update system loss/gain, RF chain, antenna, bearing, and downtilt"""
             self.system_loss_db = total_loss
             self.system_gain_db = total_gain
             self.rf_chain = rf_chain
+            self.antenna_bearing = antenna_bearing
+            self.antenna_downtilt = antenna_downtilt
 
             # Extract transmitter power if present in RF chain
             tx_power_found = False
@@ -948,7 +966,7 @@ class CellfireRFStudio:
                     if xml_path:
                         self.antenna_pattern.load_from_xml(xml_path)
                         self.pattern_name = antenna_data.get('name', 'Unknown')
-                        print(f"Loaded antenna: {self.pattern_name}")
+                        print(f"Loaded antenna: {self.pattern_name}, bearing: {antenna_bearing:.1f}°, downtilt: {antenna_downtilt:.1f}°")
             else:
                 # No antenna selected - use default omni
                 self.current_antenna_id = None
@@ -961,7 +979,8 @@ class CellfireRFStudio:
             self.update_info_panel()
 
         StationBuilderDialog(self.root, self.frequency, callback=update_system,
-                            initial_chain=self.rf_chain, initial_antenna=self.current_antenna_id)
+                            initial_chain=self.rf_chain, initial_antenna=self.current_antenna_id,
+                            initial_bearing=self.antenna_bearing, initial_downtilt=self.antenna_downtilt)
 
     def _search_components(self):
         """Search for components based on filters"""
@@ -1295,6 +1314,8 @@ class CellfireRFStudio:
                     'terrain_quality': self.terrain_quality,
                     'pattern_name': self.pattern_name,
                     'current_antenna_id': self.current_antenna_id,
+                    'antenna_bearing': self.antenna_bearing,
+                    'antenna_downtilt': self.antenna_downtilt,
                     'zoom': self.zoom,
                     'basemap': self.basemap,
                     'saved_plots': self.saved_plots,
@@ -1355,6 +1376,8 @@ class CellfireRFStudio:
                 self.terrain_quality = project_data.get('terrain_quality', 'Medium')
                 self.pattern_name = project_data.get('pattern_name', 'Default Omni (0 dBi)')
                 self.current_antenna_id = project_data.get('current_antenna_id', None)
+                self.antenna_bearing = project_data.get('antenna_bearing', 0.0)
+                self.antenna_downtilt = project_data.get('antenna_downtilt', 0.0)
                 self.zoom = 10  # Always start at zoom 10
                 self.basemap = project_data.get('basemap', 'Esri WorldImagery')
                 self.saved_plots = project_data.get('saved_plots', [])

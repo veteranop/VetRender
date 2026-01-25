@@ -8,34 +8,47 @@
   "erp": 35.0,
   "frequency": 443.0,
   "height": 33.0,
-  "max_distance": 50.0,
-  "signal_threshold": -110,
-  "terrain_quality": "Medium",
-  "pattern_name": "Default Omni (0 dBi)",
-  "zoom": 11,
+  "max_distance": 200.0,
+  "signal_threshold": -115.0,
+  "terrain_quality": "Low",
+  "pattern_name": "DS7A12P90U-N",
+  "zoom": 10,
   "basemap": "Esri WorldImagery",
-  "use_terrain": false,
+  "use_terrain": true,
   "rf_chain": [
     [
       {
         "component_type": "transmitter",
-        "source": "cached",
-        "custom": true,
-        "model": "BDR-4550 (UHF) Analog/NXDN Repeater",
-        "description": "Professional Part 90\u2013Compliant Repeater with Slim 1U Rack Design and IP Connectivity\n\nThe BDR-4550 (UHF) is a professional-grade Analog/NXDN repeater built for organizations that require reliable, flexible, and network-ready communications. Its slim 1U rack-mount design conserves rack space while delivering dependable performance, long-term durability, and modern IP connectivity.\n\nDesigned to support digital NXDN networks, legacy analog systems, or IP-linked repeater deployments, the BDR-4550 ensures clear audio, consistent uptime, and full compliance with FCC Part 90 standards.",
-        "power_output_watts": 30.0,
-        "freq_min": 400.0,
-        "freq_max": 470.0,
-        "efficiency_percent": 65.0,
-        "manufacturer": "BDR",
-        "part_number": "BDR-4550",
-        "notes": "Frequency Band: UHF\nOperating Modes: Analog / NXDN\nCompliance: FCC Part 90, Part 15\nForm Factor: Slim 1U rack mount\nPower: AC primary with DC battery backup support\nAudio Monitoring: Built-in front-panel speaker\nControls: Keypad with digital display\nAccessory Interface: Standard 25-pin female connector\nConnectivity: IP-enabled for network linking",
+        "model": "Flexiva FAX250",
+        "part_number": "FAX250",
+        "description": "FM broadcast transmitter, 250W, solid state, air-cooled",
         "frequency_range_mhz": [
-          400.0,
-          470.0
+          87.5,
+          108
         ],
-        "power_output_dbm": 44.771212547196626,
-        "power_output_dbw": 14.771212547196624,
+        "power_output_watts": 250,
+        "power_output_dbm": 53.98,
+        "power_output_dbw": 23.98,
+        "efficiency_percent": 68,
+        "mains_voltage": "120VAC or 230VAC",
+        "power_consumption_watts": 370,
+        "output_impedance_ohms": 50,
+        "connector_type": "N-Female",
+        "harmonic_suppression_dbc": -75,
+        "spurious_suppression_dbc": -75,
+        "audio_input": [
+          "AES/EBU",
+          "Analog balanced",
+          "Composite MPX"
+        ],
+        "datasheet_url": "https://www.gatesair.com/flexiva/",
+        "common_uses": [
+          "LPFM stations",
+          "Translators",
+          "Small market FM"
+        ],
+        "notes": "Compact 1RU design, built-in exciter",
+        "source": "Harris Broadcast (Imagine Communications / GatesAir)",
         "transmit_power_watts": 30.0
       },
       0
@@ -82,32 +95,8 @@
         "source": "Andrew / CommScope"
       },
       100.0
-    ],
-    [
-      {
-        "component_type": "antenna",
-        "source": "cached",
-        "custom": true,
-        "model": "UHF Default Omni- +4.2 DB",
-        "description": "Brief description",
-        "gain_dbi": 4.2,
-        "pattern": "e.g., Omnidirectional, Directional",
-        "freq_min": 400.0,
-        "freq_max": 450.0,
-        "vswr": 1.5,
-        "power_rating_watts": 150.0,
-        "manufacturer": "VeteranOp",
-        "part_number": "VO1234",
-        "notes": "Additional notes or specifications",
-        "frequency_range_mhz": [
-          400.0,
-          450.0
-        ],
-        "antenna_id": "UHF_Default_Omni-_42_DB_8"
-      },
-      0
     ]
   ],
   "system_loss_db": 0.9208695652173913,
-  "system_gain_db": 4.2
+  "system_gain_db": 0
 }

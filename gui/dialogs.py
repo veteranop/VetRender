@@ -9,11 +9,8 @@ from bs4 import BeautifulSoup
 import PyPDF2
 import xml.etree.ElementTree as ET
 import tempfile
-import subprocess
 import os
 import math
-import xml.etree.ElementTree as ET
-import xml.etree.ElementTree as ET
 
 class TransmitterConfigDialog:
     """Dialog for editing transmitter configuration"""
@@ -163,29 +160,64 @@ class StationInfoDialog:
 
 
 class AntennaInfoDialog:
-    """Dialog for editing antenna information"""
-    def __init__(self, parent, pattern_name):
+    """Dialog for editing antenna information including bearing and downtilt"""
+    def __init__(self, parent, pattern_name, current_bearing=0.0, current_downtilt=0.0):
         self.result = None
         self.dialog = tk.Toplevel(parent)
         self.dialog.title("Edit Antenna Information")
-        self.dialog.geometry("400x200")
+        self.dialog.geometry("450x280")
         self.dialog.transient(parent)
         self.dialog.grab_set()
-        
+
+        # Current antenna pattern
         ttk.Label(self.dialog, text="Current Antenna Pattern:").grid(row=0, column=0, padx=10, pady=10, sticky=tk.W)
-        ttk.Label(self.dialog, text=pattern_name, font=('Arial', 10, 'bold')).grid(row=0, column=1, padx=10, pady=10, sticky=tk.W)
-        
+        ttk.Label(self.dialog, text=pattern_name, font=('Arial', 10, 'bold')).grid(row=0, column=1, columnspan=2, padx=10, pady=10, sticky=tk.W)
+
+        # Bearing input
+        ttk.Label(self.dialog, text="Bearing (°):").grid(row=1, column=0, padx=10, pady=5, sticky=tk.W)
+        self.bearing_var = tk.StringVar(value=f"{current_bearing:.1f}")
+        bearing_entry = ttk.Entry(self.dialog, textvariable=self.bearing_var, width=10)
+        bearing_entry.grid(row=1, column=1, padx=10, pady=5, sticky=tk.W)
+        ttk.Label(self.dialog, text="0°=North, 90°=East, 180°=South, 270°=West",
+                  font=('Arial', 8)).grid(row=1, column=2, padx=5, pady=5, sticky=tk.W)
+
+        # Downtilt input
+        ttk.Label(self.dialog, text="Downtilt (°):").grid(row=2, column=0, padx=10, pady=5, sticky=tk.W)
+        self.downtilt_var = tk.StringVar(value=f"{current_downtilt:.1f}")
+        downtilt_entry = ttk.Entry(self.dialog, textvariable=self.downtilt_var, width=10)
+        downtilt_entry.grid(row=2, column=1, padx=10, pady=5, sticky=tk.W)
+        ttk.Label(self.dialog, text="Positive = down, Negative = up (typical: 0-15°)",
+                  font=('Arial', 8)).grid(row=2, column=2, padx=5, pady=5, sticky=tk.W)
+
+        # Pattern buttons
+        pattern_frame = ttk.LabelFrame(self.dialog, text="Antenna Pattern", padding=5)
+        pattern_frame.grid(row=3, column=0, columnspan=3, padx=10, pady=10, sticky=tk.EW)
+        ttk.Button(pattern_frame, text="Load New Pattern (XML)", command=self.load_pattern).pack(side=tk.LEFT, padx=5)
+        ttk.Button(pattern_frame, text="Reset to Omni", command=self.reset_omni).pack(side=tk.LEFT, padx=5)
+
+        # Action buttons
         btn_frame = ttk.Frame(self.dialog)
-        btn_frame.grid(row=1, column=0, columnspan=2, pady=20)
-        ttk.Button(btn_frame, text="Load New Pattern (XML)", command=self.load_pattern).pack(side=tk.LEFT, padx=5)
-        ttk.Button(btn_frame, text="Reset to Omni", command=self.reset_omni).pack(side=tk.LEFT, padx=5)
-        ttk.Button(btn_frame, text="Close", command=self.close).pack(side=tk.LEFT, padx=5)
-        
+        btn_frame.grid(row=4, column=0, columnspan=3, pady=15)
+        ttk.Button(btn_frame, text="Apply", command=self.apply_settings).pack(side=tk.LEFT, padx=5)
+        ttk.Button(btn_frame, text="Cancel", command=self.close).pack(side=tk.LEFT, padx=5)
+
         self.dialog.update_idletasks()
         x = parent.winfo_x() + (parent.winfo_width() // 2) - (self.dialog.winfo_width() // 2)
         y = parent.winfo_y() + (parent.winfo_height() // 2) - (self.dialog.winfo_height() // 2)
         self.dialog.geometry(f"+{x}+{y}")
-        
+
+    def apply_settings(self):
+        """Apply bearing and downtilt settings"""
+        try:
+            bearing = float(self.bearing_var.get()) % 360
+            downtilt = float(self.downtilt_var.get())
+            # Clamp downtilt to reasonable range
+            downtilt = max(-90, min(90, downtilt))
+            self.result = ('settings', {'bearing': bearing, 'downtilt': downtilt})
+            self.dialog.destroy()
+        except ValueError:
+            messagebox.showerror("Invalid Input", "Please enter valid numeric values for bearing and downtilt")
+
     def load_pattern(self):
         filepath = filedialog.askopenfilename(
             title="Select Antenna Pattern XML",
@@ -194,11 +226,11 @@ class AntennaInfoDialog:
         if filepath:
             self.result = ('load', filepath)
             self.dialog.destroy()
-    
+
     def reset_omni(self):
         self.result = ('reset', None)
         self.dialog.destroy()
-    
+
     def close(self):
         self.dialog.destroy()
 
@@ -959,44 +991,106 @@ class AntennaImportDialog:
     def __init__(self, parent, on_import_callback):
         from debug_logger import get_logger
         self.logger = get_logger()
-        self.logger.log("="*80)
-        self.logger.log("AI ANTENNA IMPORT DIALOG OPENED")
-        self.logger.log("="*80)
-        
+
+        # Verbose logging state (initialize early so _vlog works)
+        self.verbose_logging = tk.BooleanVar(value=True)
+        self.verbose_log_file = None
+
+        self._vlog("="*80)
+        self._vlog("AI ANTENNA IMPORT DIALOG OPENED")
+        self._vlog("="*80)
+
         self.result = None
         self.dialog = tk.Toplevel(parent)
         self.dialog.title("Import Antenna Pattern")
-        self.dialog.geometry("500x400")
+        self.dialog.geometry("500x450")
         self.dialog.transient(parent)
         self.dialog.grab_set()
 
         self.on_import_callback = on_import_callback
 
+        # Top frame for logging toggle
+        top_frame = ttk.Frame(self.dialog)
+        top_frame.grid(row=0, column=0, columnspan=2, padx=10, pady=5, sticky=tk.W)
+        ttk.Checkbutton(top_frame, text="Verbose Logging", variable=self.verbose_logging,
+                       command=self._toggle_verbose_logging).pack(side=tk.LEFT)
+        self.log_file_label = ttk.Label(top_frame, text="", font=('Arial', 8), foreground='gray')
+        self.log_file_label.pack(side=tk.LEFT, padx=(10, 0))
+
         # URL input
-        ttk.Label(self.dialog, text="Antenna Website URL:").grid(row=0, column=0, padx=10, pady=10, sticky=tk.W)
+        ttk.Label(self.dialog, text="Antenna Website URL:").grid(row=1, column=0, padx=10, pady=10, sticky=tk.W)
         self.url_var = tk.StringVar()
-        ttk.Entry(self.dialog, textvariable=self.url_var, width=40).grid(row=0, column=1, padx=10, pady=10)
+        ttk.Entry(self.dialog, textvariable=self.url_var, width=40).grid(row=1, column=1, padx=10, pady=10)
 
         # Or PDF file
-        ttk.Label(self.dialog, text="Or PDF Spec Sheet:").grid(row=1, column=0, padx=10, pady=10, sticky=tk.W)
+        ttk.Label(self.dialog, text="Or PDF Spec Sheet:").grid(row=2, column=0, padx=10, pady=10, sticky=tk.W)
         self.pdf_path_var = tk.StringVar()
         pdf_frame = ttk.Frame(self.dialog)
-        pdf_frame.grid(row=1, column=1, padx=10, pady=10, sticky=tk.W+tk.E)
+        pdf_frame.grid(row=2, column=1, padx=10, pady=10, sticky=tk.W+tk.E)
         ttk.Entry(pdf_frame, textvariable=self.pdf_path_var, width=30).pack(side=tk.LEFT)
         ttk.Button(pdf_frame, text="Browse", command=self.browse_pdf).pack(side=tk.LEFT, padx=(5,0))
 
         # Process button
-        ttk.Button(self.dialog, text="Process and Import", command=self.process).grid(row=2, column=0, columnspan=2, pady=20)
+        ttk.Button(self.dialog, text="Process and Import", command=self.process).grid(row=3, column=0, columnspan=2, pady=20)
 
         # Status label
         self.status_var = tk.StringVar(value="")
-        ttk.Label(self.dialog, textvariable=self.status_var).grid(row=3, column=0, columnspan=2, padx=10, pady=5)
+        ttk.Label(self.dialog, textvariable=self.status_var).grid(row=4, column=0, columnspan=2, padx=10, pady=5)
 
         # Buttons
         button_frame = ttk.Frame(self.dialog)
-        button_frame.grid(row=4, column=0, columnspan=2, pady=20)
+        button_frame.grid(row=5, column=0, columnspan=2, pady=20)
         ttk.Button(button_frame, text="OK", command=self.ok).pack(side=tk.RIGHT, padx=5)
         ttk.Button(button_frame, text="Cancel", command=self.cancel).pack(side=tk.RIGHT)
+
+    def _toggle_verbose_logging(self):
+        """Toggle verbose logging on/off"""
+        if self.verbose_logging.get():
+            self._vlog("Verbose logging ENABLED")
+        else:
+            self._vlog("Verbose logging DISABLED")
+
+    def _start_verbose_log(self, pdf_path=""):
+        """Start a new verbose log file for this import run"""
+        if not self.verbose_logging.get():
+            return
+
+        from datetime import datetime
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        pdf_name = os.path.basename(pdf_path).replace('.pdf', '') if pdf_path else 'url_import'
+        log_filename = f"antenna_import_{pdf_name}_{timestamp}.log"
+
+        # Save in the same directory as the PDF, or in Downloads
+        if pdf_path:
+            log_dir = os.path.dirname(pdf_path)
+        else:
+            log_dir = os.path.expanduser("~/Downloads")
+
+        self.verbose_log_path = os.path.join(log_dir, log_filename)
+        self.verbose_log_file = open(self.verbose_log_path, 'w')
+        self.log_file_label.config(text=f"Log: {log_filename}")
+        self._vlog(f"{'='*80}")
+        self._vlog(f"ANTENNA IMPORT VERBOSE LOG")
+        self._vlog(f"Started: {datetime.now().isoformat()}")
+        self._vlog(f"PDF: {pdf_path}")
+        self._vlog(f"{'='*80}\n")
+
+    def _vlog(self, message):
+        """Write to verbose log file if enabled"""
+        if self.verbose_logging.get() and self.verbose_log_file:
+            self.verbose_log_file.write(message + "\n")
+            self.verbose_log_file.flush()
+        # Also write to main logger
+        self.logger.log(message)
+
+    def _close_verbose_log(self):
+        """Close the verbose log file"""
+        if self.verbose_log_file:
+            self._vlog(f"\n{'='*80}")
+            self._vlog("IMPORT COMPLETED")
+            self._vlog(f"{'='*80}")
+            self.verbose_log_file.close()
+            self.verbose_log_file = None
 
     def browse_pdf(self):
         filepath = filedialog.askopenfilename(
@@ -1005,20 +1099,23 @@ class AntennaImportDialog:
         )
         if filepath:
             self.pdf_path_var.set(filepath)
-            self.logger.log(f"PDF selected: {filepath}")
+            self._vlog(f"PDF selected: {filepath}")
 
     def process(self):
         url = self.url_var.get().strip()
         pdf_path = self.pdf_path_var.get().strip()
 
-        self.logger.log("-"*80)
-        self.logger.log("AI ANTENNA IMPORT - PROCESSING STARTED")
-        self.logger.log(f"URL: {url if url else '(none)'}")
-        self.logger.log(f"PDF: {pdf_path if pdf_path else '(none)'}")
-        self.logger.log("-"*80)
+        # Start verbose logging for this run
+        self._start_verbose_log(pdf_path)
+
+        self._vlog("-"*80)
+        self._vlog("AI ANTENNA IMPORT - PROCESSING STARTED")
+        self._vlog(f"URL: {url if url else '(none)'}")
+        self._vlog(f"PDF: {pdf_path if pdf_path else '(none)'}")
+        self._vlog("-"*80)
 
         if not url and not pdf_path:
-            self.logger.log("ERROR: No input provided")
+            self._vlog("ERROR: No input provided")
             messagebox.showerror("Input Required", "Please provide a URL or select a PDF file.")
             return
 
@@ -1026,78 +1123,191 @@ class AntennaImportDialog:
         self.dialog.update()
 
         try:
-            # Placeholder for processing logic
             # Extract text, send to LLM, generate XML
             xml_content, text = self.generate_xml_from_input(url, pdf_path)
             if xml_content:
                 self.result = xml_content
                 # Extract metadata for library fields
                 self.metadata = self.extract_metadata(text)
-                self.status_var.set("XML generated successfully. Click OK to import.")
-                self.logger.log("SUCCESS: XML generated successfully")
-                self.logger.log(f"XML length: {len(xml_content)} characters")
-                self.logger.log(f"Extracted metadata: {self.metadata}")
+
+                # Check if multiple antennas were found
+                if getattr(self, 'has_multiple_antennas', False) and len(getattr(self, 'multi_antennas', [])) > 1:
+                    self._vlog(f"Multiple antennas found - showing selection dialog")
+                    self.status_var.set(f"Found {len(self.multi_antennas)} antennas! Select which to import.")
+                    self.dialog.update()
+                    # Show antenna selection dialog
+                    self.show_antenna_selection_dialog()
+                else:
+                    self.status_var.set("XML generated successfully. Click OK to import.")
+                    self._vlog("SUCCESS: XML generated successfully")
+                    self._vlog(f"XML length: {len(xml_content)} characters")
+                    self._vlog(f"Extracted metadata: {self.metadata}")
             else:
                 self.status_var.set("Failed to generate XML. Check inputs and try again.")
-                self.logger.log("ERROR: XML generation failed (returned None)")
+                self._vlog("ERROR: XML generation failed (returned None)")
         except Exception as e:
             self.status_var.set(f"Error: {str(e)}")
-            self.logger.log(f"ERROR: Exception during processing: {str(e)}")
+            self._vlog(f"ERROR: Exception during processing: {str(e)}")
             import traceback
-            self.logger.log(f"Traceback: {traceback.format_exc()}")
+            self._vlog(f"Traceback: {traceback.format_exc()}")
+
+    def show_antenna_selection_dialog(self):
+        """Show dialog to select which antenna(s) to import from multi-antenna datasheet"""
+        selection_dialog = tk.Toplevel(self.dialog)
+        selection_dialog.title("Select Antenna to Import")
+        selection_dialog.geometry("700x400")
+        selection_dialog.transient(self.dialog)
+        selection_dialog.grab_set()
+
+        ttk.Label(selection_dialog, text="Multiple antennas found in datasheet. Select which to import:",
+                  font=('Arial', 10, 'bold')).pack(pady=10)
+
+        # Create a frame for the listbox with scrollbar
+        list_frame = ttk.Frame(selection_dialog)
+        list_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
+
+        # Create treeview for better display
+        columns = ('model', 'freq_range', 'gain', 'type', 'h_bw', 'v_bw')
+        tree = ttk.Treeview(list_frame, columns=columns, show='headings', height=10)
+
+        tree.heading('model', text='Model')
+        tree.heading('freq_range', text='Frequency')
+        tree.heading('gain', text='Gain (dBi)')
+        tree.heading('type', text='Type')
+        tree.heading('h_bw', text='H-BW (°)')
+        tree.heading('v_bw', text='V-BW (°)')
+
+        tree.column('model', width=150)
+        tree.column('freq_range', width=120)
+        tree.column('gain', width=80)
+        tree.column('type', width=100)
+        tree.column('h_bw', width=70)
+        tree.column('v_bw', width=70)
+
+        scrollbar = ttk.Scrollbar(list_frame, orient=tk.VERTICAL, command=tree.yview)
+        tree.configure(yscrollcommand=scrollbar.set)
+
+        tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+        # Populate the list
+        for i, ant in enumerate(self.multi_antennas):
+            tree.insert('', tk.END, iid=str(i), values=(
+                ant['model'],
+                ant['freq_range'],
+                ant['gain_dbi'],
+                ant['type'],
+                ant['h_beamwidth'],
+                ant['v_beamwidth']
+            ))
+
+        # Select first item by default
+        if self.multi_antennas:
+            tree.selection_set('0')
+
+        # Buttons
+        btn_frame = ttk.Frame(selection_dialog)
+        btn_frame.pack(pady=15)
+
+        def import_selected():
+            selection = tree.selection()
+            if not selection:
+                messagebox.showwarning("No Selection", "Please select an antenna to import")
+                return
+
+            idx = int(selection[0])
+            selected_ant = self.multi_antennas[idx]
+            self.result = selected_ant['xml']
+
+            # Update metadata with selected antenna info
+            self.metadata['name'] = selected_ant['model']
+            self.metadata['manufacturer'] = selected_ant.get('manufacturer', '')
+            self.metadata['freq_range'] = selected_ant.get('freq_range', '')
+            try:
+                self.metadata['gain'] = str(float(selected_ant.get('gain_dbi', '0')))
+            except ValueError:
+                self.metadata['gain'] = '0'
+            self.metadata['type'] = selected_ant.get('type', 'Directional')
+
+            self._vlog(f"User selected antenna: {selected_ant['model']}")
+            self.status_var.set(f"Selected: {selected_ant['model']}. Click OK to import.")
+            selection_dialog.destroy()
+
+        def import_all():
+            """Import all antennas one by one"""
+            self._vlog("User chose to import ALL antennas")
+            self.import_all_antennas = True
+            self.status_var.set(f"Will import all {len(self.multi_antennas)} antennas. Click OK to proceed.")
+            selection_dialog.destroy()
+
+        def cancel_selection():
+            selection_dialog.destroy()
+
+        ttk.Button(btn_frame, text="Import Selected", command=import_selected).pack(side=tk.LEFT, padx=5)
+        ttk.Button(btn_frame, text="Import All", command=import_all).pack(side=tk.LEFT, padx=5)
+        ttk.Button(btn_frame, text="Cancel", command=cancel_selection).pack(side=tk.LEFT, padx=5)
+
+        # Center the dialog
+        selection_dialog.update_idletasks()
+        x = self.dialog.winfo_x() + (self.dialog.winfo_width() // 2) - (selection_dialog.winfo_width() // 2)
+        y = self.dialog.winfo_y() + (self.dialog.winfo_height() // 2) - (selection_dialog.winfo_height() // 2)
+        selection_dialog.geometry(f"+{x}+{y}")
+
+        # Wait for dialog to close
+        self.dialog.wait_window(selection_dialog)
 
     def generate_xml_from_input(self, url, pdf_path):
         """Extract text from URL or PDF, then use LLM to generate XML"""
         text = ""
         if url:
-            self.logger.log(f"Attempting to scrape URL: {url}")
+            self._vlog(f"Attempting to scrape URL: {url}")
             try:
                 response = requests.get(url, timeout=10)
                 response.raise_for_status()
-                self.logger.log(f"HTTP Status: {response.status_code}")
-                self.logger.log(f"Content length: {len(response.content)} bytes")
+                self._vlog(f"HTTP Status: {response.status_code}")
+                self._vlog(f"Content length: {len(response.content)} bytes")
                 soup = BeautifulSoup(response.content, 'html.parser')
                 text = soup.get_text()
-                self.logger.log(f"Extracted text length: {len(text)} characters")
-                self.logger.log(f"Text preview: {text[:200]}...")
+                self._vlog(f"Extracted text length: {len(text)} characters")
+                self._vlog(f"Text preview: {text[:200]}...")
             except Exception as e:
-                self.logger.log(f"ERROR scraping website: {e}")
+                self._vlog(f"ERROR scraping website: {e}")
                 raise Exception(f"Failed to scrape website: {e}")
         elif pdf_path:
-            self.logger.log(f"Attempting to read PDF: {pdf_path}")
+            self._vlog(f"Attempting to read PDF: {pdf_path}")
             try:
                 with open(pdf_path, 'rb') as file:
                     reader = PyPDF2.PdfReader(file)
                     page_count = len(reader.pages)
-                    self.logger.log(f"PDF has {page_count} pages")
+                    self._vlog(f"PDF has {page_count} pages")
                     for i, page in enumerate(reader.pages):
                         page_text = page.extract_text()
                         text += page_text + "\n"
-                        self.logger.log(f"Page {i+1}: extracted {len(page_text)} characters")
-                self.logger.log(f"Total extracted text length: {len(text)} characters")
-                self.logger.log(f"Text preview: {text[:200]}...")
+                        self._vlog(f"Page {i+1}: extracted {len(page_text)} characters")
+                self._vlog(f"Total extracted text length: {len(text)} characters")
+                self._vlog(f"Text preview: {text[:200]}...")
             except Exception as e:
-                self.logger.log(f"ERROR reading PDF: {e}")
+                self._vlog(f"ERROR reading PDF: {e}")
                 raise Exception(f"Failed to read PDF: {e}")
 
         # Analyze images for radiation pattern data
         image_pattern_data = {}
         if pdf_path:
-            self.logger.log("Analyzing images for radiation pattern data...")
+            self._vlog("Analyzing images for radiation pattern data...")
             image_pattern_data = self.analyze_images_from_pdf(pdf_path)
             if image_pattern_data:
-                self.logger.log(f"Found pattern data from images: {list(image_pattern_data.keys())}")
+                self._vlog(f"Found pattern data from images: {list(image_pattern_data.keys())}")
             else:
-                self.logger.log("No pattern data found in images")
+                self._vlog("No pattern data found in images")
 
         if not text.strip() and not image_pattern_data:
-            self.logger.log("ERROR: No text or pattern data extracted from source")
+            self._vlog("ERROR: No text or pattern data extracted from source")
             raise Exception("No text or pattern data extracted from the source.")
 
         # Check for azimuth table in text
         azimuth_pairs = self.parse_azimuth_table(text)
         if azimuth_pairs:
-            self.logger.log(f"Found azimuth table with {len(azimuth_pairs)} points in text")
+            self._vlog(f"Found azimuth table with {len(azimuth_pairs)} points in text")
             # Convert relative field to dB gains
             if azimuth_pairs:
                 values = [p[1] for p in azimuth_pairs]
@@ -1110,11 +1320,11 @@ class AntennaImportDialog:
                     else:
                         db_pairs.append((angle, -100.0))
                 image_pattern_data['azimuth'] = db_pairs
-                self.logger.log(f"Converted to dB gains: max {max_value}, range {min(db_pairs, key=lambda x: x[1])[1]} to {max(db_pairs, key=lambda x: x[1])[1]} dB")
+                self._vlog(f"Converted to dB gains: max {max_value}, range {min(db_pairs, key=lambda x: x[1])[1]} to {max(db_pairs, key=lambda x: x[1])[1]} dB")
 
         # Check if this is an omnidirectional antenna - if so, use standard pattern
         if 'omni' in text.lower():
-            self.logger.log("Detected omnidirectional antenna - using standard uniform azimuth pattern")
+            self._vlog("Detected omnidirectional antenna - using standard uniform azimuth pattern")
             xml = '''<antenna>
     <type>omnidirectional</type>
     <bays>1</bays>
@@ -1141,17 +1351,59 @@ class AntennaImportDialog:
 
         # Check if we have pattern data from images
         if image_pattern_data:
-            self.logger.log("Generating XML from image-extracted pattern data...")
+            all_patterns = image_pattern_data.get('all_patterns', [])
+
+            # If multiple patterns found, try to identify multiple antennas from the text
+            if len(all_patterns) > 1:
+                self._vlog(f"Found {len(all_patterns)} pattern images - checking for multi-antenna datasheet...")
+
+                # Use LLM to extract antenna model info from text (metadata only, not patterns)
+                antenna_models = self.extract_antenna_models_from_text(text)
+
+                if len(antenna_models) > 1:
+                    self._vlog(f"Found {len(antenna_models)} antenna models in text: {[m['model'] for m in antenna_models]}")
+
+                    # Associate patterns with models (by order - patterns usually match model order)
+                    self.multi_antennas = []
+                    for i, model_info in enumerate(antenna_models):
+                        # Use pattern at same index, or last pattern if we run out
+                        pattern_idx = min(i, len(all_patterns) - 1)
+                        pattern = all_patterns[pattern_idx]['points']
+
+                        # Generate XML for this antenna with the digitized pattern
+                        xml = self.generate_xml_for_antenna(model_info, pattern)
+
+                        self.multi_antennas.append({
+                            'model': model_info.get('model', f'Antenna_{i+1}'),
+                            'manufacturer': model_info.get('manufacturer', ''),
+                            'freq_range': model_info.get('freq_range', ''),
+                            'gain_dbi': model_info.get('gain_dbi', '0'),
+                            'type': model_info.get('type', 'Directional'),
+                            'h_beamwidth': model_info.get('h_beamwidth', ''),
+                            'v_beamwidth': model_info.get('v_beamwidth', ''),
+                            'xml': xml
+                        })
+
+                    self.has_multiple_antennas = True
+                    self._vlog(f"Created {len(self.multi_antennas)} antenna entries for selection")
+
+                    # Return first antenna's XML (selection dialog will update this)
+                    return self.multi_antennas[0]['xml'], text
+
+            # Single pattern or single antenna - generate directly
+            self._vlog("Generating XML from image-extracted pattern data...")
+            self.has_multiple_antennas = False
+            self.multi_antennas = []
             xml = self.generate_xml_from_image_data(image_pattern_data, text)
             return xml, text
 
         # Now send to LLM
-        self.logger.log("Sending text to LLM for XML generation...")
+        self._vlog("Sending text to LLM for XML generation...")
         xml = self.query_llm_for_xml(text)
 
         # If no pattern found and it's a dipole, generate standard single-bay dipole pattern
         if xml.strip() == "NO_PATTERN_DATA_FOUND" and 'dipole' in text.lower():
-            self.logger.log("No pattern data found, generating standard single-bay dipole pattern...")
+            self._vlog("No pattern data found, generating standard single-bay dipole pattern...")
             metadata = self.extract_metadata(text)
             xml = f'''<antenna>
     <type>{metadata.get('type', 'Dipole')}</type>
@@ -1182,7 +1434,7 @@ class AntennaImportDialog:
         """Validate that antenna pattern looks physically realistic, not hallucinated"""
         try:
             root = ET.fromstring(xml)
-            self.logger.log("VALIDATION: Checking if pattern data looks realistic...")
+            self._vlog("VALIDATION: Checking if pattern data looks realistic...")
             
             # Check azimuth section
             azimuth = root.find('azimuth')
@@ -1207,37 +1459,48 @@ class AntennaImportDialog:
             # RED FLAG 1: All gains are positive (physically impossible for most antennas)
             positive_count = sum(1 for g in gains if g > 0)
             if positive_count > len(gains) * 0.8:  # More than 80% positive
-                self.logger.log(f"VALIDATION FAIL: {positive_count}/{len(gains)} gains are positive - likely hallucinated")
+                self._vlog(f"VALIDATION FAIL: {positive_count}/{len(gains)} gains are positive - likely hallucinated")
                 return False, "Pattern has mostly positive gains - this is physically unrealistic. LLM likely invented data."
-            
+
             # RED FLAG 2: Gains increase perfectly linearly (like 0, 10, 20, 30...)
             if len(gains) >= 4:
                 differences = [gains[i+1] - gains[i] for i in range(len(gains)-1)]
                 # Check if all differences are very similar (linear pattern)
                 if len(set(differences)) <= 2 and all(d == differences[0] for d in differences):
-                    self.logger.log(f"VALIDATION FAIL: Gains increase linearly: {gains[:10]}...")
+                    self._vlog(f"VALIDATION FAIL: Gains increase linearly: {gains[:10]}...")
                     return False, "Pattern shows perfectly linear gain progression - this is not real data. LLM invented a fake pattern."
-            
-            # RED FLAG 3: Too few unique values (like just repeating 0, 10, 20)
+
+            # RED FLAG 3: All values are the same (constant pattern when it shouldn't be)
             unique_gains = len(set(gains))
+            if unique_gains == 1:
+                self._vlog(f"VALIDATION FAIL: All {len(gains)} points have same gain value {gains[0]}")
+                return False, f"All gain values are identical ({gains[0]} dBi) - LLM generated placeholder data, not real pattern"
+
+            # RED FLAG 3b: Too few unique values (like just repeating 0, 10, 20)
             if unique_gains < len(gains) * 0.3:  # Less than 30% unique
-                self.logger.log(f"VALIDATION FAIL: Only {unique_gains} unique values in {len(gains)} points")
+                self._vlog(f"VALIDATION FAIL: Only {unique_gains} unique values in {len(gains)} points")
                 return False, f"Only {unique_gains} unique gain values - pattern looks artificial or incomplete"
-            
+
+            # RED FLAG 3c: No gain at 0° is 0 dB (the reference)
+            gains_at_zero = [g for a, g in zip(angles, gains) if a == 0]
+            if gains_at_zero and gains_at_zero[0] != 0:
+                self._vlog(f"VALIDATION WARN: Gain at 0° is {gains_at_zero[0]}, not 0 (reference)")
+                # Don't fail, but log it
+
             # RED FLAG 4: Gains are impossibly high (>20 dBi for omni, >30 dBi for directional)
             max_gain = max(gains)
             if max_gain > 30:
-                self.logger.log(f"VALIDATION FAIL: Maximum gain {max_gain} dBi is unrealistic")
+                self._vlog(f"VALIDATION FAIL: Maximum gain {max_gain} dBi is unrealistic")
                 return False, f"Maximum gain {max_gain} dBi exceeds realistic limits for antennas"
-            
+
             # PASS: Pattern looks reasonable
-            self.logger.log(f"VALIDATION PASS: Pattern has {len(gains)} points, {unique_gains} unique values")
-            self.logger.log(f"  Gain range: {min(gains):.1f} to {max(gains):.1f} dBi")
-            self.logger.log(f"  Positive gains: {positive_count}/{len(gains)}")
+            self._vlog(f"VALIDATION PASS: Pattern has {len(gains)} points, {unique_gains} unique values")
+            self._vlog(f"  Gain range: {min(gains):.1f} to {max(gains):.1f} dBi")
+            self._vlog(f"  Positive gains: {positive_count}/{len(gains)}")
             return True, "Pattern looks physically realistic"
-            
+
         except Exception as e:
-            self.logger.log(f"VALIDATION ERROR: {e}")
+            self._vlog(f"VALIDATION ERROR: {e}")
             return False, f"Validation error: {e}"
 
     def extract_metadata(self, text):
@@ -1401,62 +1664,530 @@ class AntennaImportDialog:
         return metadata
 
     def analyze_images_from_pdf(self, pdf_path):
-        """Extract and analyze images from PDF for radiation pattern data"""
+        """Extract and analyze images from PDF for radiation pattern data using computer vision"""
         pattern_data = {}
 
         try:
-            # Try to extract images using pdfimages (from poppler-utils)
-            with tempfile.TemporaryDirectory() as temp_dir:
-                # Extract images
-                result = subprocess.run([
-                    'pdfimages', '-all', pdf_path, os.path.join(temp_dir, 'image')
-                ], capture_output=True, text=True)
+            import fitz  # PyMuPDF
+            from PIL import Image
+            import io
 
-                if result.returncode != 0:
-                    self.logger.log(f"pdfimages failed: {result.stderr}")
-                    return pattern_data
+            doc = fitz.open(pdf_path)
+            image_count = 0
+            patterns_found = []
 
-                # Find extracted images
-                image_files = [f for f in os.listdir(temp_dir) if f.startswith('image')]
+            self._vlog(f"Scanning PDF for polar pattern images...")
 
-                for img_file in image_files:
-                    img_path = os.path.join(temp_dir, img_file)
+            for page_num in range(len(doc)):
+                page = doc[page_num]
+                image_list = page.get_images()
+                self._vlog(f"Page {page_num + 1}: found {len(image_list)} images")
 
-                    # Use OCR to extract text from image
+                for img_index, img in enumerate(image_list):
                     try:
-                        import pytesseract
-                        from PIL import Image
+                        xref = img[0]
+                        base_image = doc.extract_image(xref)
+                        image_bytes = base_image["image"]
+                        img_name = f"page{page_num}_img{img_index}"
 
-                        image = Image.open(img_path)
-                        ocr_text = pytesseract.image_to_string(image)
-                        self.logger.log(f"OCR result for {img_file}: {ocr_text[:200]}...")
+                        # Open image with PIL
+                        pil_image = Image.open(io.BytesIO(image_bytes))
 
-                        # Look for radiation pattern indicators
-                        if any(keyword in ocr_text.lower() for keyword in ['radiation', 'pattern', 'azimuth', 'elevation']):
-                            self.logger.log(f"Found radiation pattern keywords in {img_file}")
-                            # Parse for angle/gain data
-                            angle_gain_pairs = self.extract_angle_gain_from_ocr(ocr_text)
-                            self.logger.log(f"Extracted {len(angle_gain_pairs)} angle/gain pairs from {img_file}")
-                            if angle_gain_pairs:
-                                if 'azimuth' in ocr_text.lower():
-                                    pattern_data['azimuth'] = angle_gain_pairs
-                                elif 'elevation' in ocr_text.lower():
-                                    pattern_data['elevation'] = angle_gain_pairs
-                                else:
-                                    # Assume azimuth if not specified
-                                    pattern_data['azimuth'] = angle_gain_pairs
+                        # Check if image is large enough to be a pattern plot (not an icon)
+                        width, height = pil_image.size
+                        if width < 150 or height < 150:
+                            self._vlog(f"  {img_name}: {width}x{height} - too small, skipping")
+                            continue
+
+                        self._vlog(f"  {img_name}: {width}x{height} - analyzing...")
+
+                        # Save image for debugging
+                        debug_dir = os.path.join(os.path.dirname(pdf_path), "debug_images")
+                        os.makedirs(debug_dir, exist_ok=True)
+                        debug_path = os.path.join(debug_dir, f"{img_name}.png")
+                        pil_image.save(debug_path)
+                        self._vlog(f"    Saved debug image: {debug_path}")
+
+                        # Check if this looks like a polar plot (not a product photo)
+                        if not self._is_polar_plot(pil_image, img_name):
+                            self._vlog(f"  {img_name}: Not a polar plot (likely product photo), skipping")
+                            continue
+
+                        # Try to digitize as polar plot
+                        digitized = self.digitize_polar_plot(pil_image, img_name)
+
+                        if digitized and len(digitized) >= 8:
+                            self._vlog(f"  {img_name}: SUCCESS - extracted {len(digitized)} points")
+                            patterns_found.append({
+                                'name': img_name,
+                                'points': digitized,
+                                'size': (width, height)
+                            })
+                            image_count += 1
                         else:
-                            self.logger.log(f"No radiation pattern keywords found in {img_file}")
+                            self._vlog(f"  {img_name}: Not recognized as polar plot or insufficient points")
 
-                    except ImportError:
-                        self.logger.log("OCR libraries not available - skipping image analysis")
                     except Exception as e:
-                        self.logger.log(f"Error analyzing image {img_file}: {e}")
+                        self._vlog(f"Error processing image: {e}")
 
+            doc.close()
+
+            # Keep ALL patterns found for multi-antenna support
+            if patterns_found:
+                # Filter to find valid AZIMUTH patterns for directional antennas
+                # NOTE: In datasheets, the main beam may point in ANY direction (often 90° = right)
+                # We need to:
+                # 1. Find where the max gain is
+                # 2. Check if the opposite side is weak (directional, not omni/elevation)
+                # 3. Rotate the pattern so max is at 0°
+                valid_azimuth_patterns = []
+
+                for p in patterns_found:
+                    points = p['points']
+                    if not points:
+                        continue
+
+                    all_gains = [g for a, g in points]
+                    max_gain = max(all_gains)
+                    min_gain = min(all_gains)
+
+                    # Find the angle with maximum gain (main beam direction)
+                    max_angle = next((a for a, g in points if g == max_gain), 0)
+
+                    # Calculate the opposite angle (back of antenna)
+                    back_angle = (max_angle + 180) % 360
+
+                    # Get gain at back (find closest angle)
+                    gain_at_back = None
+                    for a, g in points:
+                        if abs(a - back_angle) <= 5 or abs(a - back_angle) >= 355:
+                            gain_at_back = g
+                            break
+
+                    # Get gains in the back region (90° to 180° away from max)
+                    back_region_gains = []
+                    for a, g in points:
+                        # Calculate angular distance from max
+                        diff = abs(a - max_angle)
+                        if diff > 180:
+                            diff = 360 - diff
+                        # Back region is 90-180° away from main beam
+                        if 90 <= diff <= 180:
+                            back_region_gains.append(g)
+
+                    avg_back = sum(back_region_gains) / len(back_region_gains) if back_region_gains else min_gain
+
+                    # Check for valid AZIMUTH pattern:
+                    # 1. Has significant variation (not omni)
+                    # 2. Back is significantly weaker than front (not elevation/figure-8)
+                    gain_range = max_gain - min_gain
+                    has_variation = gain_range >= 10  # At least 10dB difference
+
+                    # Back should be at least 10dB weaker than front
+                    back_is_weak = gain_at_back is None or gain_at_back < max_gain - 10
+                    has_good_fb_ratio = avg_back < max_gain - 8
+
+                    # Check if it's an elevation pattern (figure-8: both top and bottom strong)
+                    gain_at_0 = next((g for a, g in points if a == 0), None)
+                    gain_at_180 = next((g for a, g in points if a == 180), None)
+                    is_figure8 = (gain_at_0 is not None and gain_at_180 is not None and
+                                  abs(gain_at_0 - gain_at_180) < 5 and
+                                  gain_at_0 > max_gain - 3 and gain_at_180 > max_gain - 3)
+
+                    self._vlog(f"  {p['name']}: max={max_gain:.1f}dB@{max_angle}°, back@{back_angle}°={gain_at_back}, avg_back={avg_back:.1f}dB")
+                    self._vlog(f"    range={gain_range:.1f}dB, back_weak={back_is_weak}, good_fb={has_good_fb_ratio}, figure8={is_figure8}")
+
+                    # Valid azimuth pattern: has variation, back is weak, not figure-8
+                    if has_variation and back_is_weak and has_good_fb_ratio and not is_figure8:
+                        # ROTATE the pattern so main beam is at 0°
+                        rotation = -max_angle
+                        rotated_points = []
+                        for a, g in points:
+                            new_angle = (a + rotation) % 360
+                            rotated_points.append((new_angle, g))
+                        # Sort by angle
+                        rotated_points.sort(key=lambda x: x[0])
+
+                        p['points'] = rotated_points
+                        p['rotation'] = rotation
+                        p['quality_score'] = gain_range + (max_gain - avg_back)
+                        valid_azimuth_patterns.append(p)
+                        self._vlog(f"    VALID azimuth pattern - rotated by {rotation}° to put main beam at 0°")
+
+                if valid_azimuth_patterns:
+                    # Sort by quality (best F/B ratio) then by size
+                    valid_azimuth_patterns.sort(key=lambda x: (x.get('quality_score', 0), x['size'][0] * x['size'][1]), reverse=True)
+                    self._vlog(f"Found {len(valid_azimuth_patterns)} valid azimuth patterns")
+                    patterns_found = valid_azimuth_patterns
+                else:
+                    self._vlog("WARNING: No valid directional azimuth patterns found, using all patterns")
+                    # Sort by size as fallback
+                    patterns_found.sort(key=lambda x: x['size'][0] * x['size'][1], reverse=True)
+
+                # Store all patterns
+                pattern_data['all_patterns'] = patterns_found
+
+                # For backwards compatibility, also store the best one as 'azimuth'
+                best_pattern = patterns_found[0]
+                pattern_data['azimuth'] = best_pattern['points']
+                self._vlog(f"Best pattern from {best_pattern['name']} ({len(best_pattern['points'])} points)")
+
+                for i, p in enumerate(patterns_found):
+                    self._vlog(f"  Pattern {i+1}: {p['name']} - {len(p['points'])} points, size {p['size']}")
+
+            self._vlog(f"Image analysis complete: {image_count} polar patterns found")
+
+        except ImportError as e:
+            self._vlog(f"Required library not available: {e}")
         except Exception as e:
-            self.logger.log(f"Error in image analysis: {e}")
+            self._vlog(f"Error in image analysis: {e}")
+            import traceback
+            self._vlog(traceback.format_exc())
 
         return pattern_data
+
+    def _is_polar_plot(self, pil_image, img_name=""):
+        """
+        Check if an image looks like a polar radiation pattern plot.
+        Returns True if it appears to be a polar plot, False otherwise.
+
+        A polar plot should have:
+        1. Mostly white/light background
+        2. Concentric circular grid lines
+        3. Radial lines from center
+        4. Roughly square aspect ratio
+        """
+        try:
+            import numpy as np
+
+            img_array = np.array(pil_image.convert('RGB'))
+            height, width = img_array.shape[:2]
+
+            # Check aspect ratio - polar plots are usually roughly square
+            aspect_ratio = width / height
+            if aspect_ratio < 0.7 or aspect_ratio > 1.4:
+                self._vlog(f"    {img_name}: Aspect ratio {aspect_ratio:.2f} - not square enough for polar plot")
+                return False
+
+            # Convert to grayscale
+            gray = np.mean(img_array, axis=2)
+
+            # Check if background is mostly white/light
+            # Polar plots have white backgrounds with thin dark lines
+            light_pixels = np.sum(gray > 200)
+            total_pixels = gray.size
+            light_ratio = light_pixels / total_pixels
+
+            if light_ratio < 0.5:
+                self._vlog(f"    {img_name}: Only {light_ratio*100:.0f}% light pixels - too dark for polar plot")
+                return False
+
+            # Check for concentric circles by sampling at different radii from center
+            center_x, center_y = width // 2, height // 2
+            max_radius = min(width, height) * 0.45
+
+            # Sample at multiple radii and check for circular symmetry
+            radii_to_check = [0.3, 0.5, 0.7, 0.9]
+            circle_scores = []
+
+            for radius_frac in radii_to_check:
+                radius = max_radius * radius_frac
+                # Sample points around the circle
+                angles = np.linspace(0, 2 * np.pi, 36)  # Every 10 degrees
+                dark_count = 0
+
+                for angle in angles:
+                    px = int(center_x + radius * np.cos(angle))
+                    py = int(center_y + radius * np.sin(angle))
+                    if 0 <= px < width and 0 <= py < height:
+                        if gray[py, px] < 150:  # Dark pixel
+                            dark_count += 1
+
+                # A grid ring should have dark pixels at regular intervals
+                circle_scores.append(dark_count)
+
+            # Polar plots have concentric rings - expect some dark pixels at each radius
+            rings_with_content = sum(1 for s in circle_scores if s >= 4)
+
+            if rings_with_content < 2:
+                self._vlog(f"    {img_name}: Only {rings_with_content} rings detected - not a polar plot")
+                return False
+
+            # Check for radial lines from center
+            # Sample along radial lines and count dark pixels
+            radial_dark_counts = []
+            for angle_deg in range(0, 360, 30):  # Every 30 degrees
+                angle_rad = np.radians(angle_deg)
+                dark_count = 0
+                for r in np.linspace(max_radius * 0.2, max_radius * 0.9, 20):
+                    px = int(center_x + r * np.cos(angle_rad))
+                    py = int(center_y + r * np.sin(angle_rad))
+                    if 0 <= px < width and 0 <= py < height:
+                        if gray[py, px] < 150:
+                            dark_count += 1
+                radial_dark_counts.append(dark_count)
+
+            # Polar plots should have some radial lines (at least some angles with multiple dark pixels)
+            radials_with_content = sum(1 for c in radial_dark_counts if c >= 3)
+
+            if radials_with_content < 4:
+                self._vlog(f"    {img_name}: Only {radials_with_content} radial lines detected - not a polar plot")
+                return False
+
+            self._vlog(f"    {img_name}: Detected as polar plot (rings={rings_with_content}, radials={radials_with_content}, light={light_ratio*100:.0f}%)")
+            return True
+
+        except Exception as e:
+            self._vlog(f"    {img_name}: Error checking if polar plot: {e}")
+            return False
+
+    def digitize_polar_plot(self, pil_image, img_name=""):
+        """
+        Digitize a polar radiation pattern plot image.
+        Returns list of (angle, gain_db) tuples.
+
+        Strategy: Find the DARKEST and THICKEST line along each radial.
+        Grid/reference lines are typically thinner and lighter than the pattern line.
+        The pattern trace is solid black, while dashed references are gray.
+        """
+        try:
+            import numpy as np
+
+            # Convert to numpy array
+            img_array = np.array(pil_image.convert('RGB'))
+            height, width = img_array.shape[:2]
+
+            self._vlog(f"    Digitizing {img_name}: {width}x{height} pixels")
+
+            # Convert to grayscale
+            gray = np.mean(img_array, axis=2)
+
+            # Find center of the plot (geometric center)
+            center_x = width // 2
+            center_y = height // 2
+
+            # Estimate the outer radius of the plot (the 0 dB ring)
+            outer_radius = min(width, height) * 0.45
+
+            # The plot typically has rings at 0, -5, -10, -15, -20, -25, -30 dB
+            total_db_range = 30  # 0 to -30 dB
+
+            angles_to_sample = list(range(0, 360, 5))  # Every 5 degrees
+            pattern_points = []
+
+            # Threshold for "dark" pixels - pattern lines are typically < 80
+            dark_threshold = 100
+
+            for angle_deg in angles_to_sample:
+                angle_rad = np.radians(angle_deg - 90)  # 0° = up (north)
+
+                # Sample along the radial from center to edge
+                num_samples = 100
+                radii = np.linspace(outer_radius * 0.05, outer_radius * 0.98, num_samples)
+
+                # Collect all dark regions along this radial
+                dark_regions = []
+                in_dark_region = False
+                region_start_r = None
+                region_pixels = []
+
+                for r in radii:
+                    px = int(center_x + r * np.cos(angle_rad))
+                    py = int(center_y + r * np.sin(angle_rad))
+
+                    if 0 <= px < width and 0 <= py < height:
+                        pixel_val = gray[py, px]
+                    else:
+                        pixel_val = 255
+
+                    if pixel_val < dark_threshold:
+                        if not in_dark_region:
+                            in_dark_region = True
+                            region_start_r = r
+                            region_pixels = [(r, pixel_val)]
+                        else:
+                            region_pixels.append((r, pixel_val))
+                    else:
+                        if in_dark_region and len(region_pixels) >= 1:
+                            # End of a dark region - record it
+                            darkest_val = min(p[1] for p in region_pixels)
+                            darkest_r = next(p[0] for p in region_pixels if p[1] == darkest_val)
+                            thickness = len(region_pixels)
+                            avg_darkness = sum(p[1] for p in region_pixels) / len(region_pixels)
+                            center_r = sum(p[0] for p in region_pixels) / len(region_pixels)
+
+                            dark_regions.append({
+                                'radius': center_r,
+                                'darkest_r': darkest_r,
+                                'thickness': thickness,
+                                'darkest_val': darkest_val,
+                                'avg_darkness': avg_darkness
+                            })
+                        in_dark_region = False
+                        region_pixels = []
+
+                # Don't forget the last region if we ended in dark
+                if in_dark_region and len(region_pixels) >= 1:
+                    darkest_val = min(p[1] for p in region_pixels)
+                    darkest_r = next(p[0] for p in region_pixels if p[1] == darkest_val)
+                    thickness = len(region_pixels)
+                    avg_darkness = sum(p[1] for p in region_pixels) / len(region_pixels)
+                    center_r = sum(p[0] for p in region_pixels) / len(region_pixels)
+
+                    dark_regions.append({
+                        'radius': center_r,
+                        'darkest_r': darkest_r,
+                        'thickness': thickness,
+                        'darkest_val': darkest_val,
+                        'avg_darkness': avg_darkness
+                    })
+
+                # Score each dark region to find the pattern line
+                # Pattern line is: thicker, darker, and NOT at the very edge
+                best_region = None
+                best_score = -float('inf')
+
+                for region in dark_regions:
+                    # Skip regions at the very outer edge (likely reference circle)
+                    if region['radius'] > outer_radius * 0.92:
+                        continue
+
+                    # Score: prefer thick, dark lines that aren't too close to edge
+                    # Thickness is important - pattern lines are 2-5 pixels thick
+                    thickness_score = min(region['thickness'], 5) * 10
+                    # Darkness matters - solid black (0) is better than gray (100)
+                    darkness_score = (100 - region['avg_darkness'])
+                    # Penalize very edge regions slightly
+                    edge_penalty = 0
+                    if region['radius'] > outer_radius * 0.85:
+                        edge_penalty = 20
+
+                    score = thickness_score + darkness_score - edge_penalty
+                    if score > best_score:
+                        best_score = score
+                        best_region = region
+
+                if best_region:
+                    normalized = best_region['radius'] / outer_radius
+                    normalized = max(0, min(1, normalized))
+                    gain_db = (normalized - 1.0) * total_db_range
+                    pattern_points.append((angle_deg, round(gain_db, 1)))
+
+            self._vlog(f"    {img_name}: Scanned {len(angles_to_sample)} angles, found {len(pattern_points)} pattern points")
+
+            # Validate: need reasonable coverage
+            if len(pattern_points) < 20:
+                self._vlog(f"    {img_name}: Only found {len(pattern_points)} points - insufficient")
+                return None
+
+            # Interpolate missing angles and smooth the pattern
+            pattern_points = self._smooth_and_interpolate_pattern(pattern_points)
+
+            # Normalize so max gain is 0 dB
+            if pattern_points:
+                max_gain = max(p[1] for p in pattern_points)
+                pattern_points = [(a, round(g - max_gain, 1)) for a, g in pattern_points]
+
+            # Validate pattern has reasonable variation
+            gains = [p[1] for p in pattern_points]
+            gain_range = max(gains) - min(gains)
+
+            gain_at_0 = next((g for a, g in pattern_points if a == 0), None)
+            gains_at_back = [g for a, g in pattern_points if 120 <= a <= 180]
+            avg_back_gain = sum(gains_at_back) / len(gains_at_back) if gains_at_back else 0
+
+            self._vlog(f"    {img_name}: gain@0°={gain_at_0}, avg_back={avg_back_gain:.1f}, range={gain_range:.1f}dB")
+
+            if gain_range < 5:
+                self._vlog(f"    {img_name}: Pattern has only {gain_range:.1f}dB variation - rejecting")
+                return None
+
+            self._vlog(f"    {img_name}: SUCCESS - {len(pattern_points)} points, {gain_range:.1f}dB range")
+            self._vlog(f"    Sample: 0°={gain_at_0}dB, 90°={self._get_gain_at_angle(pattern_points, 90)}, 180°={self._get_gain_at_angle(pattern_points, 180)}")
+
+            return pattern_points
+
+        except Exception as e:
+            self._vlog(f"    {img_name}: Digitization failed: {e}")
+            import traceback
+            self._vlog(traceback.format_exc())
+            return None
+
+    def _smooth_and_interpolate_pattern(self, pattern_points):
+        """
+        Smooth the pattern and interpolate missing angles.
+        Also detects and fixes outliers (sudden jumps in gain).
+        """
+        if not pattern_points:
+            return pattern_points
+
+        # Convert to dict for easier manipulation
+        pattern_dict = {a: g for a, g in pattern_points}
+
+        # Interpolate missing angles (fill gaps)
+        all_angles = list(range(0, 360, 5))
+        for angle in all_angles:
+            if angle not in pattern_dict:
+                # Find nearest neighbors
+                prev_angle = None
+                next_angle = None
+                for offset in range(1, 180):
+                    if prev_angle is None and (angle - offset * 5) % 360 in pattern_dict:
+                        prev_angle = (angle - offset * 5) % 360
+                    if next_angle is None and (angle + offset * 5) % 360 in pattern_dict:
+                        next_angle = (angle + offset * 5) % 360
+                    if prev_angle is not None and next_angle is not None:
+                        break
+
+                if prev_angle is not None and next_angle is not None:
+                    # Linear interpolation
+                    prev_gain = pattern_dict[prev_angle]
+                    next_gain = pattern_dict[next_angle]
+                    # Calculate distance (handling wrap-around)
+                    dist_to_prev = (angle - prev_angle) % 360
+                    dist_to_next = (next_angle - angle) % 360
+                    total_dist = dist_to_prev + dist_to_next
+                    if total_dist > 0:
+                        weight = dist_to_prev / total_dist
+                        interp_gain = prev_gain + weight * (next_gain - prev_gain)
+                        pattern_dict[angle] = round(interp_gain, 1)
+
+        # Detect and fix outliers (sudden jumps > 10dB from neighbors)
+        angles = sorted(pattern_dict.keys())
+        for i, angle in enumerate(angles):
+            prev_angle = angles[(i - 1) % len(angles)]
+            next_angle = angles[(i + 1) % len(angles)]
+
+            curr_gain = pattern_dict[angle]
+            prev_gain = pattern_dict[prev_angle]
+            next_gain = pattern_dict[next_angle]
+
+            # If current point jumps more than 10dB from BOTH neighbors, it's likely an outlier
+            if abs(curr_gain - prev_gain) > 10 and abs(curr_gain - next_gain) > 10:
+                # Replace with average of neighbors
+                pattern_dict[angle] = round((prev_gain + next_gain) / 2, 1)
+
+        # Apply light smoothing (3-point moving average)
+        smoothed = {}
+        for angle in angles:
+            prev_angle = angles[(angles.index(angle) - 1) % len(angles)]
+            next_angle = angles[(angles.index(angle) + 1) % len(angles)]
+
+            # Weighted average: 25% prev, 50% current, 25% next
+            smoothed_gain = (0.25 * pattern_dict[prev_angle] +
+                            0.50 * pattern_dict[angle] +
+                            0.25 * pattern_dict[next_angle])
+            smoothed[angle] = round(smoothed_gain, 1)
+
+        # Convert back to list of tuples
+        return [(a, smoothed[a]) for a in sorted(smoothed.keys())]
+
+    def _get_gain_at_angle(self, pattern_points, target_angle):
+        """Helper to get gain at a specific angle from pattern points"""
+        for angle, gain in pattern_points:
+            if angle == target_angle:
+                return f"{gain}dB"
+        return "N/A"
 
     def extract_angle_gain_from_ocr(self, ocr_text):
         """Extract angle/gain pairs from OCR text"""
@@ -1542,109 +2273,216 @@ class AntennaImportDialog:
         xml_parts.append('</antenna>')
         return '\n'.join(xml_parts)
 
+    def extract_antenna_models_from_text(self, text):
+        """Use LLM to extract antenna model metadata from text (without generating patterns)"""
+        import json
+
+        prompt = f"""Analyze this antenna datasheet text and extract information about EACH antenna model listed.
+
+Return a JSON array of antenna objects. Each object should have:
+- model: The exact model/part number
+- manufacturer: Manufacturer name if found
+- freq_range: Frequency range (e.g., "450-470 MHz")
+- gain_dbi: Gain in dBi (convert from dBd by adding 2.15 if needed)
+- type: "Directional" or "Omnidirectional"
+- h_beamwidth: Horizontal beamwidth in degrees
+- v_beamwidth: Vertical beamwidth in degrees
+
+Look for tables or columns that list multiple models with different specifications.
+If you find multiple distinct model numbers, return an entry for each one.
+
+Example response for a datasheet with 3 antennas:
+[
+  {{"model": "DS4E06P18U-N", "manufacturer": "dbSpectra", "freq_range": "450-470 MHz", "gain_dbi": "6", "type": "Directional", "h_beamwidth": "180", "v_beamwidth": "65"}},
+  {{"model": "DS4E08P12U-N", "manufacturer": "dbSpectra", "freq_range": "450-470 MHz", "gain_dbi": "8", "type": "Directional", "h_beamwidth": "120", "v_beamwidth": "45"}},
+  {{"model": "DS7A12P90U-N", "manufacturer": "dbSpectra", "freq_range": "746-896 MHz", "gain_dbi": "12", "type": "Directional", "h_beamwidth": "90", "v_beamwidth": "30"}}
+]
+
+IMPORTANT: Return ONLY the JSON array, no other text.
+
+DATASHEET TEXT:
+{text[:4000]}
+"""
+
+        try:
+            response = requests.post(
+                "http://localhost:11434/api/generate",
+                json={"model": "rf-component-extractor", "prompt": prompt, "stream": False},
+                timeout=120
+            )
+            response.raise_for_status()
+            result = response.json().get("response", "")
+
+            self._vlog(f"LLM model extraction response length: {len(result)}")
+
+            # Parse JSON response
+            # Clean up the response - remove markdown code blocks if present
+            clean_result = result.strip()
+            if clean_result.startswith("```"):
+                clean_result = clean_result.split("```")[1]
+                if clean_result.startswith("json"):
+                    clean_result = clean_result[4:]
+            if clean_result.endswith("```"):
+                clean_result = clean_result[:-3]
+            clean_result = clean_result.strip()
+
+            models = json.loads(clean_result)
+
+            if isinstance(models, list) and len(models) > 0:
+                self._vlog(f"Extracted {len(models)} antenna models from text")
+                return models
+
+        except json.JSONDecodeError as e:
+            self._vlog(f"Failed to parse model JSON: {e}")
+        except Exception as e:
+            self._vlog(f"Error extracting models: {e}")
+
+        return []
+
+    def generate_xml_for_antenna(self, model_info, pattern_points):
+        """Generate XML for a single antenna using digitized pattern data"""
+        xml_parts = ['<antenna>']
+        xml_parts.append(f'<type>{model_info.get("type", "Directional")}</type>')
+        xml_parts.append('<bays>1</bays>')
+
+        # Add the digitized azimuth pattern
+        xml_parts.append('<azimuth>')
+        for angle, gain in pattern_points:
+            xml_parts.append(f'<point angle="{angle}" gain="{gain}"/>')
+        xml_parts.append('</azimuth>')
+
+        # Default elevation
+        xml_parts.append('<elevation>')
+        xml_parts.append('<point angle="0" gain="0"/>')
+        xml_parts.append('</elevation>')
+
+        xml_parts.append('</antenna>')
+        return '\n'.join(xml_parts)
+
     def query_llm_for_xml(self, text):
         """Query Ollama LLM to generate XML from text with improved prompting and validation"""
-        text_to_send = text[:4000]  # Limit text length
-        self.logger.log(f"Preparing LLM prompt with {len(text_to_send)} characters")
-        
-        # IMPROVED PROMPT: Much more explicit about what real data looks like vs fake data
+        text_to_send = text[:6000]  # Limit text length (increased for multi-antenna sheets)
+        self._vlog(f"Preparing LLM prompt with {len(text_to_send)} characters")
+
+        # IMPROVED PROMPT: Handles multi-antenna datasheets with realistic pattern generation
         prompt = f"""
-Extract REAL antenna pattern data from the PDF/website text below. Your task is to find ACTUAL numerical data, not to invent it.
+Extract antenna data from this datasheet. This may contain MULTIPLE antenna models.
 
-CRITICAL RULES - READ CAREFULLY:
-1. ONLY extract data if you find ACTUAL gain values at specific angles in the text
-2. DO NOT make up, invent, or hallucinate pattern data
-3. If you cannot find specific numerical pattern data, respond EXACTLY with: NO_PATTERN_DATA_FOUND
+STEP 1 - IDENTIFY ALL ANTENNAS:
+Look for multiple model numbers in tables or columns (e.g., DS4E06P18U-N, DS4E08P12U-N, DS7A12P90U-N).
 
-Real antenna pattern data looks like:
-- Tables with "Angle" and "Gain" columns
-- Charts showing azimuth or elevation patterns (NOT Smith charts - those are for impedance)
-- Text like "At 0° = 0 dBi, at 45° = -2.1 dBi, at 90° = -3.5 dBi"
-- Numerical data in degrees and dBi/dBd units
-- Relative field values: tables like "0 0.91" where numbers are normalized field strength
+STEP 2 - EXTRACT SPECS FOR EACH:
+- Model/part number (exact from document)
+- Frequency range (MHz)
+- Gain in dBd (convert to dBi by adding 2.15)
+- Horizontal beamwidth (degrees)
+- Vertical beamwidth (degrees)
+- Beam tilt (degrees, 0 if not specified)
 
-For relative field data:
-- Find the maximum value in the table
-- Convert each value to dB: gain_dB = 20 * log10(value / max_value)
-- This gives gains relative to the maximum (0 dB at peak direction)
+STEP 3 - GENERATE REALISTIC AZIMUTH PATTERN:
+The azimuth pattern MUST be based on horizontal beamwidth. Use this formula:
+- At 0° (boresight): gain = 0 dB (reference)
+- The -3dB points are at ±(beamwidth/2)
+- The -10dB points are approximately at ±beamwidth
+- Behind the antenna (180°): typically -20 to -25 dB
 
-Note: Smith charts show impedance/reflection coefficient data for matching, not radiation patterns. If you see Smith chart references, ignore them and look elsewhere in the document for gain vs angle data.
+EXAMPLE for 90° horizontal beamwidth antenna:
+<azimuth>
+  <point angle="0" gain="0"/>
+  <point angle="30" gain="-1.5"/>
+  <point angle="45" gain="-3"/>
+  <point angle="60" gain="-6"/>
+  <point angle="90" gain="-12"/>
+  <point angle="120" gain="-18"/>
+  <point angle="150" gain="-22"/>
+  <point angle="180" gain="-25"/>
+  <point angle="210" gain="-22"/>
+  <point angle="240" gain="-18"/>
+  <point angle="270" gain="-12"/>
+  <point angle="300" gain="-6"/>
+  <point angle="315" gain="-3"/>
+  <point angle="330" gain="-1.5"/>
+</azimuth>
 
-What real antenna gains look like:
-- Maximum gain is usually 0 dBi (reference point)
-- Other angles have NEGATIVE gains like -1.5, -3.2, -10.5, -20.0 dBi
-- Gains are typically between 0 and -30 dBi
-- Values vary somewhat irregularly (not perfectly linear)
+EXAMPLE for 120° horizontal beamwidth antenna:
+<azimuth>
+  <point angle="0" gain="0"/>
+  <point angle="30" gain="-1"/>
+  <point angle="60" gain="-3"/>
+  <point angle="90" gain="-8"/>
+  <point angle="120" gain="-15"/>
+  <point angle="150" gain="-20"/>
+  <point angle="180" gain="-25"/>
+  <point angle="210" gain="-20"/>
+  <point angle="240" gain="-15"/>
+  <point angle="270" gain="-8"/>
+  <point angle="300" gain="-3"/>
+  <point angle="330" gain="-1"/>
+</azimuth>
 
-EXAMPLES OF FAKE DATA (DO NOT DO THIS):
-❌ <point angle="0" gain="0"/>
-   <point angle="10" gain="10"/>
-   <point angle="20" gain="20"/>
-   ← This is WRONG: gains increase linearly and are positive
+STEP 4 - OUTPUT FORMAT:
+For MULTIPLE antennas:
+<antennas>
+  <antenna model="DS4E08P12U-N">
+    <manufacturer>dbSpectra</manufacturer>
+    <type>directional</type>
+    <frequency_range>406-512 MHz</frequency_range>
+    <gain_dbi>9.65</gain_dbi>
+    <horizontal_beamwidth>120</horizontal_beamwidth>
+    <vertical_beamwidth>27</vertical_beamwidth>
+    <beam_tilt>0</beam_tilt>
+    <azimuth>
+      <point angle="0" gain="0"/>
+      ... (pattern based on 120° beamwidth)
+    </azimuth>
+    <elevation>
+      <point angle="0" gain="0"/>
+    </elevation>
+  </antenna>
+</antennas>
 
-❌ <point angle="0" gain="5"/>
-   <point angle="30" gain="5"/>
-   <point angle="60" gain="5"/>
-   ← This is WRONG: all same value, too simple
+For SINGLE antenna, omit the <antennas> wrapper.
 
-EXAMPLES OF REAL DATA (DO THIS):
-✓ <point angle="0" gain="0"/>
-   <point angle="30" gain="-1.2"/>
-   <point angle="60" gain="-2.8"/>
-   <point angle="90" gain="-4.1"/>
-   ← This is RIGHT: realistic variation, mostly negative
-
-SPECIAL CASE FOR OMNIDIRECTIONAL ANTENNAS:
-- If the antenna is omnidirectional, azimuth gain should be CONSTANT (same value) at all angles, typically 0 dBi
-- Example for omni: <point angle="0" gain="0"/> <point angle="90" gain="0"/> <point angle="180" gain="0"/> etc.
-
-XML Format Requirements:
-- ONE ROOT ELEMENT ONLY: <antenna> ... </antenna> (do not output multiple roots)
-- Antenna type: <type>directional</type> or <type>omnidirectional</type> (based on text, default to directional for broadcast antennas)
-- Number of bays: <bays>N</bays> where N is number found in text (default to 1 if not specified or unclear)
-- Azimuth section: <azimuth> with child <point angle="X" gain="Y"/> elements
-- Elevation section: <elevation> with child <point angle="X" gain="Y"/> elements
-- Angles: 0 to 360 for azimuth, -90 to 90 for elevation
-- If no elevation data found, use: <point angle="0" gain="0"/>
-
-OUTPUT FORMAT:
-- Output ONLY the XML
-- NO markdown, NO code blocks (```), NO backticks, NO extra text
-- Start with <antenna> and end with </antenna>
-- OR if no pattern data exists, output exactly: NO_PATTERN_DATA_FOUND
+CRITICAL RULES:
+1. Gain at 0° MUST be 0 (it's the reference point)
+2. Gains at other angles MUST be NEGATIVE (except 0°)
+3. Pattern must match the beamwidth - wider beamwidth = slower rolloff
+4. Extract ALL antennas from multi-model datasheets
+5. NO markdown code blocks - raw XML only
+6. If no data found: NO_ANTENNA_DATA_FOUND
 
 Text to analyze:
 {text_to_send}
 """
 
         try:
-            self.logger.log("Connecting to Ollama at http://localhost:11434...")
+            self._vlog("Connecting to Ollama at http://localhost:11434...")
             response = requests.post(
                 "http://localhost:11434/api/generate",
                 json={
-                    "model": "llama3.2:1b",
+                    "model": "rf-component-extractor",
                     "prompt": prompt,
                     "stream": False
                 },
-                timeout=30
+                timeout=60
             )
             response.raise_for_status()
-            self.logger.log(f"Ollama response status: {response.status_code}")
-            
+            self._vlog(f"Ollama response status: {response.status_code}")
+
             result = response.json()
-            self.logger.log(f"LLM response keys: {result.keys()}")
+            self._vlog(f"LLM response keys: {result.keys()}")
             xml = result['response'].strip()
-            self.logger.log(f"LLM generated response length: {len(xml)} characters")
-            self.logger.log(f"Response preview: {xml[:300]}...")
-            
+            self._vlog(f"LLM generated response length: {len(xml)} characters")
+            self._vlog(f"Response preview: {xml[:300]}...")
+
             # Check if LLM said it couldn't find pattern data
-            if "NO_PATTERN_DATA_FOUND" in xml or "no pattern data" in xml.lower():
-                self.logger.log("LLM reported: No pattern data found in source")
+            if "NO_PATTERN_DATA_FOUND" in xml or "NO_ANTENNA_DATA_FOUND" in xml or "no pattern data" in xml.lower():
+                self._vlog("LLM reported: No pattern data found in source")
                 raise Exception("LLM could not find antenna pattern data in the provided text. The document may not contain numerical pattern data.")
-            
+
             # Strip markdown code blocks if present (```xml or ```)
             if xml.startswith('```'):
-                self.logger.log("Detected markdown code blocks, stripping...")
+                self._vlog("Detected markdown code blocks, stripping...")
                 # Remove opening code block
                 lines = xml.split('\n')
                 if lines[0].startswith('```'):
@@ -1653,65 +2491,126 @@ Text to analyze:
                 if lines and lines[-1].strip() == '```':
                     lines = lines[:-1]  # Remove last line
                 xml = '\n'.join(lines).strip()
-                self.logger.log(f"After stripping: {xml[:300]}...")
-            
-            # Basic validation - check if XML contains antenna tags
+                self._vlog(f"After stripping: {xml[:300]}...")
+
             # Strip XML declaration if present
             xml_content = xml
             if xml_content.startswith('<?xml'):
-                # Find the end of XML declaration and strip it
-                decl_end = xml_content.find('?>') 
+                decl_end = xml_content.find('?>')
                 if decl_end != -1:
                     xml_content = xml_content[decl_end + 2:].strip()
-            
+
+            # Check if this is a multi-antenna response
+            if '<antennas>' in xml_content:
+                self._vlog("Detected MULTI-ANTENNA response")
+                # Parse and extract individual antennas
+                try:
+                    root = ET.fromstring(xml_content)
+                    antenna_elements = root.findall('antenna')
+                    self._vlog(f"Found {len(antenna_elements)} antennas in response")
+
+                    # Store all antennas for selection
+                    self.multi_antennas = []
+                    for ant_elem in antenna_elements:
+                        model = ant_elem.get('model', 'Unknown')
+                        # Extract key specs for display
+                        manufacturer = ant_elem.findtext('manufacturer', '')
+                        freq_range = ant_elem.findtext('frequency_range', '')
+                        gain = ant_elem.findtext('gain_dbi', '0')
+                        ant_type = ant_elem.findtext('type', 'directional')
+                        h_bw = ant_elem.findtext('horizontal_beamwidth', '')
+                        v_bw = ant_elem.findtext('vertical_beamwidth', '')
+
+                        # Convert element back to XML string
+                        ant_xml = ET.tostring(ant_elem, encoding='unicode')
+
+                        self.multi_antennas.append({
+                            'model': model,
+                            'manufacturer': manufacturer,
+                            'freq_range': freq_range,
+                            'gain_dbi': gain,
+                            'type': ant_type,
+                            'h_beamwidth': h_bw,
+                            'v_beamwidth': v_bw,
+                            'xml': ant_xml
+                        })
+                        self._vlog(f"  Antenna: {model} - {freq_range} - {gain} dBi")
+
+                    # Return the first antenna but flag that there are multiple
+                    self.has_multiple_antennas = True
+                    return self.multi_antennas[0]['xml']
+
+                except ET.ParseError as e:
+                    self._vlog(f"ERROR parsing multi-antenna XML: {e}")
+                    raise Exception(f"Failed to parse multi-antenna response: {e}")
+
+            # Single antenna response
+            self.has_multiple_antennas = False
+            self.multi_antennas = []
+
             if not ('<antenna>' in xml_content or '<antenna ' in xml_content):
-                self.logger.log("ERROR: XML does not contain antenna element")
-                self.logger.log(f"XML starts with: {xml[:50]}")
-                self.logger.log(f"XML ends with: {xml[-50:]}")
+                self._vlog("ERROR: XML does not contain antenna element")
+                self._vlog(f"XML starts with: {xml[:50]}")
+                self._vlog(f"XML ends with: {xml[-50:]}")
                 raise Exception("LLM did not return valid XML format with antenna element.")
-            
+
             # Parse to ensure valid XML
             try:
-                ET.fromstring(xml)
-                self.logger.log("SUCCESS: XML is valid and parseable")
+                ET.fromstring(xml_content)
+                self._vlog("SUCCESS: XML is valid and parseable")
             except ET.ParseError as e:
-                self.logger.log(f"ERROR: XML parse failed: {e}")
-                self.logger.log(f"Full XML:\n{xml}")
+                self._vlog(f"ERROR: XML parse failed: {e}")
+                self._vlog(f"Full XML:\n{xml}")
                 raise Exception(f"Generated XML is invalid: {e}")
-            
+
             # NEW: Validate that pattern looks realistic
-            is_valid, validation_msg = self.validate_antenna_pattern(xml)
+            is_valid, validation_msg = self.validate_antenna_pattern(xml_content)
             if not is_valid:
-                self.logger.log(f"PATTERN VALIDATION FAILED: {validation_msg}")
+                self._vlog(f"PATTERN VALIDATION FAILED: {validation_msg}")
                 raise Exception(f"Generated pattern failed validation: {validation_msg}")
-            
-            self.logger.log(f"PATTERN VALIDATION PASSED: {validation_msg}")
-            return xml
-            
+
+            self._vlog(f"PATTERN VALIDATION PASSED: {validation_msg}")
+            return xml_content
+
         except requests.exceptions.RequestException as e:
-            self.logger.log(f"ERROR: Connection to Ollama failed: {e}")
+            self._vlog(f"ERROR: Connection to Ollama failed: {e}")
             raise Exception(f"Failed to connect to Ollama. Ensure Ollama is running: {e}")
         except Exception as e:
-            self.logger.log(f"ERROR: LLM processing exception: {e}")
+            self._vlog(f"ERROR: LLM processing exception: {e}")
             raise Exception(f"LLM processing failed: {e}")
 
     def ok(self):
-        if self.result:
-            self.logger.log("User clicked OK - importing antenna pattern")
+        # Check if user wants to import all antennas
+        if getattr(self, 'import_all_antennas', False) and getattr(self, 'multi_antennas', []):
+            self._vlog(f"Importing ALL {len(self.multi_antennas)} antennas")
+            for i, ant in enumerate(self.multi_antennas):
+                self._vlog(f"  Importing antenna {i+1}: {ant['model']}")
+                metadata = {
+                    'name': ant['model'],
+                    'manufacturer': ant.get('manufacturer', ''),
+                    'freq_range': ant.get('freq_range', ''),
+                    'gain': str(ant.get('gain_dbi', '0')),
+                    'type': ant.get('type', 'Directional'),
+                }
+                self.on_import_callback(ant['xml'], metadata)
+        elif self.result:
+            self._vlog("User clicked OK - importing antenna pattern")
             self.on_import_callback(self.result, getattr(self, 'metadata', {}))
         else:
-            self.logger.log("User clicked OK but no XML result to import")
+            self._vlog("User clicked OK but no XML result to import")
             self.on_import_callback(None, {})
-        self.logger.log("="*80)
-        self.logger.log("AI ANTENNA IMPORT DIALOG CLOSED")
-        self.logger.log("="*80)
+        self._vlog("="*80)
+        self._vlog("AI ANTENNA IMPORT DIALOG CLOSED")
+        self._vlog("="*80)
+        self._close_verbose_log()
         self.dialog.destroy()
 
     def cancel(self):
-        self.logger.log("User cancelled antenna import")
-        self.logger.log("="*80)
-        self.logger.log("AI ANTENNA IMPORT DIALOG CLOSED (CANCELLED)")
-        self.logger.log("="*80)
+        self._vlog("User cancelled antenna import")
+        self._vlog("="*80)
+        self._vlog("AI ANTENNA IMPORT DIALOG CLOSED (CANCELLED)")
+        self._vlog("="*80)
+        self._close_verbose_log()
         self.dialog.destroy()
 
 
@@ -1788,8 +2687,44 @@ class AntennaMetadataDialog:
         # Buttons
         button_frame = ttk.Frame(self.dialog)
         button_frame.grid(row=9, column=0, columnspan=2, pady=20)
-        ttk.Button(button_frame, text="Save", command=self.save).pack(side=tk.LEFT, padx=5)
+        ttk.Button(button_frame, text="Save to Library", command=self.save).pack(side=tk.LEFT, padx=5)
         ttk.Button(button_frame, text="Cancel", command=self.cancel).pack(side=tk.LEFT, padx=5)
+
+        # Center dialog
+        self.dialog.update_idletasks()
+        x = parent.winfo_x() + (parent.winfo_width() // 2) - (self.dialog.winfo_width() // 2)
+        y = parent.winfo_y() + (parent.winfo_height() // 2) - (self.dialog.winfo_height() // 2)
+        self.dialog.geometry(f"+{x}+{y}")
+
+    def save(self):
+        """Save the antenna metadata"""
+        name = self.name_var.get().strip()
+        if not name:
+            messagebox.showerror("Error", "Antenna name is required")
+            return
+
+        try:
+            gain = float(self.gain_var.get())
+        except ValueError:
+            messagebox.showerror("Error", "Invalid gain value")
+            return
+
+        self.result = {
+            'name': name,
+            'manufacturer': self.manufacturer_var.get().strip(),
+            'part_number': self.part_number_var.get().strip(),
+            'gain': gain,
+            'band': self.band_var.get().strip(),
+            'freq_range': self.freq_range_var.get().strip(),
+            'type': self.type_var.get(),
+            'notes': self.notes_text.get('1.0', tk.END).strip()
+        }
+        self.dialog.destroy()
+
+    def cancel(self):
+        """Cancel the dialog"""
+        self.result = None
+        self.dialog.destroy()
 
 
 class ManualAntennaDialog:

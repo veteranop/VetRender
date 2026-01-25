@@ -1,0 +1,34 @@
+{
+  "entry": {
+    "id": "ff7d102cbc13",
+    "source_type": "catalog",
+    "source_path": "C:\\Users\\markd\\VetRender\\components\\catalogs\\andrew_commscope.json",
+    "component_type": "connector",
+    "model": "Type-N Male Connector",
+    "manufacturer": "unknown",
+    "validated": true,
+    "created": "2026-01-24T13:47:16.773572",
+    "notes": "Imported from Andrew / CommScope catalog",
+    "validated_date": "2026-01-24T13:47:16.774573"
+  },
+  "source_text": "Andrew / CommScope Type-N Male Connector\nModel: Type-N Male Connector\nType: connector\nN-Male connector for LDF4 series cable, field installable",
+  "expected_json": {
+    "component_type": "connector",
+    "model": "Type-N Male Connector",
+    "part_number": "LDF4-PNMF",
+    "description": "N-Male connector for LDF4 series cable, field installable",
+    "insertion_loss_db": 0.1,
+    "frequency_range_mhz": [
+      0,
+      11000
+    ],
+    "connector_type": "N-Male",
+    "vswr": 1.15,
+    "datasheet_url": "https://www.commscope.com/catalog/connectors/",
+    "common_uses": [
+      "Cable termination",
+      "Equipment connection"
+    ],
+    "notes": "Field-installable with proper tools"
+  }
+}

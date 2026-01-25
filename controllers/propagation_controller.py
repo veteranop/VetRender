@@ -126,9 +126,10 @@ class PropagationController:
                           max_distance_km, resolution, signal_threshold_dbm, rx_height=1.5,
                           use_terrain=False, terrain_quality='Medium',
                           custom_azimuth_count=None, custom_distance_points=None,
-                           propagation_model='default', progress_callback=None, zoom_level=11):
+                          propagation_model='default', progress_callback=None, zoom_level=11,
+                          antenna_bearing=0.0, antenna_downtilt=0.0):
         """Calculate RF propagation coverage with Cartesian grid (eliminates radial artifacts)
-        
+
         Args:
             tx_lat: Transmitter latitude
             tx_lon: Transmitter longitude
@@ -143,7 +144,9 @@ class PropagationController:
             custom_azimuth_count: Custom azimuth count (overrides quality preset)
             custom_distance_points: Custom distance points (overrides quality preset)
             propagation_model: Propagation model ('default' for FSPL+diffraction, 'longley_rice' for Longley-Rice)
-            
+            antenna_bearing: Antenna bearing in degrees (0=North, clockwise) for directional antennas
+            antenna_downtilt: Antenna downtilt in degrees (positive=down) for directional antennas
+
         Returns:
             Tuple of (az_grid, dist_grid, rx_power_grid, terrain_loss_grid, stats_dict)
             or None if calculation fails
@@ -200,13 +203,36 @@ class PropagationController:
 
             print(f"Coverage area: {np.sum(~mask)} points within {max_distance_km} km")
             
-            # Calculate antenna gains
-            print(f"Calculating antenna gains...")
+            # Calculate antenna gains (with bearing and downtilt for directional antennas)
+            print(f"Calculating antenna gains... (bearing: {antenna_bearing:.1f}°, downtilt: {antenna_downtilt:.1f}°)")
             gain_grid = np.zeros_like(az_grid)
+
+            # Calculate elevation angles based on geometry (height difference over distance)
+            # Height difference: tx_height - rx_height (usually positive, TX is higher)
+            height_diff_m = tx_height - rx_height
+
             for i in range(az_grid.shape[0]):
                 for j in range(az_grid.shape[1]):
                     if not mask[i, j]:
-                        gain_grid[i, j] = self.antenna_pattern.get_gain(az_grid[i, j], elevation=0)
+                        # Apply bearing offset: the antenna's 0° (main lobe) points in the bearing direction
+                        # So we subtract bearing from the geographic azimuth to get antenna-relative angle
+                        antenna_relative_az = (az_grid[i, j] - antenna_bearing) % 360
+
+                        # Calculate geometric elevation angle to this point
+                        # elevation = atan(height_diff / distance)
+                        # Negative elevation = looking down (toward ground)
+                        dist_m = dist_grid[i, j] * 1000  # km to m
+                        if dist_m > 0:
+                            geometric_elevation = np.degrees(np.arctan2(height_diff_m, dist_m))
+                        else:
+                            geometric_elevation = 0
+
+                        # Apply downtilt: antenna's 0° elevation is tilted down by downtilt degrees
+                        # So the effective elevation in antenna coordinates is:
+                        # geometric_elevation + downtilt (if downtilt is positive/down)
+                        antenna_relative_elev = geometric_elevation + antenna_downtilt
+
+                        gain_grid[i, j] = self.antenna_pattern.get_gain(antenna_relative_az, elevation=antenna_relative_elev)
             
             print(f"Gain range: {gain_grid[~mask].min():.2f} to {gain_grid[~mask].max():.2f} dBi")
             

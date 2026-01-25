@@ -1,0 +1,29 @@
+{
+  "entry": {
+    "id": "42d4e5212577",
+    "source_type": "webpage",
+    "source_path": "https://eriinc.com/product/785-fm-notch-filter/",
+    "component_type": "filter",
+    "model": "785",
+    "manufacturer": "Electronics Research Inc",
+    "validated": true,
+    "created": "2026-01-24T20:04:01.853588",
+    "notes": "Web-scraped Filter",
+    "validated_date": "2026-01-24T20:04:01.856918"
+  },
+  "source_text": "ERI 785 FM Notch Filter\nModel: 785\nFrequency: 88-108 MHz\nPower Handling: 35 kW (at >1 MHz separation)\nNotch Suppression: -40 dB (at >1 MHz separation)\nInsertion Loss: <0.03 dB (at >1 MHz separation)\nVSWR: 1.05:1 +/-150kHz\nConnectors: 1-5/8 or 3-1/8 inch EIA Flange\nConfigurations: 1, 2, 3, 4, or 5 cavities\nCooling: Convection",
+  "expected_json": {
+    "component_type": "filter",
+    "manufacturer": "Electronics Research Inc",
+    "model": "785",
+    "frequency_range_mhz": [
+      88,
+      108
+    ],
+    "power_rating_watts": 35000,
+    "rejection_db": 40,
+    "insertion_loss_db": 0.03,
+    "vswr": 1.05,
+    "connector_type": "EIA flange"
+  }
+}

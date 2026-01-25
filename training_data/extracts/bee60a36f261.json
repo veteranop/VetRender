@@ -1,0 +1,34 @@
+{
+  "entry": {
+    "id": "bee60a36f261",
+    "source_type": "catalog",
+    "source_path": "C:\\Users\\markd\\VetRender\\components\\catalogs\\bird_technologies.json",
+    "component_type": "termination",
+    "model": "TERMALINE-50-100W",
+    "manufacturer": "unknown",
+    "validated": false,
+    "created": "2026-01-24T13:47:16.793650",
+    "notes": "Imported from Bird Technologies catalog"
+  },
+  "source_text": "Bird Technologies TERMALINE-50-100W\nModel: TERMALINE-50-100W\nType: termination\n50 ohm termination, 100W, DC-4 GHz",
+  "expected_json": {
+    "component_type": "termination",
+    "model": "TERMALINE-50-100W",
+    "part_number": "8201-100",
+    "description": "50 ohm termination, 100W, DC-4 GHz",
+    "frequency_range_mhz": [
+      0,
+      4000
+    ],
+    "power_rating_watts": 100,
+    "vswr": 1.15,
+    "connector_type": "N-Male",
+    "datasheet_url": "https://www.bird-technologies.com/products/terminations/",
+    "common_uses": [
+      "Dummy load",
+      "Port termination",
+      "Testing"
+    ],
+    "notes": "Dissipates RF power as heat"
+  }
+}

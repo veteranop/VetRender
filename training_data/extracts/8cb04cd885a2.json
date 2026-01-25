@@ -1,0 +1,26 @@
+{
+  "entry": {
+    "id": "8cb04cd885a2",
+    "source_type": "webpage",
+    "source_path": "https://jampro.com/low-power-fm-broadcast-antennas/",
+    "component_type": "antenna",
+    "model": "JMPC",
+    "manufacturer": "Jampro Antennas",
+    "validated": false,
+    "created": "2026-01-24T20:04:01.783630",
+    "notes": "Web-scraped FM broadcast antenna"
+  },
+  "source_text": "Jampro JMPC Medium Power Circular Penetrator\nModel: JMPC\nFrequency: 87.5-108 MHz\nPower: 10 kW maximum per bay\nPolarization: Circular\nFeed: 1-5/8 inch shunt feed line\nConstruction: Marine brass/copper",
+  "expected_json": {
+    "component_type": "antenna",
+    "manufacturer": "Jampro Antennas",
+    "model": "JMPC",
+    "frequency_range_mhz": [
+      87.5,
+      108
+    ],
+    "power_rating_watts": 10000,
+    "polarization": "circular",
+    "connector_type": "EIA 1-5/8\" flange"
+  }
+}

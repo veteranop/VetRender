@@ -1,0 +1,36 @@
+{
+  "entry": {
+    "id": "b96a2686f3df",
+    "source_type": "catalog",
+    "source_path": "C:\\Users\\markd\\VetRender\\components\\catalogs\\shively_labs.json",
+    "component_type": "combiner",
+    "model": "Notch Combiner 2-Port",
+    "manufacturer": "unknown",
+    "validated": true,
+    "created": "2026-01-24T13:47:16.981135",
+    "notes": "Imported from Shively Labs catalog",
+    "validated_date": "2026-01-24T13:47:16.983203"
+  },
+  "source_text": "Shively Labs Notch Combiner 2-Port\nModel: Notch Combiner 2-Port\nType: combiner\nFM 2-station notch combiner",
+  "expected_json": {
+    "component_type": "combiner",
+    "model": "Notch Combiner 2-Port",
+    "part_number": "NC-FM-2",
+    "description": "FM 2-station notch combiner",
+    "insertion_loss_db": 1.2,
+    "isolation_db": 85,
+    "frequency_range_mhz": [
+      88,
+      108
+    ],
+    "power_rating_watts": 40000,
+    "number_of_ports": 2,
+    "connector_type": "EIA 1-5/8\" flange",
+    "datasheet_url": "https://www.shively.com/combiners/",
+    "common_uses": [
+      "Combining two FM stations",
+      "Auxiliary/main transmitter combining"
+    ],
+    "notes": "Notch filter design, lower loss than cavity for 2 stations"
+  }
+}

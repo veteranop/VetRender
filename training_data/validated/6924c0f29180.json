@@ -1,0 +1,30 @@
+{
+  "entry": {
+    "id": "6924c0f29180",
+    "source_type": "catalog",
+    "source_path": "C:\\Users\\markd\\VetRender\\components\\catalogs\\polyphaser.json",
+    "component_type": "surge_protector",
+    "model": "TT-12VDC-300",
+    "manufacturer": "unknown",
+    "validated": true,
+    "created": "2026-01-24T13:47:16.919776",
+    "notes": "Imported from PolyPhaser (Transtector) catalog",
+    "validated_date": "2026-01-24T13:47:16.921878"
+  },
+  "source_text": "PolyPhaser (Transtector) TT-12VDC-300\nModel: TT-12VDC-300\nType: surge_protector\nDC power line surge protector, 12VDC, 30A",
+  "expected_json": {
+    "component_type": "surge_protector",
+    "model": "TT-12VDC-300",
+    "part_number": "TT-12VDC-300",
+    "description": "DC power line surge protector, 12VDC, 30A",
+    "insertion_loss_db": 0,
+    "voltage_rating": "12VDC nominal",
+    "current_rating_amps": 30,
+    "datasheet_url": "https://www.polyphaser.com/products/",
+    "common_uses": [
+      "Repeater power protection",
+      "Battery backup systems"
+    ],
+    "notes": "Protects DC power lines from surges"
+  }
+}

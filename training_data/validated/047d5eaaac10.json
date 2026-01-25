@@ -1,0 +1,34 @@
+{
+  "entry": {
+    "id": "047d5eaaac10",
+    "source_type": "catalog",
+    "source_path": "C:\\Users\\markd\\VetRender\\components\\catalogs\\rell.json",
+    "component_type": "adapter",
+    "model": "7/16 DIN to EIA 1-5/8\" Adapter",
+    "manufacturer": "unknown",
+    "validated": true,
+    "created": "2026-01-24T13:47:16.943565",
+    "notes": "Imported from Radial Eletromagnetics Inc (RELL) catalog",
+    "validated_date": "2026-01-24T13:47:16.945790"
+  },
+  "source_text": "Radial Eletromagnetics Inc (RELL) 7/16 DIN to EIA 1-5/8\" Adapter\nModel: 7/16 DIN to EIA 1-5/8\" Adapter\nType: adapter\nAdapter from 7/16 DIN Female to EIA 1-5/8\" flange",
+  "expected_json": {
+    "component_type": "adapter",
+    "model": "7/16 DIN to EIA 1-5/8\" Adapter",
+    "part_number": "716-EIA158",
+    "description": "Adapter from 7/16 DIN Female to EIA 1-5/8\" flange",
+    "insertion_loss_db": 0.1,
+    "frequency_range_mhz": [
+      0,
+      1000
+    ],
+    "connector_type": "7/16 DIN Female to EIA flange",
+    "vswr": 1.1,
+    "power_rating_watts": 5000,
+    "datasheet_url": "https://www.rell.com/adapters/",
+    "common_uses": [
+      "Connecting 7/16 DIN equipment to EIA transmission line"
+    ],
+    "notes": "Useful for interfacing equipment to larger transmission lines"
+  }
+}

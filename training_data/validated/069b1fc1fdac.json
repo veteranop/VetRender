@@ -1,0 +1,34 @@
+{
+  "entry": {
+    "id": "069b1fc1fdac",
+    "source_type": "catalog",
+    "source_path": "C:\\Users\\markd\\VetRender\\components\\catalogs\\andrew_commscope.json",
+    "component_type": "lightning_arrestor",
+    "model": "LDF-HJ Grounding Kit",
+    "manufacturer": "unknown",
+    "validated": true,
+    "created": "2026-01-24T13:47:16.771676",
+    "notes": "Imported from Andrew / CommScope catalog",
+    "validated_date": "2026-01-24T13:47:16.772808"
+  },
+  "source_text": "Andrew / CommScope LDF-HJ Grounding Kit\nModel: LDF-HJ Grounding Kit\nType: lightning_arrestor\nGrounding kit for LDF4 cable with N-Female connectors\nInsertion Loss: 0.05 dB\nSurge Voltage: 20 kV",
+  "expected_json": {
+    "component_type": "lightning_arrestor",
+    "model": "LDF-HJ Grounding Kit",
+    "part_number": "LDF4-HJAFD",
+    "description": "Grounding kit for LDF4 cable with N-Female connectors",
+    "insertion_loss_db": 0.05,
+    "frequency_range_mhz": [
+      0,
+      6000
+    ],
+    "voltage_rating_kv": 20,
+    "connector_type": "N-Female to N-Female",
+    "datasheet_url": "https://www.commscope.com/catalog/grounding/",
+    "common_uses": [
+      "Tower base grounding",
+      "Equipment room entrance point"
+    ],
+    "notes": "Very low insertion loss, provides DC ground path"
+  }
+}

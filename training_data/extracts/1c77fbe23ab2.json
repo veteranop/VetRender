@@ -1,0 +1,28 @@
+{
+  "entry": {
+    "id": "1c77fbe23ab2",
+    "source_type": "webpage",
+    "source_path": "https://www.tessco.com/product/450-470-mhz-3-0db-base-station-omni-antenna-60452",
+    "component_type": "antenna",
+    "model": "MBX450",
+    "manufacturer": "PCTEL",
+    "validated": false,
+    "created": "2026-01-24T20:04:01.757925",
+    "notes": "Web-scraped UHF antenna"
+  },
+  "source_text": "PCTEL MBX450 UHF Antenna\nModel: MBX450\nFrequency: 450-470 MHz\nGain: 5.15 dBi\nPolarization: Vertical\nConnector: UHF Female\nPower: 250 W\nBeamwidth: 30 degrees vertical\nWeight: 0.6 lb\nType: Base vertical omnidirectional collinear",
+  "expected_json": {
+    "component_type": "antenna",
+    "manufacturer": "PCTEL",
+    "model": "MBX450",
+    "frequency_range_mhz": [
+      450,
+      470
+    ],
+    "gain_dbi": 5.15,
+    "polarization": "vertical",
+    "connector_type": "UHF-Female",
+    "power_rating_watts": 250,
+    "pattern": "omni-directional"
+  }
+}

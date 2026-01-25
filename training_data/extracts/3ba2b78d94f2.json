@@ -1,0 +1,26 @@
+{
+  "entry": {
+    "id": "3ba2b78d94f2",
+    "source_type": "webpage",
+    "source_path": "https://jampro.com/low-power-fm-broadcast-antennas/",
+    "component_type": "antenna",
+    "model": "JBVP",
+    "manufacturer": "Jampro Antennas",
+    "validated": false,
+    "created": "2026-01-24T20:04:01.794575",
+    "notes": "Web-scraped FM broadcast antenna"
+  },
+  "source_text": "Jampro JBVP Vertical Dipole FM Antenna\nModel: JBVP\nFrequency: 87.5-108 MHz\nPower: 2.5kW to 20kW\nPolarization: Vertical\nVSWR: 1.25:1 over 6 MHz\nConstruction: Stainless steel, brass conductors\nFeed: Balun-fed\nFeatures: Custom directional patterns available",
+  "expected_json": {
+    "component_type": "antenna",
+    "manufacturer": "Jampro Antennas",
+    "model": "JBVP",
+    "frequency_range_mhz": [
+      87.5,
+      108
+    ],
+    "power_rating_watts": 20000,
+    "polarization": "vertical",
+    "vswr": 1.25
+  }
+}

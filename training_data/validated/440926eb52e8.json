@@ -1,0 +1,28 @@
+{
+  "entry": {
+    "id": "440926eb52e8",
+    "source_type": "webpage",
+    "source_path": "https://www.dbspectra.com/products/450-470-mhz-uhf-omni-6-dbd-low-pim-hi-pip-antenna-ds4f06p3iu-d/",
+    "component_type": "antenna",
+    "model": "DS4F06P3IU-D",
+    "manufacturer": "dbSpectra",
+    "validated": true,
+    "created": "2026-01-24T20:04:01.763554",
+    "notes": "Web-scraped UHF antenna",
+    "validated_date": "2026-01-24T20:04:01.765961"
+  },
+  "source_text": "dbSpectra DS4F06P3IU-D UHF Antenna\nModel: DS4F06P3IU-D\nFrequency: 450-470 MHz\nGain: 6 dBd (5.0 to 7.9 dBd range)\nPattern: Omni Directional\nConnector: 7-16 DIN\nPorts: 1\nLow-PIM/Hi-PIP Certified",
+  "expected_json": {
+    "component_type": "antenna",
+    "manufacturer": "dbSpectra",
+    "model": "DS4F06P3IU-D",
+    "frequency_range_mhz": [
+      450,
+      470
+    ],
+    "gain_dbd": 6.0,
+    "connector_type": "7-16 DIN",
+    "pattern": "omni-directional",
+    "pim_certified": true
+  }
+}

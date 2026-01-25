@@ -1,0 +1,35 @@
+{
+  "entry": {
+    "id": "e798e9d0e28b",
+    "source_type": "catalog",
+    "source_path": "C:\\Users\\markd\\VetRender\\components\\catalogs\\jampro.json",
+    "component_type": "combiner",
+    "model": "RCAC",
+    "manufacturer": "unknown",
+    "validated": false,
+    "created": "2026-01-24T13:47:16.889001",
+    "notes": "Imported from Jampro Antennas catalog"
+  },
+  "source_text": "Jampro Antennas RCAC\nModel: RCAC\nType: combiner\nFM 2-station combiner, constant impedance design",
+  "expected_json": {
+    "component_type": "combiner",
+    "model": "RCAC",
+    "part_number": "RCAC-2",
+    "description": "FM 2-station combiner, constant impedance design",
+    "insertion_loss_db": 1.0,
+    "isolation_db": 80,
+    "frequency_range_mhz": [
+      88,
+      108
+    ],
+    "power_rating_watts": 30000,
+    "number_of_ports": 2,
+    "connector_type": "EIA 1-5/8\" flange",
+    "datasheet_url": "https://www.jampro.com/rcac/",
+    "common_uses": [
+      "Combining main and aux transmitters",
+      "Two-station sites"
+    ],
+    "notes": "Constant impedance design, excellent VSWR"
+  }
+}

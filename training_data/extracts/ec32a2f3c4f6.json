@@ -1,0 +1,35 @@
+{
+  "entry": {
+    "id": "ec32a2f3c4f6",
+    "source_type": "catalog",
+    "source_path": "C:\\Users\\markd\\VetRender\\components\\catalogs\\polyphaser.json",
+    "component_type": "lightning_arrestor",
+    "model": "IS-50UX-C1",
+    "manufacturer": "unknown",
+    "validated": false,
+    "created": "2026-01-24T13:47:16.903792",
+    "notes": "Imported from PolyPhaser (Transtector) catalog"
+  },
+  "source_text": "PolyPhaser (Transtector) IS-50UX-C1\nModel: IS-50UX-C1\nType: lightning_arrestor\nUltra-low loss arrestor, DC pass, N-Female to N-Female\nInsertion Loss: 0.1 dB\nSurge Voltage: 20 kV\nDC: Pass",
+  "expected_json": {
+    "component_type": "lightning_arrestor",
+    "model": "IS-50UX-C1",
+    "part_number": "IS-50UX-C1",
+    "description": "Ultra-low loss arrestor, DC pass, N-Female to N-Female",
+    "insertion_loss_db": 0.1,
+    "frequency_range_mhz": [
+      0,
+      6000
+    ],
+    "connector_type": "N-Female both ends",
+    "voltage_rating_kv": 20,
+    "dc_pass": true,
+    "datasheet_url": "https://www.polyphaser.com/wp-content/uploads/IS-50UX-C1.pdf",
+    "common_uses": [
+      "Premium applications",
+      "High frequency",
+      "Low-loss requirements"
+    ],
+    "notes": "Higher voltage rating and lower loss than IS-B50LN series"
+  }
+}

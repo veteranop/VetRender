@@ -1,0 +1,27 @@
+{
+  "entry": {
+    "id": "a179ec4580e6",
+    "source_type": "webpage",
+    "source_path": "https://www.polyphaser.com/Images/Downloadables/Datasheets/IS-B50_Series.pdf",
+    "component_type": "lightning_arrestor",
+    "model": "IS-B50HN-C0",
+    "manufacturer": "PolyPhaser",
+    "validated": true,
+    "created": "2026-01-24T20:04:01.820685",
+    "notes": "Web-scraped Lightning arrestor",
+    "validated_date": "2026-01-24T20:04:01.823344"
+  },
+  "source_text": "PolyPhaser IS-B50HN-C0 High Power Lightning Arrestor\nModel: IS-B50HN-C0\nFrequency: 1.5 MHz to 700 MHz\nPower: 3 kW maximum\nConnector: N-Female\nDC: Pass\nApplication: High power transmitters",
+  "expected_json": {
+    "component_type": "lightning_arrestor",
+    "manufacturer": "PolyPhaser",
+    "model": "IS-B50HN-C0",
+    "frequency_range_mhz": [
+      1.5,
+      700
+    ],
+    "power_rating_watts": 3000,
+    "connector_type": "N-Female",
+    "dc_pass": true
+  }
+}

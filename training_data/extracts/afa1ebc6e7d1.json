@@ -1,0 +1,31 @@
+{
+  "entry": {
+    "id": "afa1ebc6e7d1",
+    "source_type": "webpage",
+    "source_path": "https://www.tessco.com/product/148-174-mhz-5-1-dbi-omni-fiberglass-antenna-with-n-female-connector-288079",
+    "component_type": "antenna",
+    "model": "150-5N",
+    "manufacturer": "Commander Technologies",
+    "validated": false,
+    "created": "2026-01-24T20:04:01.737054",
+    "notes": "Web-scraped VHF antenna"
+  },
+  "source_text": "Commander Technologies 150-5N VHF Antenna\nModel: 150-5N\nFrequency Range: 148 - 174 MHz\nGain: 5.1 dBi / 3 dBd\nPolarization: Vertical\nVSWR: 1.5:1\nImpedance: 50 Ohm\nConnector Type: N Female\nPower Rating: 500 W\nWeight: 8.5 lb\nVertical Beamwidth: 35 degrees\nFeatures: Broadband capability, superior lightning protection, direct ground",
+  "expected_json": {
+    "component_type": "antenna",
+    "manufacturer": "Commander Technologies",
+    "model": "150-5N",
+    "frequency_range_mhz": [
+      148,
+      174
+    ],
+    "gain_dbi": 5.1,
+    "gain_dbd": 3.0,
+    "polarization": "vertical",
+    "vswr": 1.5,
+    "impedance_ohms": 50,
+    "connector_type": "N-Female",
+    "power_rating_watts": 500,
+    "pattern": "omni-directional"
+  }
+}

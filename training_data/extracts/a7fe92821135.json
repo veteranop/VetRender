@@ -1,0 +1,52 @@
+{
+  "entry": {
+    "id": "a7fe92821135",
+    "source_type": "catalog",
+    "source_path": "C:\\Users\\markd\\VetRender\\components\\catalogs\\andrew_commscope.json",
+    "component_type": "cable",
+    "model": "LDF7-50A",
+    "manufacturer": "unknown",
+    "validated": false,
+    "created": "2026-01-24T13:47:16.767973",
+    "notes": "Imported from Andrew / CommScope catalog"
+  },
+  "source_text": "Andrew / CommScope LDF7-50A\nModel: LDF7-50A\nType: cable\n1-5/8\" HELIAX foam dielectric coaxial cable, aluminum sheath\nImpedance: 50 ohms\nVelocity: 89.0%\nAttenuation at 30 MHz: 0.07 dB/100ft\nAttenuation at 50 MHz: 0.09 dB/100ft\nAttenuation at 150 MHz: 0.17 dB/100ft\nAttenuation at 220 MHz: 0.21 dB/100ft\nAttenuation at 450 MHz: 0.31 dB/100ft\nAttenuation at 512 MHz: 0.34 dB/100ft\nAttenuation at 806 MHz: 0.43 dB/100ft\nAttenuation at 900 MHz: 0.45 dB/100ft\nAttenuation at 960 MHz: 0.47 dB/100ft\nAttenuation at 1800 MHz: 0.66 dB/100ft\nAttenuation at 1900 MHz: 0.69 dB/100ft\nAttenuation at 2400 MHz: 0.79 dB/100ft",
+  "expected_json": {
+    "component_type": "cable",
+    "model": "LDF7-50A",
+    "part_number": "LDF7-50A",
+    "description": "1-5/8\" HELIAX foam dielectric coaxial cable, aluminum sheath",
+    "impedance_ohms": 50,
+    "velocity_factor": 0.89,
+    "outer_diameter_inches": 2.005,
+    "loss_db_per_100ft": {
+      "30": 0.07,
+      "50": 0.09,
+      "150": 0.17,
+      "220": 0.21,
+      "450": 0.31,
+      "512": 0.34,
+      "806": 0.43,
+      "900": 0.45,
+      "960": 0.47,
+      "1800": 0.66,
+      "1900": 0.69,
+      "2400": 0.79
+    },
+    "power_rating_watts": {
+      "50_mhz": 19000,
+      "150_mhz": 16000,
+      "450_mhz": 9900,
+      "900_mhz": 6900,
+      "1800_mhz": 4800
+    },
+    "weight_lbs_per_100ft": 76.0,
+    "minimum_bend_radius_inches": 20.0,
+    "datasheet_url": "https://www.commscope.com/globalassets/digizuite/2259-ldf7-50a.pdf",
+    "common_uses": [
+      "Broadcast transmitters",
+      "Extreme high power applications"
+    ],
+    "notes": "Largest common Heliax size, lowest loss, very heavy"
+  }
+}

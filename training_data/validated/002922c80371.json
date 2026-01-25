@@ -1,0 +1,47 @@
+{
+  "entry": {
+    "id": "002922c80371",
+    "source_type": "catalog",
+    "source_path": "C:\\Users\\markd\\VetRender\\components\\catalogs\\harris_broadcast.json",
+    "component_type": "transmitter",
+    "model": "Flexiva FAX3",
+    "manufacturer": "unknown",
+    "validated": true,
+    "created": "2026-01-24T13:47:16.842385",
+    "notes": "Imported from Harris Broadcast (Imagine Communications / GatesAir) catalog",
+    "validated_date": "2026-01-24T13:47:16.843856"
+  },
+  "source_text": "Harris Broadcast (Imagine Communications / GatesAir) Flexiva FAX3\nModel: Flexiva FAX3\nType: transmitter\nFM broadcast transmitter, 3.5kW, solid state",
+  "expected_json": {
+    "component_type": "transmitter",
+    "model": "Flexiva FAX3",
+    "part_number": "FAX3",
+    "description": "FM broadcast transmitter, 3.5kW, solid state",
+    "frequency_range_mhz": [
+      87.5,
+      108
+    ],
+    "power_output_watts": 3500,
+    "power_output_dbm": 65.44,
+    "power_output_dbw": 35.44,
+    "efficiency_percent": 72,
+    "mains_voltage": "230VAC or 400VAC 3-phase",
+    "power_consumption_watts": 4860,
+    "output_impedance_ohms": 50,
+    "connector_type": "EIA 1-5/8\" flange",
+    "harmonic_suppression_dbc": -80,
+    "spurious_suppression_dbc": -80,
+    "audio_input": [
+      "AES/EBU",
+      "Analog balanced",
+      "Composite MPX",
+      "IP Audio"
+    ],
+    "datasheet_url": "https://www.gatesair.com/flexiva/",
+    "common_uses": [
+      "Medium market FM stations",
+      "Regional coverage"
+    ],
+    "notes": "N+1 redundancy capable, FlexStar exciter"
+  }
+}

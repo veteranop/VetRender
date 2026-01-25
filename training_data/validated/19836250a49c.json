@@ -1,0 +1,44 @@
+{
+  "entry": {
+    "id": "19836250a49c",
+    "source_type": "catalog",
+    "source_path": "C:\\Users\\markd\\VetRender\\components\\catalogs\\harris_broadcast.json",
+    "component_type": "transmitter",
+    "model": "HT5 (Legacy)",
+    "manufacturer": "unknown",
+    "validated": true,
+    "created": "2026-01-24T13:47:16.854195",
+    "notes": "Imported from Harris Broadcast (Imagine Communications / GatesAir) catalog",
+    "validated_date": "2026-01-24T13:47:16.855950"
+  },
+  "source_text": "Harris Broadcast (Imagine Communications / GatesAir) HT5 (Legacy)\nModel: HT5 (Legacy)\nType: transmitter\nFM broadcast transmitter, 5kW, solid state (legacy model)",
+  "expected_json": {
+    "component_type": "transmitter",
+    "model": "HT5 (Legacy)",
+    "part_number": "HT5",
+    "description": "FM broadcast transmitter, 5kW, solid state (legacy model)",
+    "frequency_range_mhz": [
+      87.5,
+      108
+    ],
+    "power_output_watts": 5000,
+    "power_output_dbm": 66.99,
+    "power_output_dbw": 36.99,
+    "efficiency_percent": 68,
+    "mains_voltage": "230VAC or 400VAC 3-phase",
+    "power_consumption_watts": 7350,
+    "output_impedance_ohms": 50,
+    "connector_type": "EIA 1-5/8\" flange",
+    "harmonic_suppression_dbc": -75,
+    "audio_input": [
+      "Analog balanced",
+      "Composite MPX"
+    ],
+    "datasheet_url": "https://www.gatesair.com/legacy/",
+    "common_uses": [
+      "Legacy installations",
+      "Medium market FM"
+    ],
+    "notes": "Classic Harris workhorse, known for reliability"
+  }
+}

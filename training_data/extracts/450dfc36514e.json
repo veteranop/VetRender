@@ -1,0 +1,39 @@
+{
+  "entry": {
+    "id": "450dfc36514e",
+    "source_type": "catalog",
+    "source_path": "C:\\Users\\markd\\VetRender\\components\\catalogs\\bw_broadcast.json",
+    "component_type": "exciter",
+    "model": "FXi250",
+    "manufacturer": "unknown",
+    "validated": false,
+    "created": "2026-01-24T13:47:16.810772",
+    "notes": "Imported from BW Broadcast catalog"
+  },
+  "source_text": "BW Broadcast FXi250\nModel: FXi250\nType: exciter\nFM exciter, 250W output, standalone or for PA",
+  "expected_json": {
+    "component_type": "exciter",
+    "model": "FXi250",
+    "part_number": "FXi250",
+    "description": "FM exciter, 250W output, standalone or for PA",
+    "frequency_range_mhz": [
+      87.5,
+      108
+    ],
+    "power_output_watts": 250,
+    "power_output_dbm": 53.98,
+    "output_impedance_ohms": 50,
+    "connector_type": "N-Female",
+    "harmonic_suppression_dbc": -70,
+    "audio_input": [
+      "AES/EBU",
+      "Analog balanced"
+    ],
+    "datasheet_url": "https://www.bwbroadcast.com/products/fxi250/",
+    "common_uses": [
+      "Exciter for high-power PA",
+      "Low-power standalone transmitter"
+    ],
+    "notes": "Built-in stereo encoder, RDS, can drive external PA"
+  }
+}

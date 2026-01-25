@@ -1,0 +1,35 @@
+{
+  "entry": {
+    "id": "7b3d853ca269",
+    "source_type": "catalog",
+    "source_path": "C:\\Users\\markd\\VetRender\\components\\catalogs\\bird_technologies.json",
+    "component_type": "power_divider",
+    "model": "WPD-2-50",
+    "manufacturer": "unknown",
+    "validated": false,
+    "created": "2026-01-24T13:47:16.789256",
+    "notes": "Imported from Bird Technologies catalog"
+  },
+  "source_text": "Bird Technologies WPD-2-50\nModel: WPD-2-50\nType: power_divider\n2-way power divider, 50 ohm, 0.5-2.5 GHz",
+  "expected_json": {
+    "component_type": "power_divider",
+    "model": "WPD-2-50",
+    "part_number": "WPD-2-50",
+    "description": "2-way power divider, 50 ohm, 0.5-2.5 GHz",
+    "insertion_loss_db": 3.5,
+    "isolation_db": 20,
+    "frequency_range_mhz": [
+      500,
+      2500
+    ],
+    "power_rating_watts": 50,
+    "split_ratio": "equal (3dB per port)",
+    "connector_type": "N-Female",
+    "datasheet_url": "https://www.bird-technologies.com/products/dividers/",
+    "common_uses": [
+      "Splitting signal to two antennas",
+      "Diversity systems"
+    ],
+    "notes": "Wilkinson design, equal split with isolation"
+  }
+}

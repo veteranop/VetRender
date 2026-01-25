@@ -1,0 +1,37 @@
+{
+  "entry": {
+    "id": "46e6e77800bc",
+    "source_type": "catalog",
+    "source_path": "C:\\Users\\markd\\VetRender\\components\\catalogs\\bird_technologies.json",
+    "component_type": "isolator",
+    "model": "CX-150",
+    "manufacturer": "unknown",
+    "validated": true,
+    "created": "2026-01-24T13:47:16.777546",
+    "notes": "Imported from Bird Technologies catalog",
+    "validated_date": "2026-01-24T13:47:16.778588"
+  },
+  "source_text": "Bird Technologies CX-150\nModel: CX-150\nType: isolator\nVHF circulator/isolator, 136-174 MHz, 150W",
+  "expected_json": {
+    "component_type": "isolator",
+    "model": "CX-150",
+    "part_number": "CX-150",
+    "description": "VHF circulator/isolator, 136-174 MHz, 150W",
+    "insertion_loss_db": 0.3,
+    "isolation_db": 20,
+    "frequency_range_mhz": [
+      136,
+      174
+    ],
+    "power_rating_watts": 150,
+    "connector_type": "N-Female",
+    "vswr": 1.2,
+    "datasheet_url": "https://www.bird-technologies.com/products/circulators-isolators/",
+    "common_uses": [
+      "Transmitter protection",
+      "Combiner isolation",
+      "Antenna mismatch protection"
+    ],
+    "notes": "Protects transmitter from reflected power"
+  }
+}

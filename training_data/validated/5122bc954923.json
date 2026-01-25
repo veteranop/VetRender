@@ -1,0 +1,41 @@
+{
+  "entry": {
+    "id": "5122bc954923",
+    "source_type": "catalog",
+    "source_path": "C:\\Users\\markd\\VetRender\\components\\catalogs\\jampro.json",
+    "component_type": "filter",
+    "model": "Bandpass Filter FM",
+    "manufacturer": "unknown",
+    "validated": true,
+    "created": "2026-01-24T13:47:16.892234",
+    "notes": "Imported from Jampro Antennas catalog",
+    "validated_date": "2026-01-24T13:47:16.894034"
+  },
+  "source_text": "Jampro Antennas Bandpass Filter FM\nModel: Bandpass Filter FM\nType: filter\nFM bandpass filter, cavity design",
+  "expected_json": {
+    "component_type": "filter",
+    "model": "Bandpass Filter FM",
+    "part_number": "BPF-FM",
+    "description": "FM bandpass filter, cavity design",
+    "insertion_loss_db": 0.4,
+    "rejection_db": 50,
+    "passband_mhz": [
+      88,
+      108
+    ],
+    "stopband_mhz": [
+      0,
+      88,
+      108,
+      1000
+    ],
+    "power_rating_watts": 5000,
+    "connector_type": "EIA 1-5/8\" flange",
+    "datasheet_url": "https://www.jampro.com/filters/",
+    "common_uses": [
+      "Harmonic suppression",
+      "Protecting co-located receivers"
+    ],
+    "notes": "Single cavity design, field-tunable"
+  }
+}

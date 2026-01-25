@@ -1,0 +1,41 @@
+{
+  "entry": {
+    "id": "981c171f1a83",
+    "source_type": "catalog",
+    "source_path": "C:\\Users\\markd\\VetRender\\components\\catalogs\\rell.json",
+    "component_type": "filter",
+    "model": "FM Harmonic Filter",
+    "manufacturer": "unknown",
+    "validated": true,
+    "created": "2026-01-24T13:47:16.947728",
+    "notes": "Imported from Radial Eletromagnetics Inc (RELL) catalog",
+    "validated_date": "2026-01-24T13:47:16.951696"
+  },
+  "source_text": "Radial Eletromagnetics Inc (RELL) FM Harmonic Filter\nModel: FM Harmonic Filter\nType: filter\nFM broadcast harmonic filter, 2nd and 3rd harmonic rejection",
+  "expected_json": {
+    "component_type": "filter",
+    "model": "FM Harmonic Filter",
+    "part_number": "FM-HF",
+    "description": "FM broadcast harmonic filter, 2nd and 3rd harmonic rejection",
+    "insertion_loss_db": 0.2,
+    "rejection_db": 70,
+    "passband_mhz": [
+      88,
+      108
+    ],
+    "stopband_mhz": [
+      176,
+      216,
+      264,
+      324
+    ],
+    "power_rating_watts": 10000,
+    "connector_type": "EIA 1-5/8\" flange",
+    "datasheet_url": "https://www.rell.com/filters/",
+    "common_uses": [
+      "Harmonic suppression on FM transmitters",
+      "FCC compliance"
+    ],
+    "notes": "Rejects 2nd and 3rd harmonics while passing FM band"
+  }
+}

@@ -1,0 +1,130 @@
+{
+  "version": "2.0",
+  "description": "Enhanced Ollama prompts with few-shot examples for RF component extraction",
+  "model_recommendation": "llama3.2:3b",
+  "prompts": {
+    "cable": {
+      "system_prompt": "You are an expert RF engineer specializing in coaxial cable specifications. Extract technical data from datasheets and return ONLY valid JSON. Be precise with numeric values and frequency-dependent data.",
+      "user_prompt": "Extract specifications from this coaxial cable datasheet.\n\n## EXAMPLE INPUT:\nTimes Microwave LMR-400 Specification\nImpedance: 50 ohms\nVelocity: 85%\nOuter Diameter: 0.405 inch\nAttenuation at 150 MHz: 0.7 dB/100ft\nAttenuation at 450 MHz: 1.3 dB/100ft\nAttenuation at 900 MHz: 1.9 dB/100ft\nPower at 150 MHz: 1800W\nPower at 900 MHz: 750W\n\n## EXAMPLE OUTPUT:\n{\"component_type\":\"cable\",\"manufacturer\":\"Times Microwave Systems\",\"model\":\"LMR-400\",\"part_number\":\"LMR-400\",\"description\":\"0.405\\\" diameter flexible coaxial cable, PE jacket\",\"impedance_ohms\":50,\"velocity_factor\":0.85,\"outer_diameter_inches\":0.405,\"loss_db_per_100ft\":{\"150\":0.7,\"450\":1.3,\"900\":1.9},\"power_rating_watts\":{\"150_mhz\":1800,\"900_mhz\":750}}\n\n## SECOND EXAMPLE INPUT:\nAndrew LDF4-50A HELIAX\n50 Ohm corrugated copper\nVelocity of Propagation: 88%\nOD: 0.5 in\nLoss per 100ft: 0.32 dB @ 100 MHz, 0.68 dB @ 450 MHz, 1.18 dB @ 1000 MHz\nAvg Power: 3100W @ 100 MHz, 1650W @ 450 MHz\n\n## SECOND EXAMPLE OUTPUT:\n{\"component_type\":\"cable\",\"manufacturer\":\"Andrew/CommScope\",\"model\":\"LDF4-50A\",\"part_number\":\"LDF4-50A\",\"description\":\"1/2\\\" HELIAX corrugated copper coaxial cable\",\"impedance_ohms\":50,\"velocity_factor\":0.88,\"outer_diameter_inches\":0.5,\"loss_db_per_100ft\":{\"100\":0.32,\"450\":0.68,\"1000\":1.18},\"power_rating_watts\":{\"100_mhz\":3100,\"450_mhz\":1650}}\n\n## NOW EXTRACT FROM THIS DATASHEET:\n{datasheet_text}\n\nReturn ONLY the JSON object with no markdown formatting or explanation.",
+      "extraction_hints": [
+        "Look for attenuation tables (dB/100ft or dB/100m - convert to 100ft)",
+        "Power rating decreases with frequency",
+        "Loss increases with frequency",
+        "Velocity factor is usually 0.66-0.90",
+        "Impedance is almost always 50 ohms for RF cables"
+      ],
+      "validation": {
+        "impedance_ohms": "must be 50 or 75",
+        "velocity_factor": "must be between 0.60 and 0.95",
+        "loss_pattern": "loss_db values should increase with frequency",
+        "power_pattern": "power_rating values should decrease with frequency"
+      }
+    },
+    "antenna": {
+      "system_prompt": "You are an expert antenna engineer. Extract antenna specifications from datasheets and return ONLY valid JSON. Pay attention to gain units (dBi vs dBd).",
+      "user_prompt": "Extract specifications from this antenna datasheet.\n\n## EXAMPLE INPUT:\nJampro JCPV-4 FM Broadcast Antenna\nGain: 4.0 relative to dipole (6 dBi)\nFrequency: 88-108 MHz\nPolarization: Circular\nVSWR: 1.08:1\nInput Impedance: 50 ohms\nConnector: 1-5/8\" EIA flange\nPower Rating: 60 kW\nWind Survival: 125 mph\n\n## EXAMPLE OUTPUT:\n{\"component_type\":\"antenna\",\"manufacturer\":\"Jampro Antennas\",\"model\":\"JCPV-4\",\"part_number\":\"JCPV-4\",\"description\":\"FM broadcast antenna, 4-bay, circular polarization, panel design\",\"gain_dbi\":6.0,\"gain_relative_dipole\":4.0,\"frequency_range_mhz\":[88,108],\"polarization\":\"circular\",\"vswr\":1.08,\"impedance_ohms\":50,\"connector_type\":\"EIA 1-5/8\\\" flange\",\"power_rating_watts\":60000,\"wind_survival_mph\":125,\"pattern\":\"omni-directional\"}\n\n## SECOND EXAMPLE - UHF ANTENNA:\nSinclair SD220-SF2P0SNM\nGain: 6 dBd (8.15 dBi)\nFrequency: 406-512 MHz\nPolarization: Vertical\nVSWR: <1.5:1\nPower: 150W\nConnector: N-Female\n\n## SECOND EXAMPLE OUTPUT:\n{\"component_type\":\"antenna\",\"manufacturer\":\"Sinclair Technologies\",\"model\":\"SD220-SF2P0SNM\",\"description\":\"UHF collinear antenna, vertical polarization\",\"gain_dbi\":8.15,\"gain_dbd\":6.0,\"frequency_range_mhz\":[406,512],\"polarization\":\"vertical\",\"vswr\":1.5,\"impedance_ohms\":50,\"connector_type\":\"N-Female\",\"power_rating_watts\":150,\"pattern\":\"omni-directional\"}\n\n## NOW EXTRACT FROM THIS DATASHEET:\n{datasheet_text}\n\nReturn ONLY the JSON object. Convert dBd to dBi by adding 2.15.",
+      "extraction_hints": [
+        "dBi = dBd + 2.15",
+        "Gain relative to dipole: multiply by gain to get linear ratio",
+        "VSWR is usually between 1.0 and 2.0",
+        "Look for radiation patterns (omni vs directional)",
+        "Broadcast antennas often use EIA flange connectors"
+      ]
+    },
+    "transmitter": {
+      "system_prompt": "You are an expert broadcast engineer. Extract transmitter specifications from datasheets and return ONLY valid JSON.",
+      "user_prompt": "Extract specifications from this transmitter datasheet.\n\n## EXAMPLE INPUT:\nBW Broadcast TX1000 V5\nPower Output: 1000W (60 dBm, 30 dBW)\nFrequency Range: 87.5-108 MHz\nEfficiency: 75%\nMains Power: 1800W @ 230VAC\nAudio Inputs: AES/EBU, Analog XLR\nOutput Connector: 7/8\" EIA\nHarmonic Suppression: >60 dB\n\n## EXAMPLE OUTPUT:\n{\"component_type\":\"transmitter\",\"manufacturer\":\"BW Broadcast\",\"model\":\"TX1000 V5\",\"part_number\":\"TX1000-V5\",\"description\":\"1kW FM broadcast transmitter, digital exciter\",\"power_output_watts\":1000,\"power_output_dbm\":60,\"power_output_dbw\":30,\"frequency_range_mhz\":[87.5,108],\"efficiency_percent\":75,\"mains_voltage\":\"230VAC\",\"power_consumption_watts\":1800,\"output_impedance_ohms\":50,\"connector_type\":\"EIA 7/8\\\"\",\"harmonic_suppression_dbc\":-60,\"audio_input\":[\"AES/EBU\",\"Analog XLR\"]}\n\n## NOW EXTRACT FROM THIS DATASHEET:\n{datasheet_text}\n\nReturn ONLY the JSON object. Calculate dBm = 10*log10(watts*1000), dBW = 10*log10(watts).",
+      "extraction_hints": [
+        "Power: watts, dBm, dBW are related",
+        "Efficiency typically 50-80% for solid state",
+        "Harmonic suppression is negative dBc",
+        "Look for redundancy/modular features"
+      ]
+    },
+    "lightning_arrestor": {
+      "system_prompt": "You are an expert in RF lightning protection. Extract specifications and return ONLY valid JSON.",
+      "user_prompt": "Extract specifications from this lightning arrestor/surge protector datasheet.\n\n## EXAMPLE INPUT:\nPolyPhaser IS-B50LN-C0\nType: Bulkhead mount, gas tube\nInsertion Loss: 0.2 dB typical\nFrequency: DC-1000 MHz\nConnectors: N-Female both sides\nSurge Voltage: 5kV\nDC: Pass\n\n## EXAMPLE OUTPUT:\n{\"component_type\":\"lightning_arrestor\",\"manufacturer\":\"PolyPhaser\",\"model\":\"IS-B50LN-C0\",\"part_number\":\"IS-B50LN-C0\",\"description\":\"Bulkhead lightning arrestor, DC pass, N-Female to N-Female\",\"insertion_loss_db\":0.2,\"frequency_range_mhz\":[0,1000],\"connector_type\":\"N-Female both ends\",\"voltage_rating_kv\":5,\"dc_pass\":true}\n\n## SECOND EXAMPLE - DC BLOCK:\nPolyPhaser IS-B50LN-C2\nDC Block version\nInsertion Loss: 0.2 dB\nFrequency: 30-1000 MHz\nVoltage: 5kV\n\n## SECOND EXAMPLE OUTPUT:\n{\"component_type\":\"lightning_arrestor\",\"manufacturer\":\"PolyPhaser\",\"model\":\"IS-B50LN-C2\",\"part_number\":\"IS-B50LN-C2\",\"description\":\"Bulkhead lightning arrestor, DC block, N-Female to N-Female\",\"insertion_loss_db\":0.2,\"frequency_range_mhz\":[30,1000],\"connector_type\":\"N-Female both ends\",\"voltage_rating_kv\":5,\"dc_pass\":false}\n\n## NOW EXTRACT FROM THIS DATASHEET:\n{datasheet_text}\n\nReturn ONLY the JSON object.",
+      "extraction_hints": [
+        "DC pass vs DC block is critical",
+        "Bulkhead vs inline mounting",
+        "Gas tube vs MOV technology",
+        "Voltage rating in kV"
+      ]
+    },
+    "isolator": {
+      "system_prompt": "You are an expert in RF isolation devices. Extract specifications and return ONLY valid JSON.",
+      "user_prompt": "Extract specifications from this isolator/circulator datasheet.\n\n## EXAMPLE INPUT:\nBird 8345 RF Isolator\nFrequency: 806-960 MHz\nInsertion Loss: 0.5 dB\nIsolation: 20 dB minimum\nPower: 100W average\nVSWR: 1.25:1\nConnectors: N-type\n\n## EXAMPLE OUTPUT:\n{\"component_type\":\"isolator\",\"manufacturer\":\"Bird Technologies\",\"model\":\"8345\",\"description\":\"UHF ferrite isolator, 100W\",\"insertion_loss_db\":0.5,\"isolation_db\":20,\"frequency_range_mhz\":[806,960],\"power_rating_watts\":100,\"connector_type\":\"N-type\",\"vswr\":1.25}\n\n## NOW EXTRACT FROM THIS DATASHEET:\n{datasheet_text}\n\nReturn ONLY the JSON object.",
+      "extraction_hints": [
+        "Insertion loss (forward direction)",
+        "Isolation (reverse attenuation)",
+        "3-port circulator vs 2-port isolator"
+      ]
+    },
+    "combiner": {
+      "system_prompt": "You are an expert in RF combining systems. Extract specifications and return ONLY valid JSON.",
+      "user_prompt": "Extract specifications from this combiner datasheet.\n\n## EXAMPLE INPUT:\nJampro RCAC-2 FM Combiner\nType: Constant impedance, 2 stations\nInsertion Loss: 1.0 dB per port\nIsolation: 80 dB between ports\nFrequency: 88-108 MHz\nPower: 30 kW per port\nConnector: 1-5/8\" EIA\n\n## EXAMPLE OUTPUT:\n{\"component_type\":\"combiner\",\"manufacturer\":\"Jampro Antennas\",\"model\":\"RCAC-2\",\"part_number\":\"RCAC-2\",\"description\":\"FM 2-station combiner, constant impedance design\",\"insertion_loss_db\":1.0,\"isolation_db\":80,\"frequency_range_mhz\":[88,108],\"power_rating_watts\":30000,\"number_of_ports\":2,\"connector_type\":\"EIA 1-5/8\\\" flange\"}\n\n## NOW EXTRACT FROM THIS DATASHEET:\n{datasheet_text}\n\nReturn ONLY the JSON object.",
+      "extraction_hints": [
+        "Insertion loss per port",
+        "Isolation between any two ports",
+        "Cavity vs hybrid design"
+      ]
+    },
+    "filter": {
+      "system_prompt": "You are an expert in RF filters. Extract specifications and return ONLY valid JSON.",
+      "user_prompt": "Extract specifications from this RF filter datasheet.\n\n## EXAMPLE INPUT:\nBandpass Filter BPF-FM\nType: Cavity bandpass\nPassband: 88-108 MHz\nInsertion Loss: 0.4 dB\nRejection: >50 dB outside passband\nPower: 5 kW\n\n## EXAMPLE OUTPUT:\n{\"component_type\":\"filter\",\"manufacturer\":\"Unknown\",\"model\":\"BPF-FM\",\"description\":\"FM bandpass filter, cavity design\",\"insertion_loss_db\":0.4,\"rejection_db\":50,\"passband_mhz\":[88,108],\"power_rating_watts\":5000}\n\n## NOW EXTRACT FROM THIS DATASHEET:\n{datasheet_text}\n\nReturn ONLY the JSON object.",
+      "extraction_hints": [
+        "Bandpass vs notch vs harmonic",
+        "Passband edges (3dB points)",
+        "Rejection in stopband"
+      ]
+    },
+    "generic": {
+      "system_prompt": "You are an expert RF engineer. Identify the component type and extract all relevant specifications. Return ONLY valid JSON.",
+      "user_prompt": "Identify and extract specifications from this RF component datasheet.\n\nComponent types: cable, antenna, transmitter, isolator, combiner, filter, lightning_arrestor, connector, amplifier, attenuator\n\n## EXAMPLE - CABLE:\n{\"component_type\":\"cable\",\"model\":\"LMR-400\",\"impedance_ohms\":50,\"loss_db_per_100ft\":{\"450\":1.3}}\n\n## EXAMPLE - ANTENNA:\n{\"component_type\":\"antenna\",\"model\":\"JCPV-4\",\"gain_dbi\":6.0,\"frequency_range_mhz\":[88,108]}\n\n## EXAMPLE - LIGHTNING ARRESTOR:\n{\"component_type\":\"lightning_arrestor\",\"model\":\"IS-B50LN-C0\",\"insertion_loss_db\":0.2,\"dc_pass\":true}\n\n## NOW EXTRACT FROM THIS DATASHEET:\n{datasheet_text}\n\nFirst identify the component type, then extract ALL relevant specifications. Return ONLY the JSON object."
+    }
+  },
+  "post_processing": {
+    "unit_conversions": {
+      "length": {
+        "meters_to_feet": 3.28084,
+        "cm_to_inches": 0.393701,
+        "mm_to_inches": 0.0393701
+      },
+      "power": {
+        "watts_to_dbm": "10 * log10(watts * 1000)",
+        "watts_to_dbw": "10 * log10(watts)",
+        "dbm_to_watts": "10^(dbm/10) / 1000",
+        "kw_to_watts": 1000
+      },
+      "loss": {
+        "db_per_meter_to_db_per_100ft": 30.48,
+        "db_per_km_to_db_per_100ft": 0.03048
+      },
+      "gain": {
+        "dbd_to_dbi": 2.15
+      }
+    },
+    "validation_rules": {
+      "cable": {
+        "impedance_ohms": [50, 75],
+        "velocity_factor_range": [0.60, 0.95],
+        "loss_increases_with_frequency": true,
+        "power_decreases_with_frequency": true
+      },
+      "transmitter": {
+        "power_output_watts_min": 1,
+        "efficiency_percent_range": [30, 90],
+        "harmonic_suppression_negative": true
+      },
+      "antenna": {
+        "gain_dbi_range": [-5, 30],
+        "vswr_range": [1.0, 3.0],
+        "impedance_ohms": [50, 75]
+      },
+      "lightning_arrestor": {
+        "insertion_loss_db_max": 1.0,
+        "dc_pass_required": true
+      }
+    }
+  }
+}

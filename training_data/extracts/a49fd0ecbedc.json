@@ -1,0 +1,38 @@
+{
+  "entry": {
+    "id": "a49fd0ecbedc",
+    "source_type": "catalog",
+    "source_path": "C:\\Users\\markd\\VetRender\\components\\catalogs\\decibel_products.json",
+    "component_type": "antenna",
+    "model": "DB401",
+    "manufacturer": "unknown",
+    "validated": false,
+    "created": "2026-01-24T13:47:16.832528",
+    "notes": "Imported from Decibel Products catalog"
+  },
+  "source_text": "Decibel Products DB401\nModel: DB401\nType: antenna\nUHF single-bay folded dipole, 380-512 MHz\nGain: 3.0 dBi\nFrequency: 380-512 MHz\nPolarization: vertical\nVSWR: 1.5:1",
+  "expected_json": {
+    "component_type": "antenna",
+    "model": "DB401",
+    "part_number": "DB401",
+    "description": "UHF single-bay folded dipole, 380-512 MHz",
+    "gain_dbi": 3.0,
+    "frequency_range_mhz": [
+      380,
+      512
+    ],
+    "polarization": "vertical",
+    "vswr": 1.5,
+    "impedance_ohms": 50,
+    "connector_type": "N-Female",
+    "power_rating_watts": 500,
+    "wind_survival_mph": 125,
+    "pattern": "omni-directional",
+    "datasheet_url": "https://www.decibelproducts.com/product/db401/",
+    "common_uses": [
+      "Budget UHF base station",
+      "Portable operations"
+    ],
+    "notes": "Lower cost single-bay version"
+  }
+}

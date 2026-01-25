@@ -1,0 +1,35 @@
+{
+  "entry": {
+    "id": "5f2c85f7c05e",
+    "source_type": "catalog",
+    "source_path": "C:\\Users\\markd\\VetRender\\components\\catalogs\\shively_labs.json",
+    "component_type": "combiner",
+    "model": "Multi-Station Combiner",
+    "manufacturer": "unknown",
+    "validated": false,
+    "created": "2026-01-24T13:47:16.976846",
+    "notes": "Imported from Shively Labs catalog"
+  },
+  "source_text": "Shively Labs Multi-Station Combiner\nModel: Multi-Station Combiner\nType: combiner\nFM multi-station combiner, cavity design, up to 8 stations",
+  "expected_json": {
+    "component_type": "combiner",
+    "model": "Multi-Station Combiner",
+    "part_number": "MSC-FM",
+    "description": "FM multi-station combiner, cavity design, up to 8 stations",
+    "insertion_loss_db": 0.8,
+    "isolation_db": 90,
+    "frequency_range_mhz": [
+      88,
+      108
+    ],
+    "power_rating_watts": 50000,
+    "number_of_ports": 8,
+    "connector_type": "EIA 1-5/8\" or 3-1/8\" flange",
+    "datasheet_url": "https://www.shively.com/combiners/",
+    "common_uses": [
+      "Multi-station FM sites",
+      "Broadcast towers with multiple tenants"
+    ],
+    "notes": "Field-tunable cavities, excellent isolation, low insertion loss"
+  }
+}

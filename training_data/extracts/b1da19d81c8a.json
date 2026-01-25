@@ -1,0 +1,42 @@
+{
+  "entry": {
+    "id": "b1da19d81c8a",
+    "source_type": "catalog",
+    "source_path": "C:\\Users\\markd\\VetRender\\components\\catalogs\\decibel_products.json",
+    "component_type": "antenna",
+    "model": "DB420",
+    "manufacturer": "unknown",
+    "validated": false,
+    "created": "2026-01-24T13:47:16.826933",
+    "notes": "Imported from Decibel Products catalog"
+  },
+  "source_text": "Decibel Products DB420\nModel: DB420\nType: antenna\nDual-band VHF/UHF folded dipole, 136-174/380-512 MHz\nGain: 3.0 dBi\nFrequency: 136-174 MHz\nPolarization: vertical\nVSWR: 1.5:1",
+  "expected_json": {
+    "component_type": "antenna",
+    "model": "DB420",
+    "part_number": "DB420",
+    "description": "Dual-band VHF/UHF folded dipole, 136-174/380-512 MHz",
+    "gain_dbi": 3.0,
+    "gain_vhf_dbi": 3.0,
+    "gain_uhf_dbi": 5.5,
+    "frequency_range_mhz": [
+      136,
+      174,
+      380,
+      512
+    ],
+    "polarization": "vertical",
+    "vswr": 1.5,
+    "impedance_ohms": 50,
+    "connector_type": "N-Female (VHF), N-Female (UHF)",
+    "power_rating_watts": 250,
+    "wind_survival_mph": 125,
+    "pattern": "omni-directional",
+    "datasheet_url": "https://www.decibelproducts.com/product/db420/",
+    "common_uses": [
+      "Dual-band repeater",
+      "Public safety sites requiring VHF and UHF"
+    ],
+    "notes": "Single antenna for both VHF and UHF, separate feedpoints"
+  }
+}

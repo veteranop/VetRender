@@ -101,7 +101,7 @@ class MenuBar:
                                 command=self.callbacks.get('on_ai_assistant', lambda: None))
         antenna_menu.add_separator()
         antenna_menu.add_command(label="AI Antenna Import",
-                                command=self.callbacks.get('on_ai_import', lambda: None))
+                                command=self.callbacks.get('on_ai_import_antenna', lambda: None))
         antenna_menu.add_separator()
         antenna_menu.add_command(label="Manual Antenna Import",
                                 command=self.callbacks.get('on_manual_import', lambda: None))
@@ -237,6 +237,21 @@ class MenuBar:
                                command=self.callbacks.get('on_export_kml', lambda: None))
         export_menu.add_command(label="Images (All Zooms)",
                                command=self.callbacks.get('on_export_images', lambda: None))
+
+        # Debug logging toggle
+        export_menu.add_separator()
+        self.debug_logging_var = tk.BooleanVar(value=False)
+        export_menu.add_checkbutton(
+            label="Enable Debug Logging",
+            variable=self.debug_logging_var,
+            command=self._toggle_debug_logging
+        )
+
+    def _toggle_debug_logging(self):
+        """Toggle debug logging on/off"""
+        from debug_logger import get_logger
+        logger = get_logger()
+        logger.enabled = self.debug_logging_var.get()
 
     def setup_help_menu(self):
         """Create Help menu"""

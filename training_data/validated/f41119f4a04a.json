@@ -1,0 +1,36 @@
+{
+  "entry": {
+    "id": "f41119f4a04a",
+    "source_type": "catalog",
+    "source_path": "C:\\Users\\markd\\VetRender\\components\\catalogs\\polyphaser.json",
+    "component_type": "lightning_arrestor",
+    "model": "IS-DIN-50-FN",
+    "manufacturer": "unknown",
+    "validated": true,
+    "created": "2026-01-24T13:47:16.915911",
+    "notes": "Imported from PolyPhaser (Transtector) catalog",
+    "validated_date": "2026-01-24T13:47:16.918005"
+  },
+  "source_text": "PolyPhaser (Transtector) IS-DIN-50-FN\nModel: IS-DIN-50-FN\nType: lightning_arrestor\nDIN rail mount arrestor, N-Female input/output\nInsertion Loss: 0.2 dB\nSurge Voltage: 5 kV\nDC: Pass",
+  "expected_json": {
+    "component_type": "lightning_arrestor",
+    "model": "IS-DIN-50-FN",
+    "part_number": "IS-DIN-50-FN",
+    "description": "DIN rail mount arrestor, N-Female input/output",
+    "insertion_loss_db": 0.2,
+    "frequency_range_mhz": [
+      0,
+      1000
+    ],
+    "connector_type": "N-Female both ends",
+    "voltage_rating_kv": 5,
+    "dc_pass": true,
+    "datasheet_url": "https://www.polyphaser.com/products/",
+    "common_uses": [
+      "Rack-mount applications",
+      "Equipment room",
+      "Multiple feedlines"
+    ],
+    "notes": "DIN rail mount for easy installation in cabinets"
+  }
+}

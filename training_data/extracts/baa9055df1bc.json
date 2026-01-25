@@ -1,0 +1,28 @@
+{
+  "entry": {
+    "id": "baa9055df1bc",
+    "source_type": "webpage",
+    "source_path": "https://www.tessco.com/product/450-470-mhz-9db-exposed-dipole-omni-antenna-24252",
+    "component_type": "antenna",
+    "model": "DB411-B",
+    "manufacturer": "Andrew/Amphenol",
+    "validated": false,
+    "created": "2026-01-24T20:04:01.752917",
+    "notes": "Web-scraped UHF antenna"
+  },
+  "source_text": "Andrew DB411-B UHF Antenna\nModel: DB411-B\nFrequency: 450-470 MHz\nGain: 11.1 dBi / 9 dBd\nConnector: N Male\nPower: 250 watts max\nLength: 113 inches\nWeight: 25 lb\nType: Quasi-omni exposed dipole",
+  "expected_json": {
+    "component_type": "antenna",
+    "manufacturer": "Andrew/Amphenol",
+    "model": "DB411-B",
+    "frequency_range_mhz": [
+      450,
+      470
+    ],
+    "gain_dbi": 11.1,
+    "gain_dbd": 9.0,
+    "connector_type": "N-Male",
+    "power_rating_watts": 250,
+    "pattern": "quasi-omni"
+  }
+}

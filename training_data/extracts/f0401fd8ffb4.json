@@ -1,0 +1,39 @@
+{
+  "entry": {
+    "id": "f0401fd8ffb4",
+    "source_type": "catalog",
+    "source_path": "C:\\Users\\markd\\VetRender\\components\\catalogs\\shively_labs.json",
+    "component_type": "antenna",
+    "model": "6814",
+    "manufacturer": "unknown",
+    "validated": false,
+    "created": "2026-01-24T13:47:16.963751",
+    "notes": "Imported from Shively Labs catalog"
+  },
+  "source_text": "Shively Labs 6814\nModel: 6814\nType: antenna\nFM broadcast antenna, 4-bay, circular polarization\nGain: 6.0 dBi\nFrequency: 88-108 MHz\nPolarization: circular\nVSWR: 1.05:1",
+  "expected_json": {
+    "component_type": "antenna",
+    "model": "6814",
+    "part_number": "6814",
+    "description": "FM broadcast antenna, 4-bay, circular polarization",
+    "gain_dbi": 6.0,
+    "gain_relative_dipole": 4.0,
+    "frequency_range_mhz": [
+      88,
+      108
+    ],
+    "polarization": "circular",
+    "vswr": 1.05,
+    "impedance_ohms": 50,
+    "connector_type": "EIA 1-5/8\" flange",
+    "power_rating_watts": 40000,
+    "wind_survival_mph": 150,
+    "pattern": "omni-directional",
+    "datasheet_url": "https://www.shively.com/6814/",
+    "common_uses": [
+      "High-gain FM broadcast",
+      "Wide-area coverage"
+    ],
+    "notes": "4-bay for maximum gain, industry standard"
+  }
+}

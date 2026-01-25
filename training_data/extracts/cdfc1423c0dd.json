@@ -1,0 +1,40 @@
+{
+  "entry": {
+    "id": "cdfc1423c0dd",
+    "source_type": "catalog",
+    "source_path": "C:\\Users\\markd\\VetRender\\components\\catalogs\\shively_labs.json",
+    "component_type": "filter",
+    "model": "FM Band-Pass Filter",
+    "manufacturer": "unknown",
+    "validated": false,
+    "created": "2026-01-24T13:47:16.985140",
+    "notes": "Imported from Shively Labs catalog"
+  },
+  "source_text": "Shively Labs FM Band-Pass Filter\nModel: FM Band-Pass Filter\nType: filter\nFM broadcast band-pass filter",
+  "expected_json": {
+    "component_type": "filter",
+    "model": "FM Band-Pass Filter",
+    "part_number": "FM-BPF",
+    "description": "FM broadcast band-pass filter",
+    "insertion_loss_db": 0.3,
+    "rejection_db": 60,
+    "passband_mhz": [
+      88,
+      108
+    ],
+    "stopband_mhz": [
+      0,
+      88,
+      108,
+      1000
+    ],
+    "power_rating_watts": 10000,
+    "connector_type": "EIA 1-5/8\" flange",
+    "datasheet_url": "https://www.shively.com/filters/",
+    "common_uses": [
+      "Removing out-of-band emissions",
+      "Protecting co-located equipment"
+    ],
+    "notes": "Low insertion loss in FM band, high rejection outside band"
+  }
+}

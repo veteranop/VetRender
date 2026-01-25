@@ -1,0 +1,35 @@
+{
+  "entry": {
+    "id": "67c51210c561",
+    "source_type": "catalog",
+    "source_path": "C:\\Users\\markd\\VetRender\\components\\catalogs\\polyphaser.json",
+    "component_type": "lightning_arrestor",
+    "model": "IS-B50LN-C0",
+    "manufacturer": "unknown",
+    "validated": false,
+    "created": "2026-01-24T13:47:16.895772",
+    "notes": "Imported from PolyPhaser (Transtector) catalog"
+  },
+  "source_text": "PolyPhaser (Transtector) IS-B50LN-C0\nModel: IS-B50LN-C0\nType: lightning_arrestor\nBulkhead lightning arrestor, DC pass, N-Female to N-Female\nInsertion Loss: 0.2 dB\nSurge Voltage: 5 kV\nDC: Pass",
+  "expected_json": {
+    "component_type": "lightning_arrestor",
+    "model": "IS-B50LN-C0",
+    "part_number": "IS-B50LN-C0",
+    "description": "Bulkhead lightning arrestor, DC pass, N-Female to N-Female",
+    "insertion_loss_db": 0.2,
+    "frequency_range_mhz": [
+      0,
+      1000
+    ],
+    "connector_type": "N-Female both ends",
+    "voltage_rating_kv": 5,
+    "dc_pass": true,
+    "datasheet_url": "https://www.polyphaser.com/wp-content/uploads/IS-B50LN-C0.pdf",
+    "common_uses": [
+      "Tower base protection",
+      "Equipment room entrance",
+      "Repeater sites"
+    ],
+    "notes": "Very popular arrestor, low loss, DC pass for antenna-mounted preamps"
+  }
+}

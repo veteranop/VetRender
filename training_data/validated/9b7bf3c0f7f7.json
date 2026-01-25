@@ -1,0 +1,29 @@
+{
+  "entry": {
+    "id": "9b7bf3c0f7f7",
+    "source_type": "webpage",
+    "source_path": "https://jampro.com/low-power-fm-broadcast-antennas/",
+    "component_type": "antenna",
+    "model": "JHPC",
+    "manufacturer": "Jampro Antennas",
+    "validated": true,
+    "created": "2026-01-24T20:04:01.778375",
+    "notes": "Web-scraped FM broadcast antenna",
+    "validated_date": "2026-01-24T20:04:01.781168"
+  },
+  "source_text": "Jampro JHPC High Power Circular Penetrator\nModel: JHPC\nFrequency: 87.5-108 MHz (FM Band II)\nPower: 40 kW maximum per bay\nPolarization: Circular\nVSWR: 1.1:1 +/- 200 kHz\nFeed: 3-1/8\" shunt feed line\nConstruction: Marine brass and copper\nMounting: Hot dipped galvanized steel bracket",
+  "expected_json": {
+    "component_type": "antenna",
+    "manufacturer": "Jampro Antennas",
+    "model": "JHPC",
+    "frequency_range_mhz": [
+      87.5,
+      108
+    ],
+    "power_rating_watts": 40000,
+    "polarization": "circular",
+    "vswr": 1.1,
+    "connector_type": "EIA 3-1/8\" flange",
+    "pattern": "omni-directional"
+  }
+}

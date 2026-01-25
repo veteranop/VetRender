@@ -1,0 +1,47 @@
+{
+  "entry": {
+    "id": "ee4e4c91d8b7",
+    "source_type": "catalog",
+    "source_path": "C:\\Users\\markd\\VetRender\\components\\catalogs\\rell.json",
+    "component_type": "cable",
+    "model": "EFX2-50",
+    "manufacturer": "unknown",
+    "validated": false,
+    "created": "2026-01-24T13:47:16.932003",
+    "notes": "Imported from Radial Eletromagnetics Inc (RELL) catalog"
+  },
+  "source_text": "Radial Eletromagnetics Inc (RELL) EFX2-50\nModel: EFX2-50\nType: cable\n2-1/4\" flexible foam dielectric transmission line, 50 ohm\nImpedance: 50 ohms\nVelocity: 88.0%\nAttenuation at 50 MHz: 0.07 dB/100ft\nAttenuation at 88 MHz: 0.1 dB/100ft\nAttenuation at 108 MHz: 0.11 dB/100ft\nAttenuation at 150 MHz: 0.13 dB/100ft\nAttenuation at 220 MHz: 0.16 dB/100ft\nAttenuation at 450 MHz: 0.23 dB/100ft\nAttenuation at 900 MHz: 0.34 dB/100ft\nAttenuation at 1800 MHz: 0.5 dB/100ft",
+  "expected_json": {
+    "component_type": "cable",
+    "model": "EFX2-50",
+    "part_number": "EFX2-50",
+    "description": "2-1/4\" flexible foam dielectric transmission line, 50 ohm",
+    "impedance_ohms": 50,
+    "velocity_factor": 0.88,
+    "outer_diameter_inches": 2.25,
+    "loss_db_per_100ft": {
+      "50": 0.07,
+      "88": 0.1,
+      "108": 0.11,
+      "150": 0.13,
+      "220": 0.16,
+      "450": 0.23,
+      "900": 0.34,
+      "1800": 0.5
+    },
+    "power_rating_watts": {
+      "50_mhz": 32000,
+      "100_mhz": 26000,
+      "500_mhz": 15000,
+      "1000_mhz": 10500
+    },
+    "weight_lbs_per_100ft": 110.0,
+    "minimum_bend_radius_inches": 24.0,
+    "datasheet_url": "https://www.rell.com/efx2-50/",
+    "common_uses": [
+      "FM broadcast",
+      "Medium-high power applications"
+    ],
+    "notes": "Lower loss than 1-5/8\", higher power handling"
+  }
+}

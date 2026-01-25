@@ -1,0 +1,53 @@
+{
+  "entry": {
+    "id": "c475b5ecb69f",
+    "source_type": "catalog",
+    "source_path": "C:\\Users\\markd\\VetRender\\components\\catalogs\\andrew_commscope.json",
+    "component_type": "cable",
+    "model": "LDF6-50",
+    "manufacturer": "unknown",
+    "validated": true,
+    "created": "2026-01-24T13:47:16.765913",
+    "notes": "Imported from Andrew / CommScope catalog",
+    "validated_date": "2026-01-24T13:47:16.767094"
+  },
+  "source_text": "Andrew / CommScope LDF6-50\nModel: LDF6-50\nType: cable\n1-1/4\" HELIAX foam dielectric coaxial cable, aluminum sheath\nImpedance: 50 ohms\nVelocity: 89.0%\nAttenuation at 30 MHz: 0.08 dB/100ft\nAttenuation at 50 MHz: 0.11 dB/100ft\nAttenuation at 150 MHz: 0.21 dB/100ft\nAttenuation at 220 MHz: 0.26 dB/100ft\nAttenuation at 450 MHz: 0.38 dB/100ft\nAttenuation at 512 MHz: 0.42 dB/100ft\nAttenuation at 806 MHz: 0.53 dB/100ft\nAttenuation at 900 MHz: 0.56 dB/100ft\nAttenuation at 960 MHz: 0.59 dB/100ft\nAttenuation at 1800 MHz: 0.82 dB/100ft\nAttenuation at 1900 MHz: 0.85 dB/100ft\nAttenuation at 2400 MHz: 0.98 dB/100ft",
+  "expected_json": {
+    "component_type": "cable",
+    "model": "LDF6-50",
+    "part_number": "LDF6-50",
+    "description": "1-1/4\" HELIAX foam dielectric coaxial cable, aluminum sheath",
+    "impedance_ohms": 50,
+    "velocity_factor": 0.89,
+    "outer_diameter_inches": 1.67,
+    "loss_db_per_100ft": {
+      "30": 0.08,
+      "50": 0.11,
+      "150": 0.21,
+      "220": 0.26,
+      "450": 0.38,
+      "512": 0.42,
+      "806": 0.53,
+      "900": 0.56,
+      "960": 0.59,
+      "1800": 0.82,
+      "1900": 0.85,
+      "2400": 0.98
+    },
+    "power_rating_watts": {
+      "50_mhz": 14000,
+      "150_mhz": 11800,
+      "450_mhz": 7300,
+      "900_mhz": 5100,
+      "1800_mhz": 3500
+    },
+    "weight_lbs_per_100ft": 53.0,
+    "minimum_bend_radius_inches": 15.0,
+    "datasheet_url": "https://www.commscope.com/globalassets/digizuite/2258-ldf6-50.pdf",
+    "common_uses": [
+      "Very high power broadcast",
+      "Long runs with minimal loss"
+    ],
+    "notes": "Very low loss, heavy and rigid"
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "entry": {
+    "id": "1d6b348cd71b",
+    "source_type": "catalog",
+    "source_path": "C:\\Users\\markd\\VetRender\\components\\catalogs\\harris_broadcast.json",
+    "component_type": "combiner",
+    "model": "Starpoint Multi-Station Combiner",
+    "manufacturer": "unknown",
+    "validated": false,
+    "created": "2026-01-24T13:47:16.863660",
+    "notes": "Imported from Harris Broadcast (Imagine Communications / GatesAir) catalog"
+  },
+  "source_text": "Harris Broadcast (Imagine Communications / GatesAir) Starpoint Multi-Station Combiner\nModel: Starpoint Multi-Station Combiner\nType: combiner\nFM multi-station combiner, up to 12 stations",
+  "expected_json": {
+    "component_type": "combiner",
+    "model": "Starpoint Multi-Station Combiner",
+    "part_number": "Starpoint",
+    "description": "FM multi-station combiner, up to 12 stations",
+    "insertion_loss_db": 1.0,
+    "isolation_db": 85,
+    "frequency_range_mhz": [
+      87.5,
+      108
+    ],
+    "power_rating_watts": 40000,
+    "number_of_ports": 12,
+    "connector_type": "EIA 3-1/8\" flange",
+    "datasheet_url": "https://www.gatesair.com/starpoint/",
+    "common_uses": [
+      "Multi-station FM sites",
+      "Master antenna systems"
+    ],
+    "notes": "Low loss design, excellent isolation, field-tunable"
+  }
+}

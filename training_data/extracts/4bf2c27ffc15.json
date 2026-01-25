@@ -1,0 +1,35 @@
+{
+  "entry": {
+    "id": "4bf2c27ffc15",
+    "source_type": "catalog",
+    "source_path": "C:\\Users\\markd\\VetRender\\components\\catalogs\\bird_technologies.json",
+    "component_type": "combiner",
+    "model": "APR-4",
+    "manufacturer": "unknown",
+    "validated": false,
+    "created": "2026-01-24T13:47:16.783206",
+    "notes": "Imported from Bird Technologies catalog"
+  },
+  "source_text": "Bird Technologies APR-4\nModel: APR-4\nType: combiner\n4-port cavity combiner, tunable, 25-1000 MHz",
+  "expected_json": {
+    "component_type": "combiner",
+    "model": "APR-4",
+    "part_number": "APR-4",
+    "description": "4-port cavity combiner, tunable, 25-1000 MHz",
+    "insertion_loss_db": 2.0,
+    "isolation_db": 75,
+    "frequency_range_mhz": [
+      25,
+      1000
+    ],
+    "power_rating_watts": 200,
+    "number_of_ports": 4,
+    "connector_type": "N-Female",
+    "datasheet_url": "https://www.bird-technologies.com/products/combiners/",
+    "common_uses": [
+      "Multi-transmitter systems",
+      "Trunked radio"
+    ],
+    "notes": "Combines up to 4 transmitters"
+  }
+}

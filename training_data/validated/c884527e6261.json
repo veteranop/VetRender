@@ -1,0 +1,40 @@
+{
+  "entry": {
+    "id": "c884527e6261",
+    "source_type": "catalog",
+    "source_path": "C:\\Users\\markd\\VetRender\\components\\catalogs\\bw_broadcast.json",
+    "component_type": "antenna",
+    "model": "TX Ant 2",
+    "manufacturer": "unknown",
+    "validated": true,
+    "created": "2026-01-24T13:47:16.813274",
+    "notes": "Imported from BW Broadcast catalog",
+    "validated_date": "2026-01-24T13:47:16.814525"
+  },
+  "source_text": "BW Broadcast TX Ant 2\nModel: TX Ant 2\nType: antenna\nFM broadcast dipole antenna, 2-bay, circular polarization\nGain: 3.0 dBi\nFrequency: 87.5-108 MHz\nPolarization: circular\nVSWR: 1.1:1",
+  "expected_json": {
+    "component_type": "antenna",
+    "model": "TX Ant 2",
+    "part_number": "TXANT2",
+    "description": "FM broadcast dipole antenna, 2-bay, circular polarization",
+    "gain_dbi": 3.0,
+    "gain_relative_dipole": 2.0,
+    "frequency_range_mhz": [
+      87.5,
+      108
+    ],
+    "polarization": "circular",
+    "vswr": 1.1,
+    "impedance_ohms": 50,
+    "connector_type": "EIA 1-5/8\" flange",
+    "power_rating_watts": 5000,
+    "wind_survival_mph": 125,
+    "pattern": "omni-directional",
+    "datasheet_url": "https://www.bwbroadcast.com/antennas/",
+    "common_uses": [
+      "FM broadcast stations",
+      "Regional coverage"
+    ],
+    "notes": "Circular polarization for mobile reception, stainless steel construction"
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "entry": {
+    "id": "d31702e4ef47",
+    "source_type": "catalog",
+    "source_path": "C:\\Users\\markd\\VetRender\\components\\catalogs\\shively_labs.json",
+    "component_type": "antenna",
+    "model": "6814-4R",
+    "manufacturer": "unknown",
+    "validated": false,
+    "created": "2026-01-24T13:47:16.972396",
+    "notes": "Imported from Shively Labs catalog"
+  },
+  "source_text": "Shively Labs 6814-4R\nModel: 6814-4R\nType: antenna\nFM broadcast antenna, 4-bay, directional (4 panels), circular polarization\nGain: 9.0 dBi\nFrequency: 88-108 MHz\nPolarization: circular\nVSWR: 1.1:1",
+  "expected_json": {
+    "component_type": "antenna",
+    "model": "6814-4R",
+    "part_number": "6814-4R",
+    "description": "FM broadcast antenna, 4-bay, directional (4 panels), circular polarization",
+    "gain_dbi": 9.0,
+    "gain_relative_dipole": 4.0,
+    "frequency_range_mhz": [
+      88,
+      108
+    ],
+    "polarization": "circular",
+    "vswr": 1.1,
+    "impedance_ohms": 50,
+    "connector_type": "EIA 1-5/8\" flange",
+    "power_rating_watts": 40000,
+    "wind_survival_mph": 150,
+    "pattern": "directional",
+    "azimuth_pattern": "custom",
+    "datasheet_url": "https://www.shively.com/directional/",
+    "common_uses": [
+      "Directional FM coverage",
+      "Protecting adjacent markets"
+    ],
+    "notes": "4 panel directional, gain towards target area, null towards protected area"
+  }
+}

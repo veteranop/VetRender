@@ -1,0 +1,46 @@
+{
+  "entry": {
+    "id": "adbd78aa95ee",
+    "source_type": "catalog",
+    "source_path": "C:\\Users\\markd\\VetRender\\components\\catalogs\\bw_broadcast.json",
+    "component_type": "transmitter",
+    "model": "TX300 V2",
+    "manufacturer": "unknown",
+    "validated": true,
+    "created": "2026-01-24T13:47:16.796235",
+    "notes": "Imported from BW Broadcast catalog",
+    "validated_date": "2026-01-24T13:47:16.797430"
+  },
+  "source_text": "BW Broadcast TX300 V2\nModel: TX300 V2\nType: transmitter\nFM broadcast transmitter, 300W, solid state",
+  "expected_json": {
+    "component_type": "transmitter",
+    "model": "TX300 V2",
+    "part_number": "TX300-V2",
+    "description": "FM broadcast transmitter, 300W, solid state",
+    "frequency_range_mhz": [
+      87.5,
+      108
+    ],
+    "power_output_watts": 300,
+    "power_output_dbm": 54.77,
+    "power_output_dbw": 24.77,
+    "efficiency_percent": 65,
+    "mains_voltage": "230VAC",
+    "power_consumption_watts": 460,
+    "output_impedance_ohms": 50,
+    "connector_type": "N-Female or 7/16 DIN",
+    "harmonic_suppression_dbc": -70,
+    "spurious_suppression_dbc": -70,
+    "audio_input": [
+      "AES/EBU",
+      "Analog balanced"
+    ],
+    "datasheet_url": "https://www.bwbroadcast.com/products/tx300-v2/",
+    "common_uses": [
+      "Community radio",
+      "Low power FM",
+      "Translator stations"
+    ],
+    "notes": "Compact design, built-in stereo encoder, exciter, and PA"
+  }
+}

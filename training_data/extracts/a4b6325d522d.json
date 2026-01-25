@@ -1,0 +1,45 @@
+{
+  "entry": {
+    "id": "a4b6325d522d",
+    "source_type": "catalog",
+    "source_path": "C:\\Users\\markd\\VetRender\\components\\catalogs\\bw_broadcast.json",
+    "component_type": "transmitter",
+    "model": "TX10000 V5",
+    "manufacturer": "unknown",
+    "validated": false,
+    "created": "2026-01-24T13:47:16.808416",
+    "notes": "Imported from BW Broadcast catalog"
+  },
+  "source_text": "BW Broadcast TX10000 V5\nModel: TX10000 V5\nType: transmitter\nFM broadcast transmitter, 10kW, solid state",
+  "expected_json": {
+    "component_type": "transmitter",
+    "model": "TX10000 V5",
+    "part_number": "TX10000-V5",
+    "description": "FM broadcast transmitter, 10kW, solid state",
+    "frequency_range_mhz": [
+      87.5,
+      108
+    ],
+    "power_output_watts": 10000,
+    "power_output_dbm": 70.0,
+    "power_output_dbw": 40.0,
+    "efficiency_percent": 72,
+    "mains_voltage": "400VAC 3-phase",
+    "power_consumption_watts": 13900,
+    "output_impedance_ohms": 50,
+    "connector_type": "EIA 1-5/8\" or 3-1/8\" flange",
+    "harmonic_suppression_dbc": -80,
+    "spurious_suppression_dbc": -80,
+    "audio_input": [
+      "AES/EBU",
+      "Analog balanced",
+      "IP streaming"
+    ],
+    "datasheet_url": "https://www.bwbroadcast.com/products/tx10000-v5/",
+    "common_uses": [
+      "Major market FM stations",
+      "High-power broadcast"
+    ],
+    "notes": "Fully redundant design, remote control, automatic changeover"
+  }
+}

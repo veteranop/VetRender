@@ -1,0 +1,37 @@
+{
+  "entry": {
+    "id": "b83e7693655b",
+    "source_type": "catalog",
+    "source_path": "C:\\Users\\markd\\VetRender\\components\\catalogs\\bird_technologies.json",
+    "component_type": "coupler",
+    "model": "4240-010",
+    "manufacturer": "unknown",
+    "validated": true,
+    "created": "2026-01-24T13:47:16.785273",
+    "notes": "Imported from Bird Technologies catalog",
+    "validated_date": "2026-01-24T13:47:16.786271"
+  },
+  "source_text": "Bird Technologies 4240-010\nModel: 4240-010\nType: coupler\nDirectional coupler, 10dB coupling, 25-1000 MHz",
+  "expected_json": {
+    "component_type": "coupler",
+    "model": "4240-010",
+    "part_number": "4240-010",
+    "description": "Directional coupler, 10dB coupling, 25-1000 MHz",
+    "insertion_loss_db": 0.2,
+    "coupling_db": 10,
+    "directivity_db": 25,
+    "frequency_range_mhz": [
+      25,
+      1000
+    ],
+    "power_rating_watts": 1000,
+    "connector_type": "N-Female",
+    "datasheet_url": "https://www.bird-technologies.com/products/couplers/",
+    "common_uses": [
+      "Sampling transmitter power",
+      "Monitoring systems",
+      "Test setups"
+    ],
+    "notes": "Samples forward and reflected power for metering"
+  }
+}

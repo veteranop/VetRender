@@ -1,0 +1,45 @@
+{
+  "entry": {
+    "id": "91d5c88a927e",
+    "source_type": "catalog",
+    "source_path": "C:\\Users\\markd\\VetRender\\components\\catalogs\\harris_broadcast.json",
+    "component_type": "transmitter",
+    "model": "Flexiva FAX1",
+    "manufacturer": "unknown",
+    "validated": false,
+    "created": "2026-01-24T13:47:16.839404",
+    "notes": "Imported from Harris Broadcast (Imagine Communications / GatesAir) catalog"
+  },
+  "source_text": "Harris Broadcast (Imagine Communications / GatesAir) Flexiva FAX1\nModel: Flexiva FAX1\nType: transmitter\nFM broadcast transmitter, 1kW, solid state",
+  "expected_json": {
+    "component_type": "transmitter",
+    "model": "Flexiva FAX1",
+    "part_number": "FAX1",
+    "description": "FM broadcast transmitter, 1kW, solid state",
+    "frequency_range_mhz": [
+      87.5,
+      108
+    ],
+    "power_output_watts": 1000,
+    "power_output_dbm": 60.0,
+    "power_output_dbw": 30.0,
+    "efficiency_percent": 70,
+    "mains_voltage": "230VAC",
+    "power_consumption_watts": 1430,
+    "output_impedance_ohms": 50,
+    "connector_type": "7/16 DIN Female",
+    "harmonic_suppression_dbc": -75,
+    "spurious_suppression_dbc": -75,
+    "audio_input": [
+      "AES/EBU",
+      "Analog balanced",
+      "Composite MPX"
+    ],
+    "datasheet_url": "https://www.gatesair.com/flexiva/",
+    "common_uses": [
+      "Community FM",
+      "Small to medium market"
+    ],
+    "notes": "Modular design, hot-swappable RF modules"
+  }
+}

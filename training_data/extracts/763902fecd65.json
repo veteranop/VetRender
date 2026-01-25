@@ -1,0 +1,38 @@
+{
+  "entry": {
+    "id": "763902fecd65",
+    "source_type": "catalog",
+    "source_path": "C:\\Users\\markd\\VetRender\\components\\catalogs\\jampro.json",
+    "component_type": "antenna",
+    "model": "JCPV-4",
+    "manufacturer": "unknown",
+    "validated": false,
+    "created": "2026-01-24T13:47:16.874648",
+    "notes": "Imported from Jampro Antennas catalog"
+  },
+  "source_text": "Jampro Antennas JCPV-4\nModel: JCPV-4\nType: antenna\nFM broadcast antenna, 4-bay, circular polarization, panel design\nGain: 6.0 dBi\nFrequency: 88-108 MHz\nPolarization: circular\nVSWR: 1.08:1",
+  "expected_json": {
+    "component_type": "antenna",
+    "model": "JCPV-4",
+    "part_number": "JCPV-4",
+    "description": "FM broadcast antenna, 4-bay, circular polarization, panel design",
+    "gain_dbi": 6.0,
+    "gain_relative_dipole": 4.0,
+    "frequency_range_mhz": [
+      88,
+      108
+    ],
+    "polarization": "circular",
+    "vswr": 1.08,
+    "impedance_ohms": 50,
+    "connector_type": "EIA 1-5/8\" flange",
+    "power_rating_watts": 60000,
+    "wind_survival_mph": 125,
+    "pattern": "omni-directional",
+    "datasheet_url": "https://www.jampro.com/jcpv/",
+    "common_uses": [
+      "High-gain FM broadcast"
+    ],
+    "notes": "4-bay for high gain and wide coverage"
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "entry": {
+    "id": "2bd5430d57cb",
+    "source_type": "catalog",
+    "source_path": "C:\\Users\\markd\\VetRender\\components\\catalogs\\bw_broadcast.json",
+    "component_type": "transmitter",
+    "model": "TX2500 V5",
+    "manufacturer": "unknown",
+    "validated": true,
+    "created": "2026-01-24T13:47:16.803301",
+    "notes": "Imported from BW Broadcast catalog",
+    "validated_date": "2026-01-24T13:47:16.804580"
+  },
+  "source_text": "BW Broadcast TX2500 V5\nModel: TX2500 V5\nType: transmitter\nFM broadcast transmitter, 2.5kW, solid state",
+  "expected_json": {
+    "component_type": "transmitter",
+    "model": "TX2500 V5",
+    "part_number": "TX2500-V5",
+    "description": "FM broadcast transmitter, 2.5kW, solid state",
+    "frequency_range_mhz": [
+      87.5,
+      108
+    ],
+    "power_output_watts": 2500,
+    "power_output_dbm": 63.98,
+    "power_output_dbw": 33.98,
+    "efficiency_percent": 70,
+    "mains_voltage": "230VAC or 400VAC 3-phase",
+    "power_consumption_watts": 3570,
+    "output_impedance_ohms": 50,
+    "connector_type": "7/16 DIN Female or EIA flange",
+    "harmonic_suppression_dbc": -75,
+    "spurious_suppression_dbc": -75,
+    "audio_input": [
+      "AES/EBU",
+      "Analog balanced",
+      "IP streaming"
+    ],
+    "datasheet_url": "https://www.bwbroadcast.com/products/tx2500-v5/",
+    "common_uses": [
+      "Medium market FM stations",
+      "Primary coverage transmitters"
+    ],
+    "notes": "Hot-swappable modules, advanced SNMP monitoring"
+  }
+}

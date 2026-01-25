@@ -1,0 +1,26 @@
+{
+  "entry": {
+    "id": "6084cd51d7c7",
+    "source_type": "webpage",
+    "source_path": "https://jampro.com/low-power-fm-broadcast-antennas/",
+    "component_type": "antenna",
+    "model": "JLCP",
+    "manufacturer": "Jampro Antennas",
+    "validated": false,
+    "created": "2026-01-24T20:04:01.789164",
+    "notes": "Web-scraped FM broadcast antenna"
+  },
+  "source_text": "Jampro JLCP Low Power FM Antenna\nModel: JLCP\nFrequency: FM Band II (87.5-108 MHz)\nPower: 500W (options to 1-2kW)\nPolarization: Circular\nVSWR: 1.5:1 or better\nConstruction: Stainless steel\nApplication: Low power translators/boosters",
+  "expected_json": {
+    "component_type": "antenna",
+    "manufacturer": "Jampro Antennas",
+    "model": "JLCP",
+    "frequency_range_mhz": [
+      87.5,
+      108
+    ],
+    "power_rating_watts": 500,
+    "polarization": "circular",
+    "vswr": 1.5
+  }
+}

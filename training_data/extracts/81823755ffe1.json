@@ -1,0 +1,40 @@
+{
+  "entry": {
+    "id": "81823755ffe1",
+    "source_type": "catalog",
+    "source_path": "C:\\Users\\markd\\VetRender\\components\\catalogs\\jampro.json",
+    "component_type": "antenna",
+    "model": "JDDP",
+    "manufacturer": "unknown",
+    "validated": false,
+    "created": "2026-01-24T13:47:16.885581",
+    "notes": "Imported from Jampro Antennas catalog"
+  },
+  "source_text": "Jampro Antennas JDDP\nModel: JDDP\nType: antenna\nFM broadcast directional antenna, 4-bay, 4 panels\nGain: 10.0 dBi\nFrequency: 88-108 MHz\nPolarization: circular\nVSWR: 1.1:1",
+  "expected_json": {
+    "component_type": "antenna",
+    "model": "JDDP",
+    "part_number": "JDDP-4",
+    "description": "FM broadcast directional antenna, 4-bay, 4 panels",
+    "gain_dbi": 10.0,
+    "gain_relative_dipole": 4.0,
+    "frequency_range_mhz": [
+      88,
+      108
+    ],
+    "polarization": "circular",
+    "vswr": 1.1,
+    "impedance_ohms": 50,
+    "connector_type": "EIA 1-5/8\" flange",
+    "power_rating_watts": 40000,
+    "wind_survival_mph": 125,
+    "pattern": "directional",
+    "azimuth_pattern": "custom",
+    "datasheet_url": "https://www.jampro.com/jddp/",
+    "common_uses": [
+      "Directional FM coverage",
+      "Market protection"
+    ],
+    "notes": "Custom directional patterns, high gain towards coverage area"
+  }
+}

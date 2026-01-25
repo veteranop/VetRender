@@ -50,18 +50,28 @@ class AntennaPattern:
             return False
     
     def get_gain(self, azimuth, elevation=0):
-        """Get antenna gain for a given azimuth and elevation angle"""
+        """Get antenna gain for a given azimuth and elevation angle.
+
+        Returns absolute gain in dBi:
+        - max_gain is the peak antenna gain (dBi)
+        - az_gain is the relative azimuth pattern (0 dB at boresight, negative off-axis)
+        - el_gain is the relative elevation pattern (0 dB at boresight, negative off-axis)
+
+        Absolute gain = max_gain + az_relative + el_relative
+        """
         az_gain = self._interpolate_pattern(self.azimuth_pattern, azimuth)
         el_gain = self._interpolate_pattern(self.elevation_pattern, elevation)
-        
-        if az_gain is not None and el_gain is not None:
-            return az_gain + el_gain - self.max_gain
-        elif az_gain is not None:
-            return az_gain
-        elif el_gain is not None:
-            return el_gain
-        else:
-            return 0
+
+        # Start with max gain (peak gain at boresight)
+        total_gain = self.max_gain
+
+        # Add relative pattern losses (az_gain and el_gain are 0 or negative)
+        if az_gain is not None:
+            total_gain += az_gain
+        if el_gain is not None:
+            total_gain += el_gain
+
+        return total_gain
     
     def _interpolate_pattern(self, pattern, angle):
         """Interpolate gain from pattern dictionary"""

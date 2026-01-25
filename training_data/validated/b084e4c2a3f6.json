@@ -1,0 +1,31 @@
+{
+  "entry": {
+    "id": "b084e4c2a3f6",
+    "source_type": "webpage",
+    "source_path": "https://www.rfiamericas.com/product/uhf-directional-yagi-350-600-mhz-9dbd-ruggedized/",
+    "component_type": "antenna",
+    "model": "RDA6-99",
+    "manufacturer": "RFI Americas",
+    "validated": true,
+    "created": "2026-01-24T20:04:01.804963",
+    "notes": "Web-scraped Yagi antenna",
+    "validated_date": "2026-01-24T20:04:01.807458"
+  },
+  "source_text": "RFI Americas RDA6-99 UHF Ruggedized Yagi\nModel: RDA6-99\nFrequency: 330-600 MHz (custom tuned)\nGain: 11.1 dBi / 9 dBd\nVSWR: <1.5:1\nConnector: N female with 9302 cable tail\nPower: 250 watts\nVertical Beamwidth: 45 degrees\nHorizontal Beamwidth: 54 degrees\nFront-to-Back Ratio: 20 dB\nTunable Bandwidth: 4%\nLength: 59.1 inches\nWeight: 2.9 pounds\nConstruction: All welded aluminum, black powder coated",
+  "expected_json": {
+    "component_type": "antenna",
+    "manufacturer": "RFI Americas",
+    "model": "RDA6-99",
+    "frequency_range_mhz": [
+      330,
+      600
+    ],
+    "gain_dbi": 11.1,
+    "gain_dbd": 9.0,
+    "vswr": 1.5,
+    "connector_type": "N-Female",
+    "power_rating_watts": 250,
+    "front_to_back_db": 20,
+    "pattern": "directional"
+  }
+}

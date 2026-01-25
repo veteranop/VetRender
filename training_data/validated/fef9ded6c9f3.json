@@ -1,0 +1,26 @@
+{
+  "entry": {
+    "id": "fef9ded6c9f3",
+    "source_type": "webpage",
+    "source_path": "https://www.nautel.com/products/fm-transmitters/vs-series/",
+    "component_type": "transmitter",
+    "model": "VS2.5",
+    "manufacturer": "Nautel",
+    "validated": true,
+    "created": "2026-01-24T20:04:01.831391",
+    "notes": "Web-scraped FM transmitter",
+    "validated_date": "2026-01-24T20:04:01.833983"
+  },
+  "source_text": "Nautel VS2.5 FM Transmitter\nModel: VS2.5\nPower Output: 2800 W analog\nPower Supply: Dual units\nAC Input: 180-264 V, 1 phase\nHeight: 5 RU\nFrequency: 87.5-108 MHz",
+  "expected_json": {
+    "component_type": "transmitter",
+    "manufacturer": "Nautel",
+    "model": "VS2.5",
+    "power_output_watts": 2800,
+    "frequency_range_mhz": [
+      87.5,
+      108
+    ],
+    "mains_voltage": "180-264VAC"
+  }
+}

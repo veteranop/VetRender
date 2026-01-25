@@ -1,0 +1,34 @@
+{
+  "entry": {
+    "id": "b88fecfceb4e",
+    "source_type": "catalog",
+    "source_path": "C:\\Users\\markd\\VetRender\\components\\catalogs\\polyphaser.json",
+    "component_type": "lightning_arrestor",
+    "model": "DGXZ+05NF",
+    "manufacturer": "unknown",
+    "validated": false,
+    "created": "2026-01-24T13:47:16.907752",
+    "notes": "Imported from PolyPhaser (Transtector) catalog"
+  },
+  "source_text": "PolyPhaser (Transtector) DGXZ+05NF\nModel: DGXZ+05NF\nType: lightning_arrestor\nIn-line gas tube arrestor, N-Female to N-Male\nInsertion Loss: 0.05 dB\nSurge Voltage: 5 kV\nDC: Pass",
+  "expected_json": {
+    "component_type": "lightning_arrestor",
+    "model": "DGXZ+05NF",
+    "part_number": "DGXZ+05NF",
+    "description": "In-line gas tube arrestor, N-Female to N-Male",
+    "insertion_loss_db": 0.05,
+    "frequency_range_mhz": [
+      0,
+      6000
+    ],
+    "connector_type": "N-Female input, N-Male output",
+    "voltage_rating_kv": 5,
+    "dc_pass": true,
+    "datasheet_url": "https://www.polyphaser.com/wp-content/uploads/DGXZ.pdf",
+    "common_uses": [
+      "Equipment input protection",
+      "Inline protection"
+    ],
+    "notes": "Very low insertion loss, gas tube technology"
+  }
+}

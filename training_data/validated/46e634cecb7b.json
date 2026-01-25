@@ -1,0 +1,46 @@
+{
+  "entry": {
+    "id": "46e634cecb7b",
+    "source_type": "catalog",
+    "source_path": "C:\\Users\\markd\\VetRender\\components\\catalogs\\bw_broadcast.json",
+    "component_type": "transmitter",
+    "model": "TX1000 V5",
+    "manufacturer": "unknown",
+    "validated": true,
+    "created": "2026-01-24T13:47:16.800971",
+    "notes": "Imported from BW Broadcast catalog",
+    "validated_date": "2026-01-24T13:47:16.802293"
+  },
+  "source_text": "BW Broadcast TX1000 V5\nModel: TX1000 V5\nType: transmitter\nFM broadcast transmitter, 1kW, solid state",
+  "expected_json": {
+    "component_type": "transmitter",
+    "model": "TX1000 V5",
+    "part_number": "TX1000-V5",
+    "description": "FM broadcast transmitter, 1kW, solid state",
+    "frequency_range_mhz": [
+      87.5,
+      108
+    ],
+    "power_output_watts": 1000,
+    "power_output_dbm": 60.0,
+    "power_output_dbw": 30.0,
+    "efficiency_percent": 70,
+    "mains_voltage": "230VAC",
+    "power_consumption_watts": 1430,
+    "output_impedance_ohms": 50,
+    "connector_type": "7/16 DIN Female",
+    "harmonic_suppression_dbc": -75,
+    "spurious_suppression_dbc": -75,
+    "audio_input": [
+      "AES/EBU",
+      "Analog balanced",
+      "IP streaming"
+    ],
+    "datasheet_url": "https://www.bwbroadcast.com/products/tx1000-v5/",
+    "common_uses": [
+      "Small to medium market FM",
+      "Full-service stations"
+    ],
+    "notes": "Modular design, N+1 redundancy available"
+  }
+}

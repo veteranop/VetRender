@@ -1,0 +1,40 @@
+{
+  "entry": {
+    "id": "49142635ab05",
+    "source_type": "catalog",
+    "source_path": "C:\\Users\\markd\\VetRender\\components\\catalogs\\jampro.json",
+    "component_type": "antenna",
+    "model": "JCPV",
+    "manufacturer": "unknown",
+    "validated": true,
+    "created": "2026-01-24T13:47:16.867982",
+    "notes": "Imported from Jampro Antennas catalog",
+    "validated_date": "2026-01-24T13:47:16.869955"
+  },
+  "source_text": "Jampro Antennas JCPV\nModel: JCPV\nType: antenna\nFM broadcast antenna, 1-bay, circular polarization, panel design\nGain: 0.0 dBi\nFrequency: 88-108 MHz\nPolarization: circular\nVSWR: 1.08:1",
+  "expected_json": {
+    "component_type": "antenna",
+    "model": "JCPV",
+    "part_number": "JCPV-1",
+    "description": "FM broadcast antenna, 1-bay, circular polarization, panel design",
+    "gain_dbi": 0.0,
+    "gain_relative_dipole": 1.0,
+    "frequency_range_mhz": [
+      88,
+      108
+    ],
+    "polarization": "circular",
+    "vswr": 1.08,
+    "impedance_ohms": 50,
+    "connector_type": "EIA 1-5/8\" flange",
+    "power_rating_watts": 15000,
+    "wind_survival_mph": 125,
+    "pattern": "omni-directional",
+    "datasheet_url": "https://www.jampro.com/jcpv/",
+    "common_uses": [
+      "FM broadcast",
+      "Low-gain applications"
+    ],
+    "notes": "Panel design, excellent circular polarization"
+  }
+}

@@ -396,10 +396,32 @@ DATASHEET TEXT:
             if isinstance(items_data, dict):
                 items_data = [items_data]
 
-            # Convert to our format
+            # Convert to our format and normalize data
             items = []
             for item in items_data:
                 comp_type = item.get('component_type', item.get('type', 'component')).lower()
+
+                # Normalize loss_db_per_100ft to dict if it's a list
+                if 'loss_db_per_100ft' in item:
+                    loss_data = item['loss_db_per_100ft']
+                    if isinstance(loss_data, list):
+                        # Convert list to dict
+                        if loss_data and isinstance(loss_data[0], dict):
+                            item['loss_db_per_100ft'] = {
+                                str(d.get('freq', d.get('frequency', i*100))): d.get('loss', d.get('value', 0))
+                                for i, d in enumerate(loss_data)
+                            }
+                        else:
+                            # Just values - assume standard frequencies
+                            std_freqs = [100, 200, 400, 900, 1800]
+                            item['loss_db_per_100ft'] = {
+                                str(std_freqs[i] if i < len(std_freqs) else (i+1)*100): v
+                                for i, v in enumerate(loss_data)
+                            }
+
+                # Ensure component_type is set
+                item['component_type'] = comp_type
+
                 items.append({
                     'type': comp_type,
                     'data': item,
@@ -428,10 +450,12 @@ DATASHEET TEXT:
         elif comp_type == 'cable':
             impedance = component.get('impedance_ohms', 50)
             loss = component.get('loss_db_per_100ft', {})
-            if loss:
+            if loss and isinstance(loss, dict):
                 first_freq = list(loss.keys())[0] if loss else 'N/A'
                 first_loss = list(loss.values())[0] if loss else 'N/A'
                 return f"{impedance}Ω, Loss: {first_loss} dB/100ft @ {first_freq} MHz"
+            elif loss and isinstance(loss, list) and loss:
+                return f"{impedance}Ω, Loss data available"
             return f"{impedance}Ω"
         elif comp_type == 'transmitter':
             power = component.get('power_output_watts', 'N/A')

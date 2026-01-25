@@ -187,6 +187,26 @@ class ComponentLibrary:
         if not loss_data:
             return 0.0
 
+        # Handle case where loss_data is a list (from AI extraction) instead of dict
+        if isinstance(loss_data, list):
+            # Try to convert list to dict - assume format like [{"freq": 100, "loss": 0.5}, ...]
+            # or just a list of values
+            try:
+                if loss_data and isinstance(loss_data[0], dict):
+                    loss_data = {str(item.get('freq', item.get('frequency', i*100))): item.get('loss', item.get('value', 0))
+                                for i, item in enumerate(loss_data)}
+                else:
+                    # Just values - assume standard frequencies
+                    std_freqs = [100, 200, 400, 900, 1800]
+                    loss_data = {str(std_freqs[i] if i < len(std_freqs) else (i+1)*100): v
+                                for i, v in enumerate(loss_data)}
+            except (TypeError, IndexError):
+                return 0.0
+
+        # Ensure loss_data is a dict
+        if not isinstance(loss_data, dict):
+            return 0.0
+
         # Get frequency points and keep original keys for lookup
         freq_map = {float(f): f for f in loss_data.keys()}  # Maps numeric freq to original key
         freqs = sorted(freq_map.keys())

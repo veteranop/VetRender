@@ -99,10 +99,10 @@
     [
       {
         "component_type": "antenna",
-        "model": "DB408",
-        "part_number": "DB408",
-        "description": "UHF 8-bay folded dipole array, 380-512 MHz",
-        "gain_dbi": 11.5,
+        "model": "DB404",
+        "part_number": "DB404",
+        "description": "UHF 4-bay folded dipole array, 380-512 MHz",
+        "gain_dbi": 8.5,
         "frequency_range_mhz": [
           380,
           512
@@ -114,12 +114,12 @@
         "power_rating_watts": 500,
         "wind_survival_mph": 125,
         "pattern": "omni-directional",
-        "datasheet_url": "https://www.decibelproducts.com/product/db408/",
+        "datasheet_url": "https://www.decibelproducts.com/product/db404/",
         "common_uses": [
-          "High-gain UHF base station",
-          "Wide-area coverage"
+          "UHF land mobile base station",
+          "Public safety repeater"
         ],
-        "notes": "8-bay design for maximum gain, 20+ feet tall",
+        "notes": "4-bay design for higher gain than DB408",
         "source": "Decibel Products"
       },
       0

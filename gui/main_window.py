@@ -1057,64 +1057,40 @@ class CellfireRFStudio:
             self.results_listbox.insert(tk.END, display)
 
     def _ollama_search(self):
-        """Search for component using Ollama AI"""
-        query = self.search_var.get().strip()
-        if not query:
-            messagebox.showwarning("No Query", "Please enter a component name or part number to search")
-            return
+        """Open smart import dialog for AI-powered component/antenna import"""
+        from gui.smart_import_dialog import SmartImportDialog
 
-        # Show progress dialog
-        progress_dialog = tk.Toplevel(self.root)
-        progress_dialog.title("AI Search")
-        progress_dialog.geometry("400x150")
-        progress_dialog.transient(self.root)
-        progress_dialog.grab_set()
+        def on_component_imported(component_data):
+            """Handle component imported from smart import"""
+            comp_type = component_data.get('component_type', 'unknown')
 
-        ttk.Label(progress_dialog, text=f"Searching for: {query}",
-                 font=('TkDefaultFont', 10, 'bold')).pack(pady=10)
-        ttk.Label(progress_dialog, text="Querying Ollama AI...\nThis may take a moment.").pack(pady=5)
-
-        progress_bar = ttk.Progressbar(progress_dialog, mode='indeterminate')
-        progress_bar.pack(pady=10, padx=20, fill=tk.X)
-        progress_bar.start(10)
-
-        def do_search():
-            """Run search in background"""
-            try:
-                component = self.component_library.ollama_search_component(query, self.frequency)
-                progress_dialog.after(0, lambda: on_search_complete(component))
-            except Exception as e:
-                progress_dialog.after(0, lambda: on_search_error(str(e)))
-
-        def on_search_complete(component):
-            """Handle successful search"""
-            progress_bar.stop()
-            progress_dialog.destroy()
-
-            if component:
-                messagebox.showinfo("Component Found",
-                                  f"Found: {component.get('model', 'Unknown')}\n\n"
-                                  f"Description: {component.get('description', 'N/A')}\n"
-                                  f"Type: {component.get('component_type', 'N/A')}\n\n"
-                                  f"Component added to cache and search results.")
-                self._search_components()  # Refresh search to show new component
+            # Handle transmitters specially
+            if comp_type == 'transmitter':
+                self._add_transmitter_with_power(component_data)
             else:
-                messagebox.showwarning("Not Found",
-                                     f"Could not find specifications for '{query}'.\n\n"
-                                     f"Try a different part number or manufacturer name.")
+                # Add to RF chain with default length
+                length_ft = 100 if comp_type == 'cable' else 0
+                self.rf_chain.append((component_data, length_ft))
+                self._update_chain_display()
+                self._calculate_totals()
 
-        def on_search_error(error_msg):
-            """Handle search error"""
-            progress_bar.stop()
-            progress_dialog.destroy()
-            messagebox.showerror("Search Error",
-                               f"Error searching with Ollama:\n\n{error_msg}\n\n"
-                               f"Make sure Ollama is running and accessible.")
+            # Refresh search results
+            self._search_components()
 
-        # Start search in background thread
-        import threading
-        search_thread = threading.Thread(target=do_search, daemon=True)
-        search_thread.start()
+        def on_antenna_imported(antenna_id):
+            """Handle antenna imported from smart import"""
+            # Reload antenna library and update current antenna
+            self.antenna_library = AntennaLibrary()
+            self.current_antenna_id = antenna_id
+            self._update_chain_display()
+            self._calculate_totals()
+
+        SmartImportDialog(
+            self.root,
+            self.frequency,
+            on_component_imported=on_component_imported,
+            on_antenna_imported=on_antenna_imported
+        )
 
     def _add_to_chain(self):
         """Add selected component to RF chain"""

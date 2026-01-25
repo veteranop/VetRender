@@ -730,65 +730,37 @@ class StationBuilderDialog:
             self.downtilt_var.set(f"{self.antenna_downtilt:.1f}")
 
     def _ai_search_component(self):
-        """Search for component using Ollama AI"""
-        query = self.ai_search_var.get().strip()
-        if not query:
-            messagebox.showwarning("No Query", "Please enter a component name or model number")
-            return
+        """Open smart import dialog for AI-powered component/antenna import"""
+        from gui.smart_import_dialog import SmartImportDialog
 
-        # Show progress dialog
-        progress_dialog = tk.Toplevel(self.dialog)
-        progress_dialog.title("AI Search")
-        progress_dialog.geometry("400x150")
-        progress_dialog.transient(self.dialog)
-        progress_dialog.grab_set()
+        def on_component_imported(component_data):
+            """Handle component imported from smart import"""
+            comp_type = component_data.get('component_type', 'unknown')
 
-        ttk.Label(progress_dialog, text="Searching with Ollama AI...",
-                 font=('TkDefaultFont', 10, 'bold')).pack(pady=20)
-        ttk.Label(progress_dialog, text=f"Query: {query}").pack(pady=5)
-
-        progress_bar = ttk.Progressbar(progress_dialog, mode='indeterminate')
-        progress_bar.pack(pady=10, padx=20, fill=tk.X)
-        progress_bar.start()
-
-        status_label = ttk.Label(progress_dialog, text="Please wait...")
-        status_label.pack(pady=5)
-
-        def search_thread():
-            try:
-                component = self.component_library.ollama_search_component(query, self.frequency_mhz)
-                progress_dialog.after(0, lambda: on_search_complete(component))
-            except Exception as e:
-                error_msg = str(e)
-                progress_dialog.after(0, lambda: on_search_error(error_msg))
-
-        def on_search_complete(component):
-            progress_bar.stop()
-            progress_dialog.destroy()
-
-            if component:
-                # Add to search results
-                self.search_results.append(component)
-                model = component.get('model', 'Unknown')
-                desc = component.get('description', '')
-                source = 'Ollama AI'
-                display = f"{model} - {desc} ({source})"
-                self.results_listbox.insert(tk.END, display)
-                self.results_listbox.selection_clear(0, tk.END)
-                self.results_listbox.selection_set(tk.END)
-                self.results_listbox.see(tk.END)
-                messagebox.showinfo("Success", f"Found component: {model}")
+            # Handle transmitters specially
+            if comp_type == 'transmitter':
+                self._add_transmitter_with_power(component_data)
             else:
-                messagebox.showwarning("Not Found", f"Could not find component: {query}")
+                # Add to RF chain with default length
+                length_ft = 100 if comp_type == 'cable' else 0
+                self.rf_chain.append((component_data, length_ft))
+                self._update_chain_display()
+                self._calculate_totals()
 
-        def on_search_error(error_msg):
-            progress_bar.stop()
-            progress_dialog.destroy()
-            messagebox.showerror("AI Search Error", f"Error: {error_msg}")
+            # Refresh search results
+            self._search_components()
 
-        import threading
-        thread = threading.Thread(target=search_thread, daemon=True)
-        thread.start()
+        def on_antenna_imported(antenna_id):
+            """Handle antenna imported from smart import"""
+            # Refresh antenna library and select the new antenna
+            self._refresh_antenna_list(antenna_id)
+
+        SmartImportDialog(
+            self.dialog,
+            self.frequency_mhz,
+            on_component_imported=on_component_imported,
+            on_antenna_imported=on_antenna_imported
+        )
 
     def _upload_datasheet(self):
         """Upload and process datasheet with Ollama AI"""

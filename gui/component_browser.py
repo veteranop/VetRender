@@ -138,7 +138,7 @@ class ComponentBrowserDialog:
         button_frame = ttk.Frame(main_frame)
         button_frame.pack(fill=tk.X, pady=(10, 0))
 
-        # Left side: AI and Manual add buttons
+        # Left side: AI, Manual add, and Edit buttons
         left_buttons = ttk.Frame(button_frame)
         left_buttons.pack(side=tk.LEFT)
 
@@ -149,6 +149,12 @@ class ComponentBrowserDialog:
         if self.on_manual_add:
             ttk.Button(left_buttons, text="Add Manually...",
                       command=self._trigger_manual_add).pack(side=tk.LEFT, padx=5)
+
+        # Edit button - allows editing any component in the library
+        self.edit_btn = ttk.Button(left_buttons, text="Edit...",
+                                   command=self._edit_component)
+        self.edit_btn.pack(side=tk.LEFT, padx=5)
+        self.edit_btn.state(['disabled'])
 
         # Right side: Select and Cancel
         right_buttons = ttk.Frame(button_frame)
@@ -365,6 +371,7 @@ class ComponentBrowserDialog:
         if not selection:
             self.selected_component = None
             self.select_btn.state(['disabled'])
+            self.edit_btn.state(['disabled'])
             self._update_details(None)
             return
 
@@ -375,6 +382,7 @@ class ComponentBrowserDialog:
             # Selected a vendor or subtype, not a component
             self.selected_component = None
             self.select_btn.state(['disabled'])
+            self.edit_btn.state(['disabled'])
             self._update_details(None)
             return
 
@@ -386,6 +394,7 @@ class ComponentBrowserDialog:
 
             if self.selected_component:
                 self.select_btn.state(['!disabled'])
+                self.edit_btn.state(['!disabled'])
                 self._update_details(self.selected_component)
                 self._update_loss_estimate()
 
@@ -520,6 +529,259 @@ class ComponentBrowserDialog:
         if self.on_manual_add:
             self.dialog.destroy()
             self.on_manual_add()
+
+    def _edit_component(self):
+        """Edit the selected component"""
+        if not self.selected_component:
+            messagebox.showwarning("No Selection", "Please select a component to edit")
+            return
+
+        # Open edit dialog
+        EditComponentDialog(
+            self.dialog,
+            self.selected_component,
+            self.component_type,
+            self.component_library,
+            self.antenna_library,
+            on_save=self._on_component_edited
+        )
+
+    def _on_component_edited(self, updated_component: Dict):
+        """Handle component edited callback"""
+        # Refresh the tree to show updated data
+        self._populate_tree()
+
+        # Update details if currently selected
+        if self.selected_component:
+            comp_id = self.selected_component.get('model') or self.selected_component.get('antenna_id')
+            if comp_id:
+                self.selected_component = self.component_lookup.get(comp_id)
+                self._update_details(self.selected_component)
+
+        messagebox.showinfo("Saved", "Component updated successfully")
+
+
+class EditComponentDialog:
+    """Dialog for editing any component's properties"""
+
+    COLORS = {
+        'bg': '#1e1e1e',
+        'bg_medium': '#252526',
+        'fg': '#cccccc',
+        'accent': '#0078d4'
+    }
+
+    def __init__(self, parent, component: Dict, component_type: str,
+                 component_library, antenna_library,
+                 on_save: Optional[Callable] = None):
+        """Initialize edit dialog
+
+        Args:
+            parent: Parent window
+            component: Component data dict to edit
+            component_type: Type of component
+            component_library: ComponentLibrary instance
+            antenna_library: AntennaLibrary instance
+            on_save: Callback when saved
+        """
+        self.parent = parent
+        self.component = component.copy()  # Work with a copy
+        self.component_type = component_type
+        self.component_library = component_library
+        self.antenna_library = antenna_library
+        self.on_save = on_save
+
+        self.field_vars = {}
+
+        self._create_dialog()
+
+    def _create_dialog(self):
+        """Create the edit dialog"""
+        self.dialog = tk.Toplevel(self.parent)
+        self.dialog.title(f"Edit Component")
+        self.dialog.geometry("500x550")
+        self.dialog.transient(self.parent)
+        self.dialog.grab_set()
+
+        # Main container
+        main_frame = ttk.Frame(self.dialog, padding=15)
+        main_frame.pack(fill=tk.BOTH, expand=True)
+
+        # Header
+        model_name = self.component.get('model') or self.component.get('name', 'Unknown')
+        ttk.Label(main_frame, text=f"Edit: {model_name}",
+                 style='Title.TLabel').pack(pady=(0, 15))
+
+        # Scrollable frame for fields
+        canvas = tk.Canvas(main_frame, bg=self.COLORS['bg'], highlightthickness=0)
+        scrollbar = ttk.Scrollbar(main_frame, orient="vertical", command=canvas.yview)
+        scrollable_frame = ttk.Frame(canvas)
+
+        scrollable_frame.bind(
+            "<Configure>",
+            lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
+        )
+
+        canvas.create_window((0, 0), window=scrollable_frame, anchor="nw", width=460)
+        canvas.configure(yscrollcommand=scrollbar.set)
+
+        # Build editable fields based on component type
+        self._create_fields(scrollable_frame)
+
+        canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+        # Button frame
+        button_frame = ttk.Frame(main_frame)
+        button_frame.pack(fill=tk.X, pady=(15, 0))
+
+        ttk.Button(button_frame, text="Cancel",
+                  command=self.dialog.destroy).pack(side=tk.RIGHT, padx=5)
+        ttk.Button(button_frame, text="Save Changes",
+                  command=self._save_changes,
+                  style='Accent.TButton').pack(side=tk.RIGHT, padx=5)
+
+    def _create_fields(self, parent):
+        """Create editable fields for the component"""
+        row = 0
+
+        # Define fields based on component type
+        if self.component.get('is_antenna') or self.component_type == 'antenna':
+            fields = [
+                ('name', 'Name', 'str'),
+                ('manufacturer', 'Manufacturer', 'str'),
+                ('part_number', 'Part Number', 'str'),
+                ('type', 'Type', 'str'),
+                ('gain', 'Gain (dBi)', 'float'),
+                ('band', 'Band', 'str'),
+                ('frequency_range', 'Frequency Range', 'str'),
+            ]
+        elif self.component_type == 'cable':
+            fields = [
+                ('model', 'Model', 'str'),
+                ('manufacturer', 'Manufacturer', 'str'),
+                ('description', 'Description', 'str'),
+                ('impedance_ohms', 'Impedance (ohms)', 'int'),
+                ('velocity_factor', 'Velocity Factor', 'float'),
+                ('outer_diameter_inches', 'Outer Diameter (in)', 'float'),
+            ]
+            # Add loss fields if present
+            loss_data = self.component.get('loss_db_per_100ft', {})
+            for freq in sorted(loss_data.keys(), key=lambda x: float(x)):
+                fields.append((f'loss_{freq}', f'Loss @ {freq} MHz (dB/100ft)', 'float'))
+        elif self.component_type == 'transmitter':
+            fields = [
+                ('model', 'Model', 'str'),
+                ('manufacturer', 'Manufacturer', 'str'),
+                ('description', 'Description', 'str'),
+                ('power_output_watts', 'Max Power (W)', 'int'),
+                ('efficiency_percent', 'Efficiency (%)', 'float'),
+            ]
+        else:
+            # Generic fields for other types
+            fields = [
+                ('model', 'Model', 'str'),
+                ('manufacturer', 'Manufacturer', 'str'),
+                ('description', 'Description', 'str'),
+                ('insertion_loss_db', 'Insertion Loss (dB)', 'float'),
+                ('gain_dbi', 'Gain (dBi)', 'float'),
+            ]
+
+        # Create entry for each field
+        for field_key, label, field_type in fields:
+            ttk.Label(parent, text=label + ":").grid(row=row, column=0,
+                                                     sticky=tk.W, padx=5, pady=5)
+
+            # Get current value
+            if field_key.startswith('loss_'):
+                freq = field_key.replace('loss_', '')
+                current_value = self.component.get('loss_db_per_100ft', {}).get(freq, '')
+            else:
+                current_value = self.component.get(field_key, '')
+
+            var = tk.StringVar(value=str(current_value) if current_value else '')
+            entry = ttk.Entry(parent, textvariable=var, width=40)
+            entry.grid(row=row, column=1, sticky=(tk.W, tk.E), padx=5, pady=5)
+
+            self.field_vars[field_key] = (var, field_type)
+            row += 1
+
+        # Configure column weights
+        parent.columnconfigure(1, weight=1)
+
+    def _save_changes(self):
+        """Save changes to the component"""
+        try:
+            # Update component data from fields
+            for field_key, (var, field_type) in self.field_vars.items():
+                value = var.get().strip()
+
+                if not value:
+                    continue
+
+                # Handle special loss fields for cables
+                if field_key.startswith('loss_'):
+                    freq = field_key.replace('loss_', '')
+                    if 'loss_db_per_100ft' not in self.component:
+                        self.component['loss_db_per_100ft'] = {}
+                    self.component['loss_db_per_100ft'][freq] = float(value)
+                else:
+                    # Convert to appropriate type
+                    if field_type == 'int':
+                        self.component[field_key] = int(float(value))
+                    elif field_type == 'float':
+                        self.component[field_key] = float(value)
+                    else:
+                        self.component[field_key] = value
+
+            # Save based on component type
+            if self.component.get('is_antenna') or self.component_type == 'antenna':
+                self._save_antenna()
+            else:
+                self._save_component()
+
+            # Notify callback
+            if self.on_save:
+                self.on_save(self.component)
+
+            self.dialog.destroy()
+
+        except ValueError as e:
+            messagebox.showerror("Invalid Value", f"Please enter valid values: {str(e)}")
+
+    def _save_antenna(self):
+        """Save antenna to the antenna library"""
+        antenna_id = self.component.get('antenna_id')
+        if antenna_id and antenna_id in self.antenna_library.antennas:
+            # Update existing antenna
+            self.antenna_library.antennas[antenna_id].update({
+                'name': self.component.get('name'),
+                'manufacturer': self.component.get('manufacturer'),
+                'part_number': self.component.get('part_number'),
+                'type': self.component.get('type'),
+                'gain': self.component.get('gain', 0),
+                'band': self.component.get('band'),
+                'frequency_range': self.component.get('frequency_range'),
+            })
+            # Save to disk
+            self.antenna_library.save_antenna(antenna_id)
+
+    def _save_component(self):
+        """Save component to the component library"""
+        model = self.component.get('model')
+        if not model:
+            raise ValueError("Model name is required")
+
+        # Check if component is in cache (imported/custom)
+        for cache_id, cached_comp in list(self.component_library.cache.items()):
+            if isinstance(cached_comp, dict) and cached_comp.get('model') == model:
+                # Update cached component
+                self.component_library.cache[cache_id] = self.component
+                self.component_library.save_cache()
+                return
+
+        # If not in cache, add as new cached component
+        self.component_library.add_to_cache(self.component)
 
 
 class AntennaBrowserDialog(ComponentBrowserDialog):

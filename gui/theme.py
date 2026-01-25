@@ -298,13 +298,16 @@ class CellfireTheme:
             background=cls.COLORS['bg_medium'],
             foreground=cls.COLORS['fg_primary'],
             fieldbackground=cls.COLORS['bg_medium'],
-            borderwidth=0,
+            borderwidth=1,
+            relief='solid',
+            rowheight=24,
             font=('Segoe UI', 9)
         )
         style.configure('Treeview.Heading',
             background=cls.COLORS['bg_light'],
             foreground=cls.COLORS['fg_primary'],
-            borderwidth=0,
+            borderwidth=1,
+            relief='raised',
             font=('Segoe UI', 9, 'bold')
         )
         style.map('Treeview',
@@ -320,6 +323,9 @@ class CellfireTheme:
                 ('active', cls.COLORS['bg_hover'])
             ]
         )
+
+        # Define tag colors for alternating rows (used by station_builder)
+        # These are applied via tree.tag_configure() in the widget code
 
         # =====================================================================
         # Scrollbar styles

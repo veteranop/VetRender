@@ -57,58 +57,56 @@ class StationBuilderDialog:
         """Create dialog window"""
         self.dialog = tk.Toplevel(self.parent)
         self.dialog.title("Station Builder")
-        self.dialog.geometry("900x700")
+        self.dialog.geometry("950x750")
+        self.dialog.minsize(800, 600)
 
-        # Main container
+        # Main container with scrollable canvas for small screens
         main_frame = ttk.Frame(self.dialog, padding=10)
         main_frame.pack(fill=tk.BOTH, expand=True)
 
         # Top section: Add components with browse buttons
-        add_frame = ttk.LabelFrame(main_frame, text="Add Component", padding=10)
-        add_frame.pack(fill=tk.X, pady=(0, 10))
+        add_frame = ttk.LabelFrame(main_frame, text="Add Component", padding=8)
+        add_frame.pack(fill=tk.X, pady=(0, 8))
 
-        # Row of component type browse buttons
-        ttk.Label(add_frame, text="Browse by Type:",
-                 font=('Segoe UI', 9, 'bold')).grid(row=0, column=0, sticky=tk.W, padx=5, pady=5)
+        # Row of component type browse buttons - Antennas FIRST
+        ttk.Label(add_frame, text="Browse:",
+                 font=('Segoe UI', 9, 'bold')).grid(row=0, column=0, sticky=tk.W, padx=5, pady=3)
 
         btn_frame = ttk.Frame(add_frame)
-        btn_frame.grid(row=0, column=1, columnspan=4, sticky=tk.W, padx=5, pady=5)
+        btn_frame.grid(row=0, column=1, columnspan=4, sticky=tk.W, padx=5, pady=3)
 
+        # Antennas first, then common components, Other for filters/isolators
+        ttk.Button(btn_frame, text="Antennas",
+                  command=self._browse_antennas).pack(side=tk.LEFT, padx=3)
         ttk.Button(btn_frame, text="Cables",
                   command=lambda: self._browse_components('cable')).pack(side=tk.LEFT, padx=3)
         ttk.Button(btn_frame, text="Transmitters",
                   command=lambda: self._browse_components('transmitter')).pack(side=tk.LEFT, padx=3)
         ttk.Button(btn_frame, text="Amplifiers",
                   command=lambda: self._browse_components('amplifier')).pack(side=tk.LEFT, padx=3)
-        ttk.Button(btn_frame, text="Filters",
-                  command=lambda: self._browse_components('filter')).pack(side=tk.LEFT, padx=3)
-        ttk.Button(btn_frame, text="Isolators",
-                  command=lambda: self._browse_components('isolator')).pack(side=tk.LEFT, padx=3)
         ttk.Button(btn_frame, text="Other...",
                   command=self._browse_other_components).pack(side=tk.LEFT, padx=3)
 
         # Quick search row
-        ttk.Separator(add_frame, orient='horizontal').grid(row=1, column=0, columnspan=5, sticky=(tk.W, tk.E), pady=8)
-
-        ttk.Label(add_frame, text="Quick Search:").grid(row=2, column=0, sticky=tk.W, padx=5, pady=5)
+        ttk.Label(add_frame, text="Quick Search:").grid(row=1, column=0, sticky=tk.W, padx=5, pady=3)
         self.search_var = tk.StringVar()
         self.search_var.trace('w', lambda *args: self._search_components())
-        search_entry = ttk.Entry(add_frame, textvariable=self.search_var, width=40)
-        search_entry.grid(row=2, column=1, columnspan=2, sticky=tk.W, padx=5, pady=5)
+        search_entry = ttk.Entry(add_frame, textvariable=self.search_var, width=35)
+        search_entry.grid(row=1, column=1, columnspan=2, sticky=tk.W, padx=5, pady=3)
 
         # Component type filter for quick search
         self.comp_type_var = tk.StringVar(value="all")
         comp_types = ['all'] + self.component_library.get_component_types()
         type_combo = ttk.Combobox(add_frame, textvariable=self.comp_type_var,
                                    values=comp_types, width=12, state='readonly')
-        type_combo.grid(row=2, column=3, sticky=tk.W, padx=5, pady=5)
+        type_combo.grid(row=1, column=3, sticky=tk.W, padx=5, pady=3)
         type_combo.bind('<<ComboboxSelected>>', lambda e: self._search_components())
 
         # Results list (compact)
         results_frame = ttk.Frame(add_frame)
-        results_frame.grid(row=3, column=0, columnspan=5, sticky=(tk.W, tk.E), padx=5, pady=5)
+        results_frame.grid(row=2, column=0, columnspan=5, sticky=(tk.W, tk.E), padx=5, pady=3)
 
-        self.results_listbox = tk.Listbox(results_frame, height=4, width=80,
+        self.results_listbox = tk.Listbox(results_frame, height=3, width=90,
                                           bg='#252526', fg='#cccccc',
                                           selectbackground='#0078d4',
                                           font=('Consolas', 9))
@@ -119,48 +117,40 @@ class StationBuilderDialog:
 
         # Add controls row
         controls_frame = ttk.Frame(add_frame)
-        controls_frame.grid(row=4, column=0, columnspan=5, sticky=(tk.W, tk.E), padx=5, pady=5)
+        controls_frame.grid(row=3, column=0, columnspan=5, sticky=(tk.W, tk.E), padx=5, pady=3)
 
-        ttk.Label(controls_frame, text="Length (ft):").pack(side=tk.LEFT, padx=5)
+        ttk.Label(controls_frame, text="Length (ft):").pack(side=tk.LEFT, padx=3)
         self.length_var = tk.StringVar(value="100")
-        ttk.Entry(controls_frame, textvariable=self.length_var, width=8).pack(side=tk.LEFT, padx=5)
+        ttk.Entry(controls_frame, textvariable=self.length_var, width=6).pack(side=tk.LEFT, padx=3)
 
         ttk.Button(controls_frame, text="Add to Chain",
-                  command=self._add_to_chain).pack(side=tk.LEFT, padx=10)
+                  command=self._add_to_chain).pack(side=tk.LEFT, padx=8)
 
         ttk.Button(controls_frame, text="Apply to Station",
                   command=self._apply_changes,
-                  style='Accent.TButton').pack(side=tk.LEFT, padx=5)
+                  style='Accent.TButton').pack(side=tk.LEFT, padx=3)
 
-        # Separator
-        ttk.Separator(controls_frame, orient='vertical').pack(side=tk.LEFT, fill=tk.Y, padx=15)
+        ttk.Separator(controls_frame, orient='vertical').pack(side=tk.LEFT, fill=tk.Y, padx=10)
 
         # AI and Manual add buttons
         ttk.Button(controls_frame, text="AI Import...",
-                  command=self._ai_search_component).pack(side=tk.LEFT, padx=3)
+                  command=self._ai_search_component).pack(side=tk.LEFT, padx=2)
         ttk.Button(controls_frame, text="Upload PDF...",
-                  command=self._upload_datasheet).pack(side=tk.LEFT, padx=3)
+                  command=self._upload_datasheet).pack(side=tk.LEFT, padx=2)
         ttk.Button(controls_frame, text="Add Manual...",
-                  command=self._quick_add_component).pack(side=tk.LEFT, padx=3)
+                  command=self._quick_add_component).pack(side=tk.LEFT, padx=2)
 
         # Hidden AI search var for compatibility
         self.ai_search_var = tk.StringVar()
 
-        # Antenna selection section
-        antenna_frame = ttk.LabelFrame(main_frame, text="Antenna Selection", padding=10)
-        antenna_frame.pack(fill=tk.X, pady=(0, 10))
+        # Antenna selection section (compact)
+        antenna_frame = ttk.LabelFrame(main_frame, text="Antenna", padding=8)
+        antenna_frame.pack(fill=tk.X, pady=(0, 8))
 
-        # Browse button and current selection display
-        ttk.Button(antenna_frame, text="Browse Antennas...",
-                  command=self._browse_antennas).grid(row=0, column=0, sticky=tk.W, padx=5)
-
-        # Current antenna label
+        # Current antenna label and dropdown on same row
         self.antenna_display_var = tk.StringVar(value="None selected")
         self._update_antenna_display()
-        ttk.Label(antenna_frame, textvariable=self.antenna_display_var,
-                 font=('Segoe UI', 10, 'bold')).grid(row=0, column=1, sticky=tk.W, padx=10)
 
-        # Quick dropdown for changing (still available)
         antenna_list = ["None (Use ERP directly)"]
         self.antenna_ids = [None]
         for antenna_id, antenna_data in self.antenna_library.antennas.items():
@@ -177,59 +167,80 @@ class StationBuilderDialog:
             self.antenna_var.set(antenna_list[0])
 
         self.antenna_combo = ttk.Combobox(antenna_frame, textvariable=self.antenna_var,
-                                          values=antenna_list, width=40, state='readonly')
-        self.antenna_combo.grid(row=0, column=2, sticky=(tk.W, tk.E), padx=5)
+                                          values=antenna_list, width=45, state='readonly')
+        self.antenna_combo.grid(row=0, column=0, sticky=tk.W, padx=5, pady=2)
         self.antenna_combo.bind('<<ComboboxSelected>>', self._on_antenna_selected)
 
-        # Second row: orientation controls
-        orient_frame = ttk.Frame(antenna_frame)
-        orient_frame.grid(row=1, column=0, columnspan=3, sticky=tk.W, pady=(10, 0))
-
-        ttk.Label(orient_frame, text="Bearing:").pack(side=tk.LEFT, padx=5)
+        # Bearing and downtilt on same row
+        ttk.Label(antenna_frame, text="Bearing:").grid(row=0, column=1, sticky=tk.E, padx=(10, 2))
         self.bearing_var = tk.StringVar(value=str(self.antenna_bearing))
-        self.bearing_entry = ttk.Entry(orient_frame, textvariable=self.bearing_var, width=8)
-        self.bearing_entry.pack(side=tk.LEFT, padx=5)
+        self.bearing_entry = ttk.Entry(antenna_frame, textvariable=self.bearing_var, width=6)
+        self.bearing_entry.grid(row=0, column=2, sticky=tk.W, padx=2)
         self.bearing_entry.bind('<FocusOut>', self._on_bearing_changed)
         self.bearing_entry.bind('<Return>', self._on_bearing_changed)
-        ttk.Label(orient_frame, text="° (0=N)", font=('Segoe UI', 8)).pack(side=tk.LEFT, padx=(0, 15))
 
-        ttk.Label(orient_frame, text="Downtilt:").pack(side=tk.LEFT, padx=5)
+        ttk.Label(antenna_frame, text="Downtilt:").grid(row=0, column=3, sticky=tk.E, padx=(10, 2))
         self.downtilt_var = tk.StringVar(value=str(self.antenna_downtilt))
-        self.downtilt_entry = ttk.Entry(orient_frame, textvariable=self.downtilt_var, width=8)
-        self.downtilt_entry.pack(side=tk.LEFT, padx=5)
+        self.downtilt_entry = ttk.Entry(antenna_frame, textvariable=self.downtilt_var, width=6)
+        self.downtilt_entry.grid(row=0, column=4, sticky=tk.W, padx=2)
         self.downtilt_entry.bind('<FocusOut>', self._on_downtilt_changed)
         self.downtilt_entry.bind('<Return>', self._on_downtilt_changed)
-        ttk.Label(orient_frame, text="° (+down)", font=('Segoe UI', 8)).pack(side=tk.LEFT, padx=(0, 15))
 
-        # AI Import antenna button
-        ttk.Button(orient_frame, text="AI Import Antenna...",
-                  command=self._ai_import_antenna).pack(side=tk.LEFT, padx=15)
+        ttk.Button(antenna_frame, text="AI Import...",
+                  command=self._ai_import_antenna).grid(row=0, column=5, sticky=tk.E, padx=(15, 5))
 
-        antenna_frame.columnconfigure(2, weight=1)
+        # ===== SYSTEM TOTALS - NOW ABOVE RF CHAIN =====
+        totals_frame = ttk.LabelFrame(main_frame, text="System Totals", padding=8)
+        totals_frame.pack(fill=tk.X, pady=(0, 8))
 
-        # Middle section: RF Chain display
-        chain_frame = ttk.LabelFrame(main_frame, text="RF Chain (TX → Antenna)", padding=10)
-        chain_frame.pack(fill=tk.BOTH, expand=True, pady=(0, 10))
+        ttk.Label(totals_frame, text="Total Loss:").grid(row=0, column=0, sticky=tk.W, padx=5)
+        self.total_loss_var = tk.StringVar(value="0.00 dB")
+        ttk.Label(totals_frame, textvariable=self.total_loss_var,
+                 font=('Segoe UI', 10, 'bold'), foreground='#f44336').grid(row=0, column=1, sticky=tk.W, padx=5)
 
-        # Chain tree view
+        ttk.Label(totals_frame, text="Total Gain:").grid(row=0, column=2, sticky=tk.W, padx=(20, 5))
+        self.total_gain_var = tk.StringVar(value="0.00 dB")
+        ttk.Label(totals_frame, textvariable=self.total_gain_var,
+                 font=('Segoe UI', 10, 'bold'), foreground='#4caf50').grid(row=0, column=3, sticky=tk.W, padx=5)
+
+        ttk.Label(totals_frame, text="Net Change:").grid(row=0, column=4, sticky=tk.W, padx=(20, 5))
+        self.net_change_var = tk.StringVar(value="0.00 dB")
+        self.net_label = ttk.Label(totals_frame, textvariable=self.net_change_var,
+                                   font=('Segoe UI', 11, 'bold'))
+        self.net_label.grid(row=0, column=5, sticky=tk.W, padx=5)
+
+        # ===== RF CHAIN DISPLAY =====
+        chain_frame = ttk.LabelFrame(main_frame, text="RF Chain (TX → Antenna)", padding=8)
+        chain_frame.pack(fill=tk.BOTH, expand=True, pady=(0, 8))
+
+        # Chain tree view with fixed column widths and right alignment
         chain_tree_frame = ttk.Frame(chain_frame)
         chain_tree_frame.pack(fill=tk.BOTH, expand=True)
 
         columns = ('component', 'type', 'length', 'loss', 'gain')
-        self.chain_tree = ttk.Treeview(chain_tree_frame, columns=columns, show='tree headings', height=10)
+        self.chain_tree = ttk.Treeview(chain_tree_frame, columns=columns,
+                                        show='tree headings', height=10)
 
-        self.chain_tree.heading('component', text='Component')
-        self.chain_tree.heading('type', text='Type')
-        self.chain_tree.heading('length', text='Length (ft)')
-        self.chain_tree.heading('loss', text='Loss (dB)')
-        self.chain_tree.heading('gain', text='Gain (dB)')
+        # Configure alternating row colors for better visibility
+        self.chain_tree.tag_configure('oddrow', background='#2d2d30')
+        self.chain_tree.tag_configure('evenrow', background='#252526')
+        self.chain_tree.tag_configure('antenna', background='#1a3a4a', foreground='#4fc3f7')
 
-        self.chain_tree.column('#0', width=50)
-        self.chain_tree.column('component', width=250)
-        self.chain_tree.column('type', width=100)
-        self.chain_tree.column('length', width=80)
-        self.chain_tree.column('loss', width=80)
-        self.chain_tree.column('gain', width=80)
+        # Configure headings with anchors
+        self.chain_tree.heading('#0', text='#', anchor=tk.CENTER)
+        self.chain_tree.heading('component', text='Component', anchor=tk.W)
+        self.chain_tree.heading('type', text='Type', anchor=tk.W)
+        self.chain_tree.heading('length', text='Length', anchor=tk.E)
+        self.chain_tree.heading('loss', text='Loss (dB)', anchor=tk.E)
+        self.chain_tree.heading('gain', text='Gain (dB)', anchor=tk.E)
+
+        # Trim column widths - right align numeric columns
+        self.chain_tree.column('#0', width=35, minwidth=35, stretch=False, anchor=tk.CENTER)
+        self.chain_tree.column('component', width=220, minwidth=150, stretch=True, anchor=tk.W)
+        self.chain_tree.column('type', width=80, minwidth=60, stretch=False, anchor=tk.W)
+        self.chain_tree.column('length', width=60, minwidth=50, stretch=False, anchor=tk.E)
+        self.chain_tree.column('loss', width=70, minwidth=60, stretch=False, anchor=tk.E)
+        self.chain_tree.column('gain', width=70, minwidth=60, stretch=False, anchor=tk.E)
 
         chain_scrollbar = ttk.Scrollbar(chain_tree_frame, orient=tk.VERTICAL, command=self.chain_tree.yview)
         self.chain_tree.config(yscrollcommand=chain_scrollbar.set)
@@ -241,47 +252,31 @@ class StationBuilderDialog:
         self.chain_context_menu.add_command(label="Move Up", command=self._move_up)
         self.chain_context_menu.add_command(label="Move Down", command=self._move_down)
         self.chain_context_menu.add_separator()
-        self.chain_context_menu.add_command(label="Edit...", command=self._edit_component)
+        self.chain_context_menu.add_command(label="Edit Component...", command=self._edit_component)
         self.chain_context_menu.add_command(label="Remove", command=self._remove_component)
         self.chain_context_menu.add_separator()
         self.chain_context_menu.add_command(label="Clear All", command=self._clear_chain)
 
         # Bind right-click to show context menu
         self.chain_tree.bind('<Button-3>', self._show_chain_context_menu)
+        self.chain_tree.bind('<Double-1>', lambda e: self._edit_component())
 
-        # Chain controls (simplified - main actions in context menu)
+        # Chain controls (compact row)
         chain_controls = ttk.Frame(chain_frame)
-        chain_controls.pack(fill=tk.X, pady=(10, 0))
+        chain_controls.pack(fill=tk.X, pady=(5, 0))
 
-        ttk.Button(chain_controls, text="Move Up", command=self._move_up).pack(side=tk.LEFT, padx=5)
-        ttk.Button(chain_controls, text="Move Down", command=self._move_down).pack(side=tk.LEFT, padx=5)
-        ttk.Button(chain_controls, text="Edit", command=self._edit_component).pack(side=tk.LEFT, padx=5)
-        ttk.Button(chain_controls, text="Remove", command=self._remove_component).pack(side=tk.LEFT, padx=5)
-        ttk.Button(chain_controls, text="Clear All", command=self._clear_chain).pack(side=tk.LEFT, padx=5)
+        ttk.Button(chain_controls, text="Move Up", command=self._move_up, width=8).pack(side=tk.LEFT, padx=2)
+        ttk.Button(chain_controls, text="Move Down", command=self._move_down, width=10).pack(side=tk.LEFT, padx=2)
+        ttk.Button(chain_controls, text="Edit", command=self._edit_component, width=6).pack(side=tk.LEFT, padx=2)
+        ttk.Button(chain_controls, text="Remove", command=self._remove_component, width=8).pack(side=tk.LEFT, padx=2)
+        ttk.Button(chain_controls, text="Clear All", command=self._clear_chain, width=8).pack(side=tk.LEFT, padx=2)
 
-        ttk.Label(chain_controls, text="(Right-click for menu)",
-                 font=('Segoe UI', 8, 'italic')).pack(side=tk.RIGHT, padx=10)
+        ttk.Label(chain_controls, text="(Right-click or double-click to edit)",
+                 font=('Segoe UI', 8, 'italic')).pack(side=tk.RIGHT, padx=5)
 
-        # Bottom section: Totals
-        totals_frame = ttk.LabelFrame(main_frame, text="System Totals", padding=10)
-        totals_frame.pack(fill=tk.X, pady=(0, 10))
-
-        ttk.Label(totals_frame, text="Total Loss:").grid(row=0, column=0, sticky=tk.W, padx=5)
-        self.total_loss_var = tk.StringVar(value="0.00 dB")
-        ttk.Label(totals_frame, textvariable=self.total_loss_var, font=('TkDefaultFont', 10, 'bold')).grid(row=0, column=1, sticky=tk.W, padx=5)
-
-        ttk.Label(totals_frame, text="Total Gain:").grid(row=0, column=2, sticky=tk.W, padx=5)
-        self.total_gain_var = tk.StringVar(value="0.00 dB")
-        ttk.Label(totals_frame, textvariable=self.total_gain_var, font=('TkDefaultFont', 10, 'bold')).grid(row=0, column=3, sticky=tk.W, padx=5)
-
-        ttk.Label(totals_frame, text="Net Change:").grid(row=0, column=4, sticky=tk.W, padx=5)
-        self.net_change_var = tk.StringVar(value="0.00 dB")
-        self.net_label = ttk.Label(totals_frame, textvariable=self.net_change_var, font=('TkDefaultFont', 10, 'bold'))
-        self.net_label.grid(row=0, column=5, sticky=tk.W, padx=5)
-
-        # Buttons (Apply moved to Add Component section)
+        # Bottom buttons
         button_frame = ttk.Frame(main_frame)
-        button_frame.pack(fill=tk.X)
+        button_frame.pack(fill=tk.X, pady=(5, 0))
 
         ttk.Button(button_frame, text="Close", command=self.dialog.destroy).pack(side=tk.RIGHT, padx=5)
 
@@ -1051,7 +1046,7 @@ RULES:
         for item in self.chain_tree.get_children():
             self.chain_tree.delete(item)
 
-        # Add components
+        # Add components with alternating row colors
         for idx, (component, length_ft) in enumerate(self.rf_chain):
             model = component.get('model', 'Unknown')
             comp_type = component.get('component_type', 'unknown')
@@ -1067,13 +1062,16 @@ RULES:
             elif 'gain_dbi' in component:
                 gain_db = component['gain_dbi']
 
-            length_str = f"{length_ft:.1f}" if length_ft > 0 else "-"
+            length_str = f"{length_ft:.1f} ft" if length_ft > 0 else "-"
             loss_str = f"{loss_db:.2f}" if loss_db > 0 else "-"
             gain_str = f"{gain_db:.2f}" if gain_db > 0 else "-"
 
+            # Alternate row colors for better readability
+            row_tag = 'oddrow' if idx % 2 == 0 else 'evenrow'
             self.chain_tree.insert('', tk.END, iid=f'item_{idx}',
                                    text=f"{idx + 1}",
-                                   values=(model, comp_type, length_str, loss_str, gain_str))
+                                   values=(model, comp_type, length_str, loss_str, gain_str),
+                                   tags=(row_tag,))
 
         # Add antenna at the end if selected
         if self.selected_antenna_id:
@@ -1082,15 +1080,12 @@ RULES:
                 antenna_name = antenna_data.get('name', 'Unknown')
                 antenna_gain = antenna_data.get('gain', 0)
 
-                # Insert antenna as the last item
+                # Insert antenna as the last item with special styling
                 antenna_idx = len(self.rf_chain)
                 self.chain_tree.insert('', tk.END, iid=f'antenna_item',
                                        text=f"{antenna_idx + 1}",
                                        values=(antenna_name, 'antenna', '-', '-', f"{antenna_gain:.2f}"),
                                        tags=('antenna',))
-
-                # Make antenna item visually distinct
-                self.chain_tree.tag_configure('antenna', background='#e8f4f8')
 
     def _calculate_totals(self):
         """Calculate total loss and gain"""

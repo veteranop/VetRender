@@ -15,6 +15,7 @@ and the rendering system.
 import numpy as np
 import os
 import datetime
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from models.propagation import PropagationModel
 from models.terrain import TerrainHandler
 from models.antenna_models.antenna import AntennaPattern
@@ -106,14 +107,24 @@ class PropagationController:
         grid_resolution = min(grid_resolution, 2500)  # Cap at 2500 to prevent memory issues
         grid_resolution = max(grid_resolution, 400)   # Minimum 400 for acceptable quality
 
-        # Terrain sampling parameters
-        base_azimuths = 3600  # Always use 3600 for smoothness
-        base_distances = 1500  # Base distance samples
+        # Terrain sampling parameters - use reasonable defaults that balance speed vs quality
+        # Quality presets scale azimuths AND distances for manageable render times
+        quality_presets = {
+            'Low': (72, 50),       # Fast preview (~3,600 points)
+            'Medium': (180, 100),  # Good balance (~18,000 points)
+            'High': (360, 150),    # High detail (~54,000 points)
+            'Ultra': (720, 200),   # Maximum detail (~144,000 points)
+        }
 
-        scaled_azimuths = base_azimuths  # Keep azimuths locked at 3600
-        scaled_distances = int(base_distances * combined_multiplier)
-        scaled_distances = min(scaled_distances, 8000)  # Cap at 8000
-        scaled_distances = max(scaled_distances, 800)   # Minimum 800
+        base_azimuths, base_distances = quality_presets.get(quality, (180, 100))
+
+        # Scale slightly with zoom (higher zoom = more detail visible)
+        scaled_azimuths = int(base_azimuths * min(combined_multiplier, 1.5))
+        scaled_distances = int(base_distances * min(combined_multiplier, 1.5))
+
+        # Reasonable caps
+        scaled_azimuths = min(scaled_azimuths, 720)
+        scaled_distances = min(scaled_distances, 300)
 
         scaled_quality = {
             'azimuths': scaled_azimuths,
@@ -159,9 +170,13 @@ class PropagationController:
             print(f"ERP: {erp_dbm} dBm, Frequency: {frequency_mhz} MHz")
             print(f"Antenna Height: {tx_height} m, Max Distance: {max_distance_km} km")
             
-            # Convert ERP to EIRP
-            eirp_dbm = PropagationModel.erp_to_eirp(erp_dbm, self.antenna_pattern.max_gain)
-            print(f"EIRP: {eirp_dbm:.2f} dBm")
+            # NOTE: Do NOT add antenna max_gain here via erp_to_eirp()!
+            # The antenna gain is already applied per-pixel in gain_grid via
+            # antenna_pattern.get_gain(az, el), which includes max_gain + pattern offsets.
+            # Adding it here would double-count antenna gain.
+            # erp_dbm is TX power at the antenna feed (tx_power + system_gain - system_loss)
+            eirp_dbm = erp_dbm  # Feed power; antenna gain applied spatially via gain_grid
+            print(f"TX Feed Power: {eirp_dbm:.2f} dBm (antenna gain applied per-pixel via pattern)")
             
             # =================================================================================
             # ZOOM-AWARE QUALITY SCALING
@@ -236,12 +251,14 @@ class PropagationController:
             
             print(f"Gain range: {gain_grid[~mask].min():.2f} to {gain_grid[~mask].max():.2f} dBi")
             
-            # Calculate free space path loss
-            print(f"Calculating path loss...")
-            fspl_grid = PropagationModel.free_space_loss(dist_grid, frequency_mhz)
+            # Calculate path loss using two-ray ground reflection model
+            # Two-ray is MUCH more realistic than FSPL for VHF/UHF with low antennas
+            # Path loss follows 40 dB/decade beyond crossover (vs FSPL's 20 dB/decade)
+            print(f"Calculating path loss (two-ray ground reflection)...")
+            fspl_grid = PropagationModel.two_ray_path_loss(dist_grid, frequency_mhz, tx_height, rx_height)
             fspl_grid[mask] = 0
-            
-            debug_msg = f"FSPL range: {fspl_grid[~mask].min():.2f} to {fspl_grid[~mask].max():.2f} dB"
+
+            debug_msg = f"Path loss range: {fspl_grid[~mask].min():.2f} to {fspl_grid[~mask].max():.2f} dB (two-ray)"
             print(debug_msg)
             self._log_debug(debug_msg)
             
@@ -453,68 +470,65 @@ class PropagationController:
         print(f"Fetching terrain data...")
         
         # =================================================================================
-        # FORCE 3600 AZIMUTH SAMPLING FOR SMOOTH INTERPOLATION
+        # QUALITY-BASED TERRAIN SAMPLING
         # =================================================================================
-        # ALWAYS use 3600 azimuths (0.1° resolution) to eliminate blocky square artifacts
-        # This is locked and cannot be overridden by user settings
-        # Only distance points vary based on quality/custom settings
+        # Azimuth and distance sampling based on quality preset
+        # Higher quality = more samples = better accuracy but slower
+        # Interpolation smooths results, so we don't need extreme azimuth counts
         # =================================================================================
-        LOCKED_AZIMUTH_COUNT = 3600  # Every 0.1 degree - NEVER CHANGE THIS
-
-        # Quality presets for DISTANCE POINTS ONLY (azimuths are locked at 3600)
-        # These control terrain elevation sampling density along each radial
-        quality_distance_presets = {
-            'Low': 1000,      # Fast, basic accuracy
-            'Medium': 2200,   # Good accuracy, reasonable speed
-            'High': 4000,     # High accuracy, slower
-            'Ultra': 5000,    # MAXIMUM accuracy, slowest (perfect detail)
+        quality_presets = {
+            'Low': (72, 50),       # Fast preview (~3,600 points)
+            'Medium': (180, 100),  # Good balance (~18,000 points)
+            'High': (360, 150),    # High detail (~54,000 points)
+            'Ultra': (720, 200),   # Maximum detail (~144,000 points)
         }
 
-        # Get distance sampling parameter
-        if custom_distance_points is not None:
+        # Get sampling parameters
+        if custom_azimuth_count is not None and custom_distance_points is not None:
+            sample_azimuths_count = custom_azimuth_count
             sample_distances_count = custom_distance_points
-            print(f"Using CUSTOM distance sampling: {sample_distances_count} pts (azimuth locked at {LOCKED_AZIMUTH_COUNT})")
+            print(f"Using CUSTOM sampling: {sample_azimuths_count} az × {sample_distances_count} dist")
         else:
-            sample_distances_count = quality_distance_presets.get(terrain_quality, 2200)
-            print(f"Using {terrain_quality} quality: {sample_distances_count} distance pts (azimuth locked at {LOCKED_AZIMUTH_COUNT})")
-
-        # FORCE azimuth count - user cannot override this
-        sample_azimuths_count = LOCKED_AZIMUTH_COUNT
+            sample_azimuths_count, sample_distances_count = quality_presets.get(terrain_quality, (180, 100))
+            print(f"Using {terrain_quality} quality: {sample_azimuths_count} az × {sample_distances_count} dist")
 
         self._log_debug(f"Terrain sampling: {sample_azimuths_count} azimuths × {sample_distances_count} distances")
         # =================================================================================
-        # END FORCED AZIMUTH SAMPLING
+        # END QUALITY-BASED TERRAIN SAMPLING
         # =================================================================================
         
         # Sample terrain at specific azimuths (polar sampling for efficiency)
         sample_azimuths = np.linspace(0, 360, sample_azimuths_count, endpoint=False)
         sample_distances = np.linspace(0.1, max_distance_km, sample_distances_count)
-        
+
         terrain_loss_samples = np.zeros((sample_distances_count, sample_azimuths_count))
-        
-        # rx_height is passed as parameter
-        
+
         # =================================================================================
-        # VERBOSE PROGRESS LOGGING (overwrites same line)
+        # PARALLEL AZIMUTH PROCESSING
         # =================================================================================
-        import sys
-        for i, az in enumerate(sample_azimuths):
-            # Print progress on same line (overwriting) - updates every azimuth
-            percent = int(100 * (i + 1) / sample_azimuths_count)
-            sys.stdout.write(f"\r  Terrain calculation: {percent:3d}% | Azimuth: {az:6.1f}° ({i+1:4d}/{sample_azimuths_count})  ")
-            sys.stdout.flush()
+        # Each azimuth is independent, so we can process them in parallel.
+        # This dramatically speeds up terrain calculations with SRTM tiles.
+        # =================================================================================
+
+        def process_azimuth(az_idx_tuple):
+            """Process a single azimuth - returns (index, terrain_loss_array)"""
+            i, az = az_idx_tuple
 
             # Get terrain profile for this azimuth
             lat_points = []
             lon_points = []
+            cos_az = np.cos(np.radians(az))
+            sin_az = np.sin(np.radians(az))
+            cos_lat = np.cos(np.radians(tx_lat))
+
             for d in sample_distances:
-                lat_offset = d * np.cos(np.radians(az)) / 111.0
-                lon_offset = d * np.sin(np.radians(az)) / (111.0 * np.cos(np.radians(tx_lat)))
+                lat_offset = d * cos_az / 111.0
+                lon_offset = d * sin_az / (111.0 * cos_lat)
                 lat_points.append(tx_lat + lat_offset)
                 lon_points.append(tx_lon + lon_offset)
-            
+
             elevations = TerrainHandler.get_elevations_batch(list(zip(lat_points, lon_points)))
-            
+
             # Enhanced terrain profile interpolation
             if len(elevations) > 3:
                 try:
@@ -526,29 +540,53 @@ class PropagationController:
                     high_res_distances = np.linspace(0, sample_distances[-1], len(elevations) * 4)
                     elevations = elev_interp(high_res_distances)
                 except:
-                    pass  # Use original elevations if interpolation fails
-            
-            # 🔥 FIX #3: Calculate terrain loss per receiver point (segment-by-segment!)
+                    pass
+
+            # Calculate terrain loss per receiver point (segment-by-segment)
             terrain_loss = np.zeros_like(sample_distances)
+            elev_distances = np.linspace(0, sample_distances[-1], len(elevations))
             for j, dist in enumerate(sample_distances):
-                # THE MAGIC: Use rx_distance_km parameter for segment-by-segment LOS
                 terrain_loss[j] = PropagationModel.terrain_diffraction_loss(
                     tx_height, rx_height, elevations, frequency_mhz,
-                    np.linspace(0, sample_distances[-1], len(elevations)),
+                    elev_distances,
                     debug_azimuth=None,
-                    rx_distance_km=dist  # 🔥 THIS IS THE FIX!
+                    rx_distance_km=dist
                 )
-            
-            terrain_loss_samples[:, i] = terrain_loss
 
-            # Progressive rendering: invoke callback every 10% completion
-            if progress_callback and i % max(1, sample_azimuths_count // 10) == 0:
-                progress_percent = int(100 * (i + 1) / sample_azimuths_count)
-                progress_callback(progress_percent, terrain_loss_samples[:, :i+1],
-                                sample_distances, sample_azimuths[:i+1])
+            return (i, terrain_loss)
 
-        # Print newline after progress completes
-        print()  # Move to next line after overwriting progress
+        # Process azimuths in parallel using thread pool
+        import sys
+        num_workers = min(8, os.cpu_count() or 4)  # Use up to 8 threads
+        completed = 0
+
+        print(f"  Processing {sample_azimuths_count} azimuths using {num_workers} threads...")
+
+        with ThreadPoolExecutor(max_workers=num_workers) as executor:
+            # Submit all azimuth tasks
+            futures = {executor.submit(process_azimuth, (i, az)): i
+                      for i, az in enumerate(sample_azimuths)}
+
+            # Collect results as they complete
+            for future in as_completed(futures):
+                i, terrain_loss = future.result()
+                terrain_loss_samples[:, i] = terrain_loss
+                completed += 1
+
+                # Update progress
+                percent = int(100 * completed / sample_azimuths_count)
+                sys.stdout.write(f"\r  Terrain calculation: {percent:3d}% ({completed:4d}/{sample_azimuths_count} azimuths)  ")
+                sys.stdout.flush()
+
+                # Progress callback (less frequent to avoid overhead)
+                if progress_callback and completed % 10 == 0:
+                    progress_callback(percent, terrain_loss_samples, sample_distances, sample_azimuths)
+
+        # Final progress update
+        if progress_callback:
+            progress_callback(100, terrain_loss_samples, sample_distances, sample_azimuths)
+
+        print()  # Move to next line after progress
         print(f"Interpolating terrain loss to Cartesian grid...")
         
         # Convert polar samples to Cartesian coordinates for proper interpolation

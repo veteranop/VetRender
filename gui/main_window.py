@@ -18,6 +18,7 @@ from tkinter import ttk, messagebox, simpledialog
 import json
 import os
 import datetime
+import math
 
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
@@ -25,14 +26,15 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 # Import our refactored modules
 from gui.map_display import MapDisplay
 from gui.propagation_plot import PropagationPlot
-from gui.info_panel import InfoPanel
+from gui.info_panel import InfoPanel, PlotConfirmationDialog
 from gui.toolbar import Toolbar
 from gui.menus import MenuBar
 from gui.dialogs import (TransmitterConfigDialog, AntennaInfoDialog,
                         CacheManagerDialog, ProjectSetupDialog, SetLocationDialog,
                         PlotsManagerDialog, AntennaImportDialog, AntennaMetadataDialog,
-                        ManualAntennaDialog)
+                        ManualAntennaDialog, StationInfoDialog)
 from gui.report_dialog import ReportConfigDialog
+from gui.path_profile_dialog import PathProfileDialog
 
 from controllers.propagation_controller import PropagationController
 from controllers.export_handler import ExportHandler
@@ -43,6 +45,7 @@ from models.antenna_models.antenna import AntennaPattern
 from models.antenna_library import AntennaLibrary
 from models.map_cache import MapCache
 from models.terrain import TerrainHandler
+from models.scan_timer import get_scan_timer
 from debug_logger import get_logger
 
 
@@ -60,6 +63,7 @@ class CellfireRFStudio:
         self.root = root
         self.root.title("Cellfire RF Studio - Professional RF Propagation Analysis")
         self.root.geometry("1400x900")
+        self.root.minsize(1200, 700)
         
         # Initialize core components
         self.antenna_pattern = AntennaPattern()
@@ -137,7 +141,7 @@ class CellfireRFStudio:
         # Update info
         self.info_panel.update(
             self.callsign, self.frequency, self.transmission_mode, self.tx_type,
-            self.tx_lat, self.tx_lon, self.height, self.rx_height, self.erp, self.tx_power, self.system_loss_db, self.system_gain_db, self.pattern_name,
+            self.tx_lat, self.tx_lon, self.height, self.rx_height, self.tx_power, self.system_loss_db, self.system_gain_db, self.pattern_name,
             self.max_distance, self.signal_threshold, 
             self.use_terrain.get(), self.terrain_quality
         )
@@ -156,18 +160,28 @@ class CellfireRFStudio:
     
     def setup_ui(self):
         """Setup user interface with all modules"""
-        # Create matplotlib figure with dark theme
-        self.fig = Figure(dpi=100, frameon=False, facecolor='#1e1e1e')
-        self.fig.subplots_adjust(left=0, right=0.98, top=1, bottom=0, wspace=0, hspace=0)
+        # Create matplotlib figure with dark theme - starts large, will resize to fit
+        self.fig = Figure(figsize=(12, 10), dpi=100, frameon=False, facecolor='#1e1e1e')
+        self.fig.subplots_adjust(left=0, right=1, top=1, bottom=0, wspace=0, hspace=0)
         self.ax = self.fig.add_subplot(111)
         self.ax.set_facecolor('#1e1e1e')
+        self.ax.set_aspect('auto')  # Fill available space
+        self.ax.set_position([0, 0, 1, 1])  # Fill entire figure
         
         # Initialize display modules
         self.map_display = MapDisplay(self.ax, None)  # Canvas set below
         self.propagation_plot = PropagationPlot(self.ax, None, self.fig)  # Canvas set below
         self.propagation_controller = PropagationController(self.antenna_pattern)
         
-        # Setup menu bar
+        # Setup toolbar first so we can share its propagation_model_var with menus
+        self.toolbar = Toolbar(self.root, self.get_toolbar_callbacks())
+        self.toolbar.pack(side=tk.TOP, fill=tk.X)
+        self.toolbar.set_zoom(self.zoom)
+        self.toolbar.set_quality(self.terrain_quality)
+        self.toolbar.set_custom_values(self.terrain_azimuths, self.terrain_distances)
+        self.toolbar.update_location(self.tx_lat, self.tx_lon)
+
+        # Setup menu bar - share propagation_model_var from toolbar
         menu_vars = {
             'basemap_var': tk.StringVar(value=self.basemap),
             'show_coverage_var': self.show_coverage,
@@ -175,18 +189,11 @@ class CellfireRFStudio:
             'use_terrain_var': self.use_terrain,
             'max_dist_var': tk.StringVar(value=str(self.max_distance)),
             'quality_var': tk.StringVar(value=self.terrain_quality),
-            'terrain_detail_var': tk.StringVar(value=str(self.terrain_distances))
+            'terrain_detail_var': tk.StringVar(value=str(self.terrain_distances)),
+            'propagation_model_var': self.toolbar.propagation_model_var  # Share with toolbar
         }
-        
+
         self.menubar = MenuBar(self.root, self.get_menu_callbacks(), menu_vars, main_window=self)
-        
-        # Setup toolbar
-        self.toolbar = Toolbar(self.root, self.get_toolbar_callbacks())
-        self.toolbar.pack(side=tk.TOP, fill=tk.X)
-        self.toolbar.set_zoom(self.zoom)
-        self.toolbar.set_quality(self.terrain_quality)
-        self.toolbar.set_custom_values(self.terrain_azimuths, self.terrain_distances)
-        self.toolbar.update_location(self.tx_lat, self.tx_lon)
         
         # Main content area with tabs
         content_frame = ttk.Frame(self.root)
@@ -200,18 +207,19 @@ class CellfireRFStudio:
         coverage_tab = ttk.Frame(self.notebook)
         self.notebook.add(coverage_tab, text="Coverage")
 
-        # Info panel on left
+        # Info panel on left (pack first with fixed width)
         self.info_panel = InfoPanel(coverage_tab)
         self.info_panel.pack(side=tk.LEFT, fill=tk.Y, padx=(5, 0), pady=5)
-        self.info_panel.add_button("Edit Station Info", self.edit_station_info)
-        self.info_panel.add_button("Plots", self.show_plots_manager)
+        self.info_panel.set_plot_selected_callback(self.load_plot_from_history)
 
-        # Map area on right
-        map_frame = ttk.Frame(coverage_tab, padding="0")
-        map_frame.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
+        # Map area fills remaining space (pack after info panel)
+        map_frame = ttk.Frame(coverage_tab)
+        map_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=5, pady=5)
 
         self.canvas = FigureCanvasTkAgg(self.fig, master=map_frame)
-        self.canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
+        canvas_widget = self.canvas.get_tk_widget()
+        canvas_widget.pack(fill=tk.BOTH, expand=True)
+        canvas_widget.configure(bg='#1e1e1e')
 
         # Bind mouse motion for live probe
         self.canvas.mpl_connect('motion_notify_event', self.on_mouse_motion)
@@ -224,10 +232,13 @@ class CellfireRFStudio:
         # Set canvas in display modules
         self.map_display.canvas = self.canvas
         self.propagation_plot.canvas = self.canvas
-        
+
         # Connect events
         self.canvas.mpl_connect('button_press_event', self.on_map_click)
         # self.canvas.mpl_connect('scroll_event', self.on_scroll_zoom)  # Disabled - use toolbar zoom
+
+        # Bind resize event to redraw canvas
+        self.canvas.get_tk_widget().bind('<Configure>', self._on_canvas_resize)
         
         # Context menu
         self.context_menu = tk.Menu(self.root, tearoff=0)
@@ -238,10 +249,14 @@ class CellfireRFStudio:
         self.context_menu.add_command(label="Probe Signal Strength Here",
                                      command=self.probe_signal)
         self.context_menu.add_separator()
+        self.context_menu.add_command(label="Edit Station Details",
+                                     command=self.edit_station_details)
         self.context_menu.add_command(label="Edit Transmitter Configuration",
                                      command=self.edit_tx_config)
         self.context_menu.add_command(label="Edit Antenna Information",
                                      command=self.edit_antenna_info)
+        self.context_menu.add_command(label="Adjust Signal Threshold...",
+                                     command=self.adjust_signal_threshold)
         self.context_menu.add_separator()
         self.context_menu.add_command(label="Manage Cache...",
                                      command=self.manage_cache)
@@ -253,6 +268,7 @@ class CellfireRFStudio:
         self.root.bind('<Control-q>', lambda e: self.on_closing())
         self.root.bind('<Control-b>', lambda e: self.open_station_builder())
         self.root.bind('<Control-t>', lambda e: self.edit_tx_config())
+        self.root.bind('<Control-l>', lambda e: self.adjust_signal_threshold())
         self.root.bind('<F1>', lambda e: self.show_help())
 
     def set_window_icon(self):
@@ -500,43 +516,99 @@ class CellfireRFStudio:
             'on_user_manual': self.show_user_manual,
             'on_about': self.show_about,
             'on_report_bug': self.report_bug,
+            'on_project_parameters': self.edit_station_info,
         }
 
 
     def calculate_propagation(self):
-        """Calculate RF propagation coverage - orchestrates the controller"""
+        """Calculate RF propagation coverage - shows confirmation dialog first"""
+        # Update max distance from UI
         try:
-            # Update max distance from UI
-            try:
-                self.max_distance = float(self.menubar.vars['max_dist_var'].get())
-            except ValueError:
-                self.max_distance = 100
-            
+            self.max_distance = float(self.menubar.vars['max_dist_var'].get())
+        except ValueError:
+            self.max_distance = 100
+
+        # Get propagation model from toolbar
+        propagation_model = self.toolbar.get_propagation_model()
+
+        # Estimate calculation time using historical data
+        scan_timer = get_scan_timer()
+        estimated_time = scan_timer.estimate_time(
+            self.max_distance, self.terrain_quality, self.use_terrain.get()
+        )
+
+        # Calculate TX power in watts and ERP
+        tx_power_watts = 10 ** ((self.tx_power - 30) / 10)
+        effective_erp = self.tx_power + self.system_gain_db - self.system_loss_db
+        erp_watts = 10 ** ((effective_erp - 30) / 10)
+
+        # Build settings summary for dialog
+        settings = {
+            'Coverage Distance': f"{self.max_distance} km",
+            'Propagation Model': 'Longley-Rice (ITM)' if propagation_model == 'longley_rice' else 'Two-Ray + Diffraction',
+            'Terrain Analysis': 'Enabled' if self.use_terrain.get() else 'Disabled',
+            'Quality': self.terrain_quality,
+            'Frequency': f"{self.frequency} MHz",
+            'Tx Height': f"{self.height:.2f} m AGL",
+            'TX Power': f"{tx_power_watts:.2f} W ({self.tx_power:.2f} dBm)",
+            'Antenna': self.pattern_name,
+            'ERP': f"{erp_watts:.2f} W ({effective_erp:.2f} dBm)"
+        }
+
+        # Show confirmation dialog
+        def on_confirm():
+            self._execute_propagation_calculation(propagation_model)
+
+        def on_cancel():
+            self.toolbar.set_status("Calculation cancelled")
+
+        PlotConfirmationDialog(self.root, settings, estimated_time, on_confirm, on_cancel)
+
+    def _execute_propagation_calculation(self, propagation_model):
+        """Execute the actual propagation calculation after confirmation"""
+        # Start timing the scan
+        scan_timer = get_scan_timer()
+        scan_timer.start_scan(self.max_distance, self.terrain_quality, self.use_terrain.get())
+
+        # Launch a separate CMD window to show progress
+        progress_process = self._launch_progress_terminal()
+
+        try:
+            # Stop AI to free up resources
+            ai_was_active = self.info_panel.is_ai_active()
+            if ai_was_active:
+                self.info_panel.stop_ai_for_calculation()
+
             self.toolbar.set_status("Calculating propagation...")
             self.root.update()
-            
+
             # Get custom values if in custom quality mode
             custom_az = None
             custom_dist = None
             if self.terrain_quality == 'Custom':
                 custom_az, custom_dist = self.toolbar.get_custom_values()
-            
-            # Get propagation model from toolbar
-            propagation_model = self.toolbar.get_propagation_model()
 
             # Calculate effective ERP from tx_power + system gain/loss (antenna gain already in system_gain_db)
             effective_erp = self.tx_power + self.system_gain_db - self.system_loss_db
 
-            # Define progress callback for real-time rendering
+            # Define progress callback
             def progress_callback(percent, partial_terrain, distances, azimuths):
                 try:
+                    # Get current azimuth
+                    current_az = azimuths[-1] if len(azimuths) > 0 else 0
+
+                    # Update progress file for monitor window
+                    self._write_progress('running', percent, current_az)
+
                     self.toolbar.set_status(f"Calculating... {percent}%")
                     self.root.update_idletasks()
                 except Exception as e:
-                    # Log error but don't crash the calculation
                     print(f"Progress callback error: {e}")
 
-            # 🔥 ALL FIXES ARE IN THE CONTROLLER!
+            # Write running status immediately so monitor starts its timer
+            self._write_progress('running', 0, 0)
+
+            # Run the calculation
             result = self.propagation_controller.calculate_coverage(
                 self.tx_lat, self.tx_lon, self.height, effective_erp, self.frequency,
                 self.max_distance, self.resolution, self.signal_threshold, self.rx_height,
@@ -582,25 +654,165 @@ class CellfireRFStudio:
             
             # Save plot to history
             self.save_current_plot_to_history()
-            
+
             # Update status
-            eirp = stats['max_power'] + (self.erp - stats['max_power'])
             self.toolbar.set_status(f"Coverage calculated - {stats['points_above_threshold']}/{stats['total_points']} points above threshold")
-            
-            print(f"Coverage calculation complete!")
+
+            # Record scan time for future estimates
+            elapsed = scan_timer.end_scan()
+            print(f"\n{'='*50}")
+            print(f"  COMPLETE! Calculation took {elapsed:.1f} seconds")
+            print(f"{'='*50}")
             print(f"Stats: {stats}")
-            
+
+            # Close progress terminal
+            self._close_progress_terminal(progress_process)
+
+            # Restart AI if it was active before
+            if ai_was_active:
+                self.info_panel.start_ai_after_calculation()
+
         except Exception as e:
+            # Still record the scan time even on error
+            scan_timer.end_scan()
             print(f"ERROR in calculate_propagation: {e}")
             import traceback
             traceback.print_exc()
+
+            # Write error to progress file and close terminal
+            if hasattr(self, '_progress_file'):
+                try:
+                    with open(self._progress_file, 'w') as f:
+                        f.write(f"status=error\n")
+                        f.write(f"message={str(e)}\n")
+                except:
+                    pass
+            self._close_progress_terminal(progress_process)
+
             messagebox.showerror("Error", f"Calculation error: {e}")
             self.toolbar.set_status("Error in calculation")
-    
+            # Restart AI even on error
+            if ai_was_active:
+                self.info_panel.start_ai_after_calculation()
+
+    def _launch_progress_terminal(self):
+        """Launch a separate CMD window to show calculation progress"""
+        import subprocess
+        import sys
+        import threading
+
+        # Path to progress file and monitor script
+        app_dir = os.path.dirname(os.path.dirname(__file__))
+        self._progress_file = os.path.join(app_dir, '.coverage_progress')
+        monitor_script = os.path.join(app_dir, 'progress_monitor.py')
+
+        print(f"Progress monitor script: {monitor_script}")
+        print(f"Script exists: {os.path.exists(monitor_script)}")
+
+        # Initialize progress file
+        self._write_progress('starting', 0, 0)
+
+        def launch_in_thread():
+            """Launch the monitor in a background thread"""
+            try:
+                # Get the full path to Python (works with Anaconda)
+                python_exe = sys.executable
+                if python_exe.endswith('pythonw.exe'):
+                    python_exe = python_exe.replace('pythonw.exe', 'python.exe')
+
+                # Verify python.exe exists at that path
+                if not os.path.exists(python_exe):
+                    # Fallback: try finding python in the same directory as pythonw
+                    exe_dir = os.path.dirname(sys.executable)
+                    python_exe = os.path.join(exe_dir, 'python.exe')
+                    if not os.path.exists(python_exe):
+                        print(f"Could not find python.exe at {python_exe}")
+                        return
+
+                print(f"Python: {python_exe}")
+                print(f"Script: {monitor_script}")
+
+                # Launch with CREATE_NEW_CONSOLE flag for a visible CMD window
+                # This is more reliable than cmd /c start which can fail silently
+                CREATE_NEW_CONSOLE = 0x00000010
+                subprocess.Popen(
+                    [python_exe, monitor_script],
+                    creationflags=CREATE_NEW_CONSOLE
+                )
+                print(f"Progress monitor launched")
+            except Exception as e:
+                print(f"Thread launch error: {e}")
+                import traceback
+                traceback.print_exc()
+
+        try:
+            if sys.platform == 'win32' and os.path.exists(monitor_script):
+                # Launch in a separate thread to avoid blocking
+                thread = threading.Thread(target=launch_in_thread, daemon=True)
+                thread.start()
+                print(f"Started launch thread")
+                return True
+            else:
+                print(f"Platform: {sys.platform}, script exists: {os.path.exists(monitor_script)}")
+                return None
+        except Exception as e:
+            print(f"Could not launch progress terminal: {e}")
+            import traceback
+            traceback.print_exc()
+            return None
+
+    def _write_progress(self, status, percent, azimuth):
+        """Write progress to file for monitor to read"""
+        if hasattr(self, '_progress_file'):
+            try:
+                with open(self._progress_file, 'w') as f:
+                    f.write(f"status={status}\n")
+                    f.write(f"percent={percent}\n")
+                    f.write(f"azimuth={azimuth}\n")
+                    f.write(f"quality={self.terrain_quality}\n")
+                    f.write(f"distance={self.max_distance}\n")
+            except:
+                pass
+
+    def _close_progress_terminal(self, process):
+        """Close the progress terminal window"""
+        # Write complete status - the monitor will close itself after seeing this
+        if hasattr(self, '_progress_file'):
+            self._write_progress('complete', 100, 360)
+
     # ========================================================================
     # MAP INTERACTION
     # ========================================================================
-    
+
+    def _on_canvas_resize(self, event):
+        """Handle canvas resize - resize figure to match widget"""
+        if event.width > 100 and event.height > 100:
+            # Resize figure to match widget
+            dpi = self.fig.get_dpi()
+            self.fig.set_size_inches(event.width / dpi, event.height / dpi, forward=True)
+            self.fig.subplots_adjust(left=0, right=1, top=1, bottom=0)
+            self.ax.set_position([0, 0, 1, 1])
+
+            # Check if we need to reload map for larger size
+            if hasattr(self, '_last_canvas_size'):
+                old_w, old_h = self._last_canvas_size
+                # Reload if size changed significantly
+                size_changed = abs(event.width - old_w) > 200 or abs(event.height - old_h) > 200
+                if size_changed:
+                    self._last_canvas_size = (event.width, event.height)
+                    # Schedule reload (debounce to avoid excessive reloads)
+                    if hasattr(self, '_resize_after_id'):
+                        self.root.after_cancel(self._resize_after_id)
+                    self._resize_after_id = self.root.after(300, lambda: self.reload_map(preserve_propagation=True))
+            else:
+                self._last_canvas_size = (event.width, event.height)
+                # First resize - schedule a reload to get right size
+                if hasattr(self, '_resize_after_id'):
+                    self.root.after_cancel(self._resize_after_id)
+                self._resize_after_id = self.root.after(500, lambda: self.reload_map(preserve_propagation=True))
+
+            self.canvas.draw_idle()
+
     def on_map_click(self, event):
         """Handle mouse clicks on map"""
         if event.inaxes == self.ax and self.map_display.map_image:
@@ -695,50 +907,42 @@ class CellfireRFStudio:
             pass
 
     def probe_signal(self):
-        """Probe signal strength at clicked location"""
+        """Probe signal strength at clicked location with path profile visualization"""
         if self.last_propagation is None:
             messagebox.showinfo("No Coverage Data",
                               "Calculate coverage first before probing signal strength.")
             return
-        
+
         x_grid, y_grid, rx_power_grid = self.last_propagation
         tx_pixel_x, tx_pixel_y = self.map_display.get_tx_pixel_position(
             self.tx_lat, self.tx_lon
         )
-        
+
         signal, distance, azimuth = self.propagation_plot.get_signal_at_pixel(
             self.click_x, self.click_y, tx_pixel_x, tx_pixel_y,
             x_grid, y_grid, rx_power_grid,
             self.map_display.get_pixel_scale()
         )
-        
+
         if signal is not None:
             probe_lat, probe_lon = self.map_display.pixel_to_latlon(
                 self.click_x, self.click_y
             )
-            
-            # Assess quality
-            if signal > -70:
-                quality = "Excellent"
-            elif signal > -85:
-                quality = "Good"
-            elif signal > -95:
-                quality = "Fair"
-            elif signal > -110:
-                quality = "Poor"
-            else:
-                quality = "No Signal"
-            
-            info = f"Signal Strength Probe\n\n"
-            info += f"Location: {probe_lat:.6f}, {probe_lon:.6f}\n"
-            info += f"Distance from TX: {distance:.2f} km\n"
-            info += f"Azimuth from TX: {azimuth:.1f}°\n"
-            info += f"Signal Strength: {signal:.2f} dBm\n\n"
-            info += f"Signal Quality: {quality}"
-            
-            messagebox.showinfo("Signal Probe Results", info)
+
+            # Show path profile dialog with terrain visualization
+            PathProfileDialog(
+                self.root,
+                tx_lat=self.tx_lat,
+                tx_lon=self.tx_lon,
+                tx_height=self.height,
+                rx_lat=probe_lat,
+                rx_lon=probe_lon,
+                rx_height=self.rx_height,
+                signal_strength=signal,
+                frequency_mhz=self.frequency
+            )
         else:
-            messagebox.showwarning("Probe Failed", 
+            messagebox.showwarning("Probe Failed",
                                  "Click location is outside coverage area")
     
     # ========================================================================
@@ -896,16 +1100,116 @@ class CellfireRFStudio:
     
     def edit_tx_config(self):
         """Edit transmitter configuration"""
-        dialog = TransmitterConfigDialog(self.root, self.erp, self.frequency,
+        # Convert tx_power from dBm to Watts for display
+        tx_power_watts = 10 ** ((self.tx_power - 30) / 10)
+
+        # Save old values to detect threshold-only changes
+        old_threshold = self.signal_threshold
+        old_power = self.tx_power
+        old_freq = self.frequency
+        old_height = self.height
+        old_rx_height = self.rx_height
+
+        dialog = TransmitterConfigDialog(self.root, tx_power_watts, self.frequency,
                                         self.height, self.rx_height, self.signal_threshold)
         self.root.wait_window(dialog.dialog)
-        
+
         if dialog.result:
-            self.erp, self.frequency, self.height, self.rx_height, self.signal_threshold = dialog.result
+            new_tx_power_watts, self.frequency, self.height, self.rx_height, self.signal_threshold = dialog.result
+
+            # Convert Watts to dBm and update tx_power
+            self.tx_power = 10 * math.log10(new_tx_power_watts * 1000)  # W to mW to dBm
+
+            # Update transmitter in rf_chain if present
+            for i, (component, length_ft) in enumerate(self.rf_chain):
+                if component.get('component_type') == 'transmitter':
+                    component_copy = component.copy()
+                    component_copy['transmit_power_watts'] = new_tx_power_watts
+                    self.rf_chain[i] = (component_copy, length_ft)
+                    break
+
+            # Calculate effective ERP for display
+            effective_erp = self.tx_power + self.system_gain_db - self.system_loss_db
+
+            # Check if only the threshold changed (can re-plot without recalculating)
+            threshold_changed = (self.signal_threshold != old_threshold)
+            rf_params_changed = (
+                abs(self.tx_power - old_power) > 0.01 or
+                self.frequency != old_freq or
+                self.height != old_height or
+                self.rx_height != old_rx_height
+            )
+
+            if threshold_changed and not rf_params_changed and self.last_propagation is not None:
+                # Only threshold changed - just re-plot with new color range
+                self._replot_with_new_threshold()
+                self.toolbar.set_status(f"Threshold updated to {self.signal_threshold} dBm (colors adjusted, no recalculation needed)")
+            else:
+                self.toolbar.set_status(f"Config updated - TX: {new_tx_power_watts:.2f}W, ERP: {effective_erp:.2f} dBm, Freq: {self.frequency} MHz")
+
             self.update_info_panel()
-            self.toolbar.set_status(f"Config updated - ERP: {self.erp} dBm, Freq: {self.frequency} MHz")
             self.save_auto_config()
-    
+
+    def _replot_with_new_threshold(self):
+        """Re-plot existing propagation data with a new signal threshold (no recalculation)"""
+        if self.last_propagation is None:
+            return
+
+        x_grid, y_grid, rx_power_grid = self.last_propagation
+        tx_pixel_x, tx_pixel_y = self.map_display.get_tx_pixel_position(
+            self.tx_lat, self.tx_lon
+        )
+
+        # Save current zoom state
+        current_xlim = self.ax.get_xlim()
+        current_ylim = self.ax.get_ylim()
+
+        self.propagation_plot.plot_coverage(
+            self.map_display.map_image, tx_pixel_x, tx_pixel_y,
+            x_grid, y_grid, rx_power_grid, self.signal_threshold,
+            self.map_display.get_pixel_scale(),
+            self.last_terrain_loss, self.show_shadow.get(),
+            (current_xlim, current_ylim),
+            alpha=self.toolbar.get_transparency()
+        )
+
+    def adjust_signal_threshold(self):
+        """Quick-adjust signal threshold and re-plot without recalculating (Ctrl+L)"""
+        new_threshold = simpledialog.askfloat(
+            "Adjust Signal Threshold",
+            "Enter minimum signal level (dBm):\n\n"
+            "This adjusts the color range without recalculating.\n"
+            "Common values: -120 (sensitive), -95 (moderate), -80 (strong)",
+            initialvalue=self.signal_threshold,
+            minvalue=-200, maxvalue=0
+        )
+
+        if new_threshold is not None and new_threshold != self.signal_threshold:
+            self.signal_threshold = new_threshold
+            if self.last_propagation is not None and self.show_coverage.get():
+                self._replot_with_new_threshold()
+                self.toolbar.set_status(f"Threshold adjusted to {self.signal_threshold} dBm (colors updated)")
+            else:
+                self.toolbar.set_status(f"Threshold set to {self.signal_threshold} dBm (will apply on next plot)")
+            self.update_info_panel()
+            self.save_auto_config()
+
+    def edit_station_details(self):
+        """Edit station details (callsign, frequency, tx type, mode) without re-downloading map"""
+        dialog = StationInfoDialog(self.root, self.callsign, self.frequency,
+                                   self.tx_type, self.transmission_mode)
+        self.root.wait_window(dialog.dialog)
+
+        if dialog.result:
+            self.callsign = dialog.result['callsign']
+            self.frequency = dialog.result['frequency']
+            self.tx_type = dialog.result['tx_type']
+            self.transmission_mode = dialog.result['transmission_mode']
+
+            self.update_info_panel()
+            self.toolbar.set_status(f"Station details updated - {self.callsign}, {self.frequency} MHz")
+            self.save_auto_config()
+
     def edit_antenna_info(self):
         """Edit antenna information including bearing and downtilt"""
         dialog = AntennaInfoDialog(self.root, self.pattern_name,
@@ -952,7 +1256,6 @@ class CellfireRFStudio:
             'tx_lon': self.tx_lon,
             'height': self.height,
             'rx_height': self.rx_height,
-            'erp': self.erp,
             'zoom': self.zoom,
             'basemap': self.basemap,
             'radius': self.max_distance
@@ -970,7 +1273,6 @@ class CellfireRFStudio:
             self.tx_lon = dialog.result['tx_lon']
             self.height = dialog.result.get('height', self.height)
             self.rx_height = dialog.result.get('rx_height', self.rx_height)
-            self.erp = dialog.result.get('erp', self.erp)
             self.zoom = dialog.result['zoom']
             self.basemap = dialog.result['basemap']
             self.max_distance = dialog.result['radius']
@@ -1575,23 +1877,10 @@ class CellfireRFStudio:
 
         if filename:
             try:
-                print("Saving project with cached data...")
-
-                # Export terrain cache for coverage area
-                terrain_cache_data = TerrainHandler.export_cache_for_area(
-                    self.tx_lat, self.tx_lon, self.max_distance
-                )
-
-                # Export land cover cache if available
-                land_cover_cache_data = None
-                if hasattr(self, 'propagation_controller') and self.propagation_controller.land_cover_handler:
-                    try:
-                        land_cover_cache_data = self.propagation_controller.land_cover_handler.export_cache()
-                    except:
-                        pass
+                print("Saving project...")
 
                 project_data = {
-                    'version': '3.1',  # Bumped for cache support
+                    'version': '3.2',  # Bumped - terrain now uses SRTM tiles, no cache in project
                     'callsign': self.callsign,
                     'tx_type': self.tx_type,
                     'transmission_mode': self.transmission_mode,
@@ -1612,27 +1901,20 @@ class CellfireRFStudio:
                     'antenna_bearing': self.antenna_bearing,
                     'antenna_downtilt': self.antenna_downtilt,
                     'zoom': self.zoom,
+                    'min_zoom': getattr(self.toolbar, 'min_zoom', self.zoom),
                     'basemap': self.basemap,
                     'saved_plots': self.saved_plots,
                     'fcc_data': self.fcc_data,
-
-                    # Cached data for offline use
-                    'terrain_cache': terrain_cache_data,
-                    'land_cover_cache': land_cover_cache_data,
+                    # Note: Terrain data now comes from SRTM tiles, not project file
                 }
 
                 with open(filename, 'w') as f:
                     json.dump(project_data, f, indent=2)
 
-                cache_info = f"Terrain cache: {len(terrain_cache_data) if terrain_cache_data else 0} points"
-                if land_cover_cache_data:
-                    cache_info += f"\nLand cover: {len(land_cover_cache_data.get('water', []))} water + {len(land_cover_cache_data.get('urban', []))} urban features"
-
                 messagebox.showinfo("Success",
                                   f"Project saved to:\n{filename}\n\n"
-                                  f"Included {len(self.saved_plots)} coverage plots\n"
-                                  f"{cache_info}")
-                print(f"  Saved terrain cache: {len(terrain_cache_data) if terrain_cache_data else 0} points")
+                                  f"Included {len(self.saved_plots)} coverage plots")
+                print(f"  Project saved: {filename}")
             except Exception as e:
                 messagebox.showerror("Error", f"Failed to save project:\n{e}")
     
@@ -1682,24 +1964,14 @@ class CellfireRFStudio:
                 if self.current_antenna_id:
                     self.load_antenna_from_library(self.current_antenna_id)
 
-                # Import terrain cache if available
-                terrain_cache_data = project_data.get('terrain_cache')
-                if terrain_cache_data:
-                    TerrainHandler.import_cache(terrain_cache_data)
-                    print(f"  Loaded terrain cache: {len(terrain_cache_data)} points")
-
-                # Import land cover cache if available
-                land_cover_cache_data = project_data.get('land_cover_cache')
-                if land_cover_cache_data and hasattr(self, 'propagation_controller') and self.propagation_controller.land_cover_handler:
-                    try:
-                        self.propagation_controller.land_cover_handler.import_cache(land_cover_cache_data)
-                        print(f"  Loaded land cover cache")
-                    except Exception as e:
-                        print(f"  Land cover cache load failed: {e}")
+                # Note: Terrain data now comes from SRTM tiles automatically
+                # Legacy terrain_cache in old project files is ignored
 
                 # Update UI
                 self.toolbar.update_location(self.tx_lat, self.tx_lon)
-                self.toolbar.set_zoom(10)
+                min_zoom = project_data.get('min_zoom', self.zoom)
+                self.toolbar.set_min_zoom(min_zoom)  # Set constraint first
+                self.toolbar.set_zoom(max(10, min_zoom))  # Then set zoom
                 self.menubar.vars['basemap_var'].set(self.basemap)
                 self.menubar.vars['max_dist_var'].set(str(self.max_distance))
                 self.toolbar.set_quality(self.terrain_quality)
@@ -1709,15 +1981,12 @@ class CellfireRFStudio:
                 self.last_propagation = None
                 self.reload_map(preserve_propagation=False)
 
-                cache_info = ""
-                if terrain_cache_data:
-                    cache_info = f"\n\nTerrain cache: {len(terrain_cache_data)} points loaded"
-                if land_cover_cache_data:
-                    cache_info += f"\nLand cover cache loaded"
+                # Update plots dropdown
+                self.info_panel.update_plots_dropdown(self.saved_plots)
 
                 messagebox.showinfo("Success",
                                   f"Project loaded:\n{self.callsign}\n\n"
-                                  f"{len(self.saved_plots)} coverage plots restored{cache_info}")
+                                  f"{len(self.saved_plots)} coverage plots restored")
             except Exception as e:
                 messagebox.showerror("Error", f"Failed to load project:\n{e}")
 
@@ -1783,39 +2052,41 @@ class CellfireRFStudio:
         self.logger.log("AI ANTENNA ASSISTANT - BUTTON CLICKED")
         self.logger.log("="*80)
 
-        # Check if Ollama is installed
-        if not self.is_ollama_installed():
-            self.logger.log("Ollama not found - asking user to install")
-            # Ask user if they want to install
-            response = messagebox.askyesno(
-                "Ollama Not Found",
-                "Ollama AI Assistant is not installed or not found in PATH.\n\n"
-                "Would you like to install it now?\n\n"
-                "(This will download ~850MB)"
+        # First check if server is already running (most common case)
+        if self.is_ollama_server_running():
+            self.logger.log("AI Assistant: Server is already running")
+            messagebox.showinfo(
+                "Ready",
+                "Ollama is installed and running!\n\n"
+                "You can now use AI Antenna Import from the Tools menu."
             )
-            if response:
-                self.install_ollama()
-            else:
-                self.logger.log("User declined Ollama installation")
             self.logger.log("="*80)
             self.logger.log("AI ANTENNA ASSISTANT - CHECK COMPLETED")
             self.logger.log("="*80)
             return
-        
-        # Ollama is installed, check if server is running
-        self.logger.log("AI Assistant: Ollama is installed")
-        
-        if self.is_ollama_server_running():
-            self.logger.log("AI Assistant: Server is already running")
-            messagebox.showinfo(
-                "Ready", 
-                "Ollama is installed and running!\n\n"
-                "You can now use AI Antenna Import from the Tools menu."
-            )
-        else:
-            self.logger.log("AI Assistant: Server not running, attempting to start...")
+
+        # Server not running - check if Ollama CLI is in PATH so we can start it
+        if self.is_ollama_installed():
+            self.logger.log("AI Assistant: Ollama CLI found, attempting to start server...")
             self.start_ollama_server()
-        
+            self.logger.log("="*80)
+            self.logger.log("AI ANTENNA ASSISTANT - CHECK COMPLETED")
+            self.logger.log("="*80)
+            return
+
+        # Neither server running nor CLI available - offer to install
+        self.logger.log("Ollama not found - asking user to install")
+        response = messagebox.askyesno(
+            "Ollama Not Found",
+            "Ollama AI server is not running and the CLI is not in PATH.\n\n"
+            "Would you like to install Ollama now?\n\n"
+            "(This will download ~850MB)\n\n"
+            "If Ollama is already installed, try starting it manually first."
+        )
+        if response:
+            self.install_ollama()
+        else:
+            self.logger.log("User declined Ollama installation")
         self.logger.log("="*80)
         self.logger.log("AI ANTENNA ASSISTANT - CHECK COMPLETED")
         self.logger.log("="*80)
@@ -2130,23 +2401,23 @@ class CellfireRFStudio:
         self.tx_lat = dialog.result['tx_lat']
         self.tx_lon = dialog.result['tx_lon']
         self.height = dialog.result.get('height', 30)
-        self.erp = dialog.result.get('erp', 40)
         self.zoom = dialog.result['zoom']
         self.basemap = dialog.result['basemap']
         self.max_distance = dialog.result['radius']
         
         self.toolbar.update_location(self.tx_lat, self.tx_lon)
         self.toolbar.set_zoom(self.zoom)
+        self.toolbar.set_min_zoom(self.zoom)  # Constrain zoom to cached levels
         self.update_info_panel()
-        
-        # Cache map tiles
+
+        # Cache map tiles starting from the selected zoom level
         self.cache_all_zoom_levels(self.tx_lat, self.tx_lon)
-        self.precache_terrain_for_coverage()
-        
+        # Note: Terrain data is fetched on-demand during propagation calculation
+
         self.reload_map(preserve_propagation=False)
-        
+
         messagebox.showinfo("Project Ready",
-                          "Map and terrain data fully cached!\n\n"
+                          "Map tiles cached!\n\n"
                           "Ready to calculate coverage!")
         
         self.save_auto_config()
@@ -2159,10 +2430,17 @@ class CellfireRFStudio:
     # HELPER METHODS
     # ========================================================================
     
+    def _get_canvas_size(self):
+        """Get current canvas size in pixels"""
+        widget = self.canvas.get_tk_widget()
+        return widget.winfo_width(), widget.winfo_height()
+
     def reload_map(self, preserve_propagation=True):
         """Reload map with current settings"""
+        canvas_w, canvas_h = self._get_canvas_size()
         success = self.map_display.load_map(self.tx_lat, self.tx_lon, self.zoom,
-                                           self.basemap, self.cache)
+                                           self.basemap, self.cache,
+                                           canvas_width=canvas_w, canvas_height=canvas_h)
         
         if success:
             if preserve_propagation and self.last_propagation is not None and self.show_coverage.get():
@@ -2188,42 +2466,66 @@ class CellfireRFStudio:
         antenna_details = None
         if self.current_antenna_id:
             antenna_details = self.antenna_library.get_antenna(self.current_antenna_id)
-        
+
+        # Get transmitter name from RF chain
+        transmitter_name = None
+        for component, length_ft in self.rf_chain:
+            if component.get('component_type') == 'transmitter':
+                transmitter_name = component.get('model', component.get('name', 'Unknown'))
+                break
+
         self.info_panel.update(
             self.callsign, self.frequency, self.transmission_mode, self.tx_type,
-            self.tx_lat, self.tx_lon, self.height, self.rx_height, self.erp, self.tx_power, self.system_loss_db, self.system_gain_db, self.pattern_name,
+            self.tx_lat, self.tx_lon, self.height, self.rx_height, self.tx_power, self.system_loss_db, self.system_gain_db, self.pattern_name,
             self.max_distance, self.signal_threshold,
             self.use_terrain.get(), self.terrain_quality,
-            antenna_details=antenna_details
+            antenna_details=antenna_details,
+            transmitter_name=transmitter_name
         )
     
     def cache_all_zoom_levels(self, lat, lon):
-        """Cache map tiles at all zoom levels"""
+        """Cache map tiles from project min zoom to max zoom (16)"""
         from models.map_handler import MapHandler
-        
-        print(f"Caching all zoom levels for {lat:.6f}, {lon:.6f}...")
-        zoom_levels = [10, 11, 12, 13, 14, 15, 16]
-        
+
+        # Get minimum zoom from toolbar (set during project setup)
+        min_zoom = getattr(self.toolbar, 'min_zoom', 10)
+        print(f"Caching zoom levels {min_zoom}-16 for {lat:.6f}, {lon:.6f}...")
+        zoom_levels = list(range(min_zoom, 17))  # min_zoom to 16 inclusive
+
         for i, zoom in enumerate(zoom_levels):
             self.toolbar.set_status(f"Caching zoom level {zoom} [{i+1}/{len(zoom_levels)}]...")
             self.root.update()
             MapHandler.get_map_tile(lat, lon, zoom, tile_size=3,
                                    basemap=self.basemap, cache=self.cache)
-        
-        self.toolbar.set_status("All zoom levels cached")
+
+        self.toolbar.set_status(f"Zoom levels {min_zoom}-16 cached")
     
     def precache_terrain_for_coverage(self):
         """Pre-cache terrain elevation data"""
         print(f"Pre-caching terrain data...")
-        
+
+        # Ensure terrain_quality has a valid value
+        if not hasattr(self, 'terrain_quality') or self.terrain_quality is None:
+            self.terrain_quality = 'Medium'
+
+        # Ensure max_distance has a valid value
+        if not hasattr(self, 'max_distance') or self.max_distance is None or self.max_distance <= 0:
+            self.max_distance = 50.0
+
         presets = {
             'Low': (36, 25),
             'Medium': (72, 50),
             'High': (360, 100)
         }
-        
+
         azimuths_count, distances_count = presets.get(self.terrain_quality, (72, 50))
-        
+
+        # Ensure we have valid counts
+        if azimuths_count is None or azimuths_count <= 0:
+            azimuths_count = 72
+        if distances_count is None or distances_count <= 0:
+            distances_count = 50
+
         all_points = []
         azimuths = np.linspace(0, 360, azimuths_count, endpoint=False)
         distances = np.linspace(0.1, self.max_distance, distances_count)
@@ -2285,10 +2587,13 @@ class CellfireRFStudio:
         }
         
         self.saved_plots.append(plot_data)
-        
+
         if len(self.saved_plots) > 20:
             self.saved_plots = self.saved_plots[-20:]
-        
+
+        # Update the plots dropdown in info panel
+        self.info_panel.update_plots_dropdown(self.saved_plots)
+
         # Save render
         renders_dir = os.path.join("logs", "renders")
         os.makedirs(renders_dir, exist_ok=True)
@@ -2375,7 +2680,10 @@ class CellfireRFStudio:
             
             # Delete the plot
             del self.saved_plots[idx]
-            
+
+            # Update plots dropdown
+            self.info_panel.update_plots_dropdown(self.saved_plots)
+
             return True
             
         except Exception as e:
@@ -2410,6 +2718,7 @@ class CellfireRFStudio:
                 self.rf_chain = config.get('rf_chain', [])
                 self.system_loss_db = config.get('system_loss_db', 0.0)
                 self.system_gain_db = config.get('system_gain_db', 0.0)
+                self.tx_power = config.get('tx_power', self.tx_power)
 
                 print(f"Auto-loaded previous session: {self.callsign}")
                 if self.rf_chain:
@@ -2442,7 +2751,8 @@ class CellfireRFStudio:
                 'use_terrain': self.use_terrain.get(),
                 'rf_chain': self.rf_chain,
                 'system_loss_db': self.system_loss_db,
-                'system_gain_db': self.system_gain_db
+                'system_gain_db': self.system_gain_db,
+                'tx_power': self.tx_power
             }
             
             with open(self.CONFIG_FILE, 'w') as f:

@@ -1,10 +1,263 @@
 """
-Terrain elevation data handling with caching
+Terrain elevation data handling with caching.
+Uses local SRTM .hgt tiles for instant elevation lookups,
+with automatic download and API fallback.
 """
+import gzip
 import json
+import math
 import os
 import pickle
+
+import numpy as np
 from urllib.request import urlopen, Request
+
+
+class SRTMTileManager:
+    """Manages local SRTM .hgt elevation tiles for instant terrain lookups.
+
+    SRTM tiles are 1°×1° binary files of 16-bit elevation values.
+    Tiles are auto-downloaded from AWS on first access (free, no auth).
+    Once loaded, elevation lookups are instant numpy array indexing.
+    """
+
+    SRTM_DIR = "terrain_data"
+    SRTM1_SIZE = 3601       # 1 arc-second (~30m)
+    SRTM3_SIZE = 1201       # 3 arc-second (~90m)
+    SRTM1_BYTES = 3601 * 3601 * 2   # 25,934,402 bytes
+    SRTM3_BYTES = 1201 * 1201 * 2   # 2,884,802 bytes
+    NODATA = -32768
+
+    # Session-persistent loaded tiles: {(tile_lat, tile_lon): (numpy_array, samples)}
+    _tiles = {}
+    # Track tiles we already failed to download (don't retry every lookup)
+    _failed_downloads = set()
+
+    @staticmethod
+    def _tile_key(lat, lon):
+        """Get tile identifier (SW corner) for a lat/lon point."""
+        return (math.floor(lat), math.floor(lon))
+
+    @staticmethod
+    def _tile_filename(tile_lat, tile_lon):
+        """Convert tile coordinates to SRTM filename, e.g. N43W112.hgt"""
+        ns = "N" if tile_lat >= 0 else "S"
+        ew = "E" if tile_lon >= 0 else "W"
+        return f"{ns}{abs(tile_lat):02d}{ew}{abs(tile_lon):03d}.hgt"
+
+    @staticmethod
+    def _tile_path(tile_lat, tile_lon):
+        """Full path to .hgt file on disk."""
+        filename = SRTMTileManager._tile_filename(tile_lat, tile_lon)
+        return os.path.join(SRTMTileManager.SRTM_DIR, filename)
+
+    @staticmethod
+    def _download_tile(tile_lat, tile_lon):
+        """Download an SRTM tile from AWS (free, no auth required).
+        Returns True if successful."""
+        key = (tile_lat, tile_lon)
+        if key in SRTMTileManager._failed_downloads:
+            return False
+
+        filename = SRTMTileManager._tile_filename(tile_lat, tile_lon)
+        out_path = SRTMTileManager._tile_path(tile_lat, tile_lon)
+
+        os.makedirs(SRTMTileManager.SRTM_DIR, exist_ok=True)
+
+        # AWS Terrain Tiles (Mapzen/Tilezen skadi format) - free, no auth
+        ns = "N" if tile_lat >= 0 else "S"
+        lat_dir = f"{ns}{abs(tile_lat):02d}"
+        url = f"https://elevation-tiles-prod.s3.amazonaws.com/skadi/{lat_dir}/{filename}.gz"
+
+        print(f"Downloading SRTM tile {filename} from AWS...")
+        try:
+            req = Request(url, headers={'User-Agent': 'VetRender RF Tool/1.0'})
+            with urlopen(req, timeout=60) as response:
+                compressed = response.read()
+
+            decompressed = gzip.decompress(compressed)
+            with open(out_path, 'wb') as f:
+                f.write(decompressed)
+
+            size_mb = len(decompressed) / 1024 / 1024
+            print(f"Downloaded {filename} ({size_mb:.1f}MB)")
+            return True
+        except Exception as e:
+            print(f"Warning: Failed to download SRTM tile {filename}: {e}")
+            SRTMTileManager._failed_downloads.add(key)
+            return False
+
+    @staticmethod
+    def _load_tile(tile_lat, tile_lon):
+        """Load an .hgt tile into memory. Auto-downloads if not on disk.
+        Returns (numpy_array, samples) tuple or None."""
+        key = (tile_lat, tile_lon)
+
+        # Already loaded this session?
+        if key in SRTMTileManager._tiles:
+            return SRTMTileManager._tiles[key]
+
+        path = SRTMTileManager._tile_path(tile_lat, tile_lon)
+        gz_path = path + ".gz"
+
+        # Check for file on disk (or .gz variant)
+        if not os.path.exists(path):
+            if os.path.exists(gz_path):
+                try:
+                    print(f"Decompressing {gz_path}...")
+                    with gzip.open(gz_path, 'rb') as gz_f:
+                        with open(path, 'wb') as out_f:
+                            out_f.write(gz_f.read())
+                except Exception as e:
+                    print(f"Warning: Failed to decompress {gz_path}: {e}")
+                    return None
+            else:
+                # Try auto-download
+                if not SRTMTileManager._download_tile(tile_lat, tile_lon):
+                    return None
+                # Verify download succeeded
+                if not os.path.exists(path):
+                    return None
+
+        # Auto-detect SRTM1 vs SRTM3 from file size
+        file_size = os.path.getsize(path)
+        if file_size == SRTMTileManager.SRTM1_BYTES:
+            samples = SRTMTileManager.SRTM1_SIZE
+            res_label = "SRTM1 30m"
+        elif file_size == SRTMTileManager.SRTM3_BYTES:
+            samples = SRTMTileManager.SRTM3_SIZE
+            res_label = "SRTM3 90m"
+        else:
+            print(f"Warning: Unknown .hgt file size {file_size} for {path}, skipping")
+            return None
+
+        # Load as big-endian signed 16-bit integers
+        data = np.fromfile(path, dtype='>i2').reshape((samples, samples))
+
+        result = (data, samples)
+        SRTMTileManager._tiles[key] = result
+
+        filename = SRTMTileManager._tile_filename(tile_lat, tile_lon)
+        print(f"Loaded SRTM tile {filename} ({res_label}, {file_size / 1024 / 1024:.1f}MB)")
+        return result
+
+    @staticmethod
+    def get_elevation(lat, lon):
+        """Get elevation from SRTM tile with bilinear interpolation.
+        Returns elevation in meters, or None if tile not available."""
+        tile_lat, tile_lon = SRTMTileManager._tile_key(lat, lon)
+        tile_data = SRTMTileManager._load_tile(tile_lat, tile_lon)
+
+        if tile_data is None:
+            return None
+
+        data, samples = tile_data
+
+        # Convert lat/lon to fractional row/col
+        # Row 0 = north edge (tile_lat + 1), last row = south edge (tile_lat)
+        # Col 0 = west edge (tile_lon), last col = east edge (tile_lon + 1)
+        row_f = (tile_lat + 1 - lat) * (samples - 1)
+        col_f = (lon - tile_lon) * (samples - 1)
+
+        # Integer indices for 4 surrounding points
+        row = int(row_f)
+        col = int(col_f)
+        row = max(0, min(row, samples - 2))
+        col = max(0, min(col, samples - 2))
+
+        # Fractional parts for interpolation
+        row_frac = row_f - row
+        col_frac = col_f - col
+
+        # Read 4 corner values
+        v00 = int(data[row, col])
+        v01 = int(data[row, col + 1])
+        v10 = int(data[row + 1, col])
+        v11 = int(data[row + 1, col + 1])
+
+        # Handle NODATA voids
+        corners = [v00, v01, v10, v11]
+        if SRTMTileManager.NODATA in corners:
+            valid = [v for v in corners if v != SRTMTileManager.NODATA]
+            if valid:
+                return float(np.mean(valid))
+            return None
+
+        # Bilinear interpolation
+        elevation = (v00 * (1 - row_frac) * (1 - col_frac) +
+                     v01 * (1 - row_frac) * col_frac +
+                     v10 * row_frac * (1 - col_frac) +
+                     v11 * row_frac * col_frac)
+
+        return float(elevation)
+
+    @staticmethod
+    def get_elevations_batch(lat_lon_pairs):
+        """Vectorized batch lookup from SRTM tiles.
+        Returns list of elevations (float or None where tile unavailable)."""
+        results = [None] * len(lat_lon_pairs)
+
+        # Group points by tile for efficient loading
+        tile_groups = {}
+        for i, (lat, lon) in enumerate(lat_lon_pairs):
+            key = SRTMTileManager._tile_key(lat, lon)
+            if key not in tile_groups:
+                tile_groups[key] = []
+            tile_groups[key].append((i, lat, lon))
+
+        for (tile_lat, tile_lon), points in tile_groups.items():
+            tile_data = SRTMTileManager._load_tile(tile_lat, tile_lon)
+            if tile_data is None:
+                continue  # Leave as None — will fall through to API
+
+            data, samples = tile_data
+
+            # Vectorize all points for this tile
+            indices = [p[0] for p in points]
+            lats = np.array([p[1] for p in points])
+            lons = np.array([p[2] for p in points])
+
+            rows_f = (tile_lat + 1 - lats) * (samples - 1)
+            cols_f = (lons - tile_lon) * (samples - 1)
+
+            rows = np.clip(rows_f.astype(int), 0, samples - 2)
+            cols = np.clip(cols_f.astype(int), 0, samples - 2)
+
+            row_fracs = rows_f - rows
+            col_fracs = cols_f - cols
+
+            v00 = data[rows, cols].astype(np.float64)
+            v01 = data[rows, cols + 1].astype(np.float64)
+            v10 = data[rows + 1, cols].astype(np.float64)
+            v11 = data[rows + 1, cols + 1].astype(np.float64)
+
+            # Bilinear interpolation (vectorized)
+            elevations = (v00 * (1 - row_fracs) * (1 - col_fracs) +
+                         v01 * (1 - row_fracs) * col_fracs +
+                         v10 * row_fracs * (1 - col_fracs) +
+                         v11 * row_fracs * col_fracs)
+
+            # Handle NODATA voids
+            nodata = float(SRTMTileManager.NODATA)
+            has_void = ((v00 == nodata) | (v01 == nodata) |
+                       (v10 == nodata) | (v11 == nodata))
+
+            for j, idx in enumerate(indices):
+                if has_void[j]:
+                    corners = [v00[j], v01[j], v10[j], v11[j]]
+                    valid = [c for c in corners if c != nodata]
+                    results[idx] = float(np.mean(valid)) if valid else None
+                else:
+                    results[idx] = float(elevations[j])
+
+        return results
+
+    @classmethod
+    def set_srtm_directory(cls, path):
+        """Set the directory for SRTM .hgt files."""
+        cls.SRTM_DIR = path
+        cls._tiles.clear()
+
 
 class TerrainHandler:
     """Handles terrain elevation data from Open-Elevation API with local caching"""
@@ -54,7 +307,6 @@ class TerrainHandler:
 
         # Check memory cache first
         if key in TerrainHandler._memory_cache:
-            print(f"DEBUG: Terrain cache hit (memory) for {lat},{lon}")
             return TerrainHandler._memory_cache[key]
 
         # Check disk cache
@@ -65,10 +317,9 @@ class TerrainHandler:
                     elevation = pickle.load(f)
                     # Store in memory cache
                     TerrainHandler._memory_cache[key] = elevation
-                    print(f"DEBUG: Terrain cache hit (disk) for {lat},{lon}: {elevation}m")
                     return elevation
-            except Exception as e:
-                print(f"Warning: Failed to load terrain cache: {e}")
+            except:
+                pass  # Silently fail, will fetch from SRTM/API
 
         return None
 
@@ -104,17 +355,16 @@ class TerrainHandler:
         if cached is not None:
             return cached
 
-        # Not in cache, fetch from API
-        print(f"DEBUG: Fetching new terrain data for {lat},{lon}")
+        # Try SRTM local tile lookup (instant if tile is loaded/downloaded)
+        srtm_elev = SRTMTileManager.get_elevation(lat, lon)
+        if srtm_elev is not None:
+            TerrainHandler._save_to_cache(lat, lon, srtm_elev)
+            return srtm_elev
+
+        # Fallback: fetch from API (only when SRTM tile unavailable)
         try:
-            # Try multiple datasets for better resolution (US locations get priority)
-            datasets = []
-            if -125 <= lon <= -65 and 25 <= lat <= 50:  # US bounding box
-                datasets = ['srtm3', 'aster30m', 'gtopo30']  # Try higher-res first for US
-                print(f"DEBUG: US location detected, trying datasets: {datasets}")
-            else:
-                datasets = ['aster30m', 'srtm3', 'gtopo30']  # Global fallback
-                print(f"DEBUG: Global location, trying datasets: {datasets}")
+            # Try multiple datasets for better resolution
+            datasets = ['srtm3', 'aster30m', 'gtopo30'] if (-125 <= lon <= -65 and 25 <= lat <= 50) else ['aster30m', 'srtm3', 'gtopo30']
 
             elevation = None
             used_dataset = None
@@ -123,7 +373,6 @@ class TerrainHandler:
                 try:
                     url = f"https://api.open-elevation.com/api/v1/lookup?locations={lat},{lon}&dataset={dataset}"
                     req = Request(url, headers={'User-Agent': 'VetRender RF Tool/1.0'})
-
                     with urlopen(req, timeout=15) as response:
                         data = json.loads(response.read().decode())
                         if 'results' in data and len(data['results']) > 0:
@@ -131,77 +380,28 @@ class TerrainHandler:
                             if test_elevation is not None and math.isfinite(test_elevation):
                                 elevation = test_elevation
                                 used_dataset = dataset
-                                print(f"DEBUG: Successfully got elevation from {dataset} dataset")
-                                break  # Use first successful dataset
-                except Exception as e:
-                    print(f"DEBUG: Dataset {dataset} failed: {e}")
-                    continue  # Try next dataset
+                                break
+                except:
+                    continue
 
             # Fallback to default if no dataset worked
             if elevation is None:
-                url = f"https://api.open-elevation.com/api/v1/lookup?locations={lat},{lon}"
-                req = Request(url, headers={'User-Agent': 'VetRender RF Tool/1.0'})
-
-                with urlopen(req, timeout=10) as response:
-                    data = json.loads(response.read().decode())
-                    if 'results' in data and len(data['results']) > 0:
-                        elevation = data['results'][0]['elevation']
-                        used_dataset = 'default'
+                try:
+                    url = f"https://api.open-elevation.com/api/v1/lookup?locations={lat},{lon}"
+                    req = Request(url, headers={'User-Agent': 'VetRender RF Tool/1.0'})
+                    with urlopen(req, timeout=10) as response:
+                        data = json.loads(response.read().decode())
+                        if 'results' in data and len(data['results']) > 0:
+                            elevation = data['results'][0]['elevation']
+                except:
+                    pass
 
             if elevation is not None:
-                # BEGIN: Super-sampling for higher effective resolution (cross pattern for efficiency)
-                # Only super-sample for US locations to avoid excessive API calls
-                if -125 <= lon <= -65 and 25 <= lat <= 50:  # US region
-                    print(f"DEBUG: Starting super-sampling for US location {lat},{lon}")
-                    super_samples = []
-                    grid_size = 0.0003  # ~30m spacing at 45° latitude
-
-                    # Cross pattern: center + 4 cardinal directions (5 total vs 9)
-                    offsets = [(0, 0), (0, grid_size), (0, -grid_size), (grid_size, 0), (-grid_size, 0)]
-
-                    for dlat, dlon in offsets:
-                        try:
-                            sample_lat = lat + dlat
-                            sample_lon = lon + dlon
-                            sample_url = f"https://api.open-elevation.com/api/v1/lookup?locations={sample_lat},{sample_lon}"
-                            if used_dataset and used_dataset != 'default':
-                                sample_url += f"&dataset={used_dataset}"
-
-                            sample_req = Request(sample_url, headers={'User-Agent': 'VetRender RF Tool/1.0'})
-                            with urlopen(sample_req, timeout=3) as sample_response:
-                                sample_data = json.loads(sample_response.read().decode())
-                                if 'results' in sample_data and len(sample_data['results']) > 0:
-                                    sample_elev = sample_data['results'][0]['elevation']
-                                    if sample_elev is not None and math.isfinite(sample_elev):
-                                        super_samples.append(sample_elev)
-                        except Exception as e:
-                            print(f"DEBUG: Super-sample failed for offset {dlat},{dlon}: {e}")
-                            continue  # Skip failed samples
-
-                    print(f"DEBUG: Super-sampling collected {len(super_samples)} samples for {lat},{lon}")
-
-                    # Use median of super-samples for more robust elevation
-                    if len(super_samples) >= 3:  # Need at least 3 samples for median
-                        elevation = sorted(super_samples)[len(super_samples)//2]
-                        print(f"Super-sampled elevation for {lat},{lon}: {len(super_samples)} samples, median: {elevation}m")
-                    else:
-                        print(f"DEBUG: Insufficient super-samples ({len(super_samples)}), using original elevation")
-                else:
-                    print(f"DEBUG: Location {lat},{lon} not in US region, skipping super-sampling")
-                # END: Super-sampling for higher effective resolution
-
-                # BEGIN: Add NaN and invalid data validation
-                import math
+                # Validate elevation data
                 if math.isnan(elevation) or elevation is None:
-                    print(f"Warning: Invalid elevation data (NaN/None) for {lat},{lon}, using fallback value 0")
                     elevation = 0
-                elif elevation < -1000 or elevation > 9000:  # Reasonable elevation bounds
-                    print(f"Warning: Out-of-range elevation {elevation}m for {lat},{lon}, clamping to valid range")
+                elif elevation < -1000 or elevation > 9000:
                     elevation = max(-1000, min(9000, elevation))
-                # END: Add NaN and invalid data validation
-
-                if used_dataset and used_dataset != 'default':
-                    print(f"Using {used_dataset} dataset for {lat},{lon}: {elevation}m")
 
                 # Save to cache
                 TerrainHandler._save_to_cache(lat, lon, elevation)
@@ -226,7 +426,7 @@ class TerrainHandler:
         uncached_indices = []
 
         # Check cache for each point
-        for i, (lat, lon) in enumerate(lat_lon_pairs[:100]):
+        for i, (lat, lon) in enumerate(lat_lon_pairs):
             cached = TerrainHandler._load_from_cache(lat, lon)
             if cached is not None:
                 elevations.append(cached)
@@ -237,61 +437,91 @@ class TerrainHandler:
 
         # If all were cached, return immediately
         if not uncached_pairs:
-            print(f"All {len(lat_lon_pairs)} terrain points loaded from cache")
             return elevations
 
-        # Fetch uncached points from API
-        print(f"Fetching {len(uncached_pairs)} uncached terrain points (cached: {len(lat_lon_pairs) - len(uncached_pairs)})")
+        # Try SRTM local tile lookup first (vectorized, instant)
+        srtm_results = SRTMTileManager.get_elevations_batch(uncached_pairs)
+
+        still_uncached_pairs = []
+        still_uncached_indices = []
+
+        for j, srtm_elev in enumerate(srtm_results):
+            orig_idx = uncached_indices[j]
+            lat, lon = uncached_pairs[j]
+            if srtm_elev is not None:
+                elevations[orig_idx] = srtm_elev
+                TerrainHandler._save_to_cache(lat, lon, srtm_elev)
+            else:
+                still_uncached_pairs.append((lat, lon))
+                still_uncached_indices.append(orig_idx)
+
+        # Update uncached lists — only points NOT resolved by SRTM fall through to API
+        uncached_pairs = still_uncached_pairs
+        uncached_indices = still_uncached_indices
+
+        if not uncached_pairs:
+            return elevations
+
+        # Fallback: Fetch remaining uncached points from API in chunks
+        CHUNK_SIZE = 80
+        print(f"SRTM resolved {len(lat_lon_pairs) - len(uncached_pairs)}/{len(lat_lon_pairs)} points. "
+              f"Fetching {len(uncached_pairs)} remaining from API...")
         try:
+            import math
+
             # Determine best dataset for the region (use first point as reference)
+            preferred_dataset = 'aster30m'
             if uncached_pairs:
                 ref_lat, ref_lon = uncached_pairs[0]
                 if -125 <= ref_lon <= -65 and 25 <= ref_lat <= 50:  # US region
-                    preferred_dataset = 'srtm3'  # Try SRTM 3-arc-second first for US
-                else:
-                    preferred_dataset = 'aster30m'  # ASTER for global
+                    preferred_dataset = 'srtm3'
 
-                # Try preferred dataset first
-                locations = "|".join([f"{lat},{lon}" for lat, lon in uncached_pairs])
+            # Process in chunks
+            for chunk_start in range(0, len(uncached_pairs), CHUNK_SIZE):
+                chunk_end = min(chunk_start + CHUNK_SIZE, len(uncached_pairs))
+                chunk_pairs = uncached_pairs[chunk_start:chunk_end]
+                chunk_indices = uncached_indices[chunk_start:chunk_end]
+
+                locations = "|".join([f"{lat},{lon}" for lat, lon in chunk_pairs])
                 url = f"https://api.open-elevation.com/api/v1/lookup?locations={locations}&dataset={preferred_dataset}"
                 req = Request(url, headers={'User-Agent': 'VetRender RF Tool/1.0'})
 
-                batch_success = False
+                chunk_success = False
                 try:
                     with urlopen(req, timeout=30) as response:
                         data = json.loads(response.read().decode())
                         if 'results' in data:
-                            print(f"Using {preferred_dataset} dataset for batch request")
-                            batch_success = True
+                            chunk_success = True
                 except Exception as e:
-                    print(f"{preferred_dataset} dataset failed, trying default: {e}")
+                    # Fallback to default dataset
+                    try:
+                        url = f"https://api.open-elevation.com/api/v1/lookup?locations={locations}"
+                        req = Request(url, headers={'User-Agent': 'VetRender RF Tool/1.0'})
+                        with urlopen(req, timeout=30) as response:
+                            data = json.loads(response.read().decode())
+                            if 'results' in data:
+                                chunk_success = True
+                    except Exception as e2:
+                        print(f"Warning: Chunk fetch failed: {e2}")
 
-                # Fallback to default if preferred failed
-                if not batch_success:
-                    url = f"https://api.open-elevation.com/api/v1/lookup?locations={locations}"
-                    req = Request(url, headers={'User-Agent': 'VetRender RF Tool/1.0'})
-
-                    with urlopen(req, timeout=30) as response:
-                        data = json.loads(response.read().decode())
-
-                if 'results' in data:
-                    # Save fetched elevations to cache and update results
+                if chunk_success and 'results' in data:
                     for i, result in enumerate(data['results']):
                         elevation = result['elevation']
-                        lat, lon = uncached_pairs[i]
+                        lat, lon = chunk_pairs[i]
 
-                        # BEGIN: Add NaN and invalid data validation for batch
-                        import math
-                        if math.isnan(elevation) or elevation is None:
-                            print(f"Warning: Invalid elevation data (NaN/None) for {lat},{lon} in batch, using fallback value 0")
+                        if elevation is None or math.isnan(elevation):
                             elevation = 0
-                        elif elevation < -1000 or elevation > 9000:  # Reasonable elevation bounds
-                            print(f"Warning: Out-of-range elevation {elevation}m for {lat},{lon} in batch, clamping to valid range")
+                        elif elevation < -1000 or elevation > 9000:
                             elevation = max(-1000, min(9000, elevation))
-                        # END: Add NaN and invalid data validation for batch
 
                         TerrainHandler._save_to_cache(lat, lon, elevation)
-                        elevations[uncached_indices[i]] = elevation
+                        elevations[chunk_indices[i]] = elevation
+                else:
+                    # Fill failed chunk with 0
+                    for idx in chunk_indices:
+                        if elevations[idx] is None:
+                            elevations[idx] = 0
+
         except Exception as e:
             print(f"Warning: Batch elevation fetch failed: {e}")
             # Fill uncached with 0
